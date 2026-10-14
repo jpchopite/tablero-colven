@@ -398,6 +398,61 @@ body.locked { overflow: hidden; }
 .linkbtn { border: none; background: none; padding: 4px 0; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 .linkbtn:hover { color: var(--ink); }
 
+/* ---------- contacts ---------- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.contacts { display: flex; flex-direction: column; gap: 12px; }
+.chead { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.chead h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 26px; letter-spacing: -.01em; }
+.ccount { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--muted); background: var(--lane); border-radius: 999px; padding: 2px 10px; }
+.chead .spacer { flex: 1; }
+.csort { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; padding: 7px 10px; font-size: 13.5px; }
+.ctagbar .chip .n { font-family: var(--font-mono); font-size: 12px; opacity: .65; margin-left: 2px; }
+.cgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px; align-items: start; }
+.cgroup { grid-column: 1 / -1; font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; color: var(--muted); padding: 8px 2px 0; }
+.ccard { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-sm); cursor: pointer; min-width: 0; position: relative; transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s, border-color .18s; }
+.ccard:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--line-strong); }
+.ccard.flash { animation: land .7s cubic-bezier(.2,.8,.2,1); }
+.ccard-top { display: flex; gap: 12px; align-items: flex-start; }
+.cavatar { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; color: var(--avatar-ink); background: var(--muted); flex: none; }
+.cavatar.p1 { background: var(--p1); } .cavatar.p2 { background: var(--p2); } .cavatar.p3 { background: var(--p3); }
+.cwho { flex: 1; min-width: 0; }
+.cwho h3 { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.25; overflow-wrap: anywhere; }
+.csub { font-size: 13.5px; color: var(--muted); margin-top: 2px; overflow-wrap: anywhere; }
+.cphoto { color: var(--muted); flex: none; }
+.ctags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag.ct { color: var(--accent-text); background: var(--accent-soft); }
+.clines { display: flex; flex-direction: column; gap: 3px; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); min-width: 0; }
+.clines span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cacts, .cquick { display: flex; flex-wrap: wrap; gap: 6px; }
+.cact { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink); text-decoration: none; transition: background .15s, border-color .15s, transform .12s; }
+.cact:hover { border-color: var(--line-strong); background: var(--surface); }
+.cact:active { transform: scale(.95); }
+.cact .ico { width: 15px; height: 15px; }
+.cact.wa .ico, .cact.call .ico { color: var(--ok); }
+.cact.mail .ico, .cact.web .ico { color: var(--p1); }
+.cmeta { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 8px; }
+.cempty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 34px 18px; }
+.cempty .ico { width: 38px; height: 38px; stroke-width: 1.5; color: var(--muted); }
+.cempty b { color: var(--ink); font-size: 15px; }
+.cempty span { max-width: 46ch; }
+.pbox { border: 1.5px dashed var(--line-strong); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; align-items: center; background: var(--bg); }
+.pimg { max-width: 100%; max-height: 220px; border-radius: 10px; object-fit: contain; cursor: zoom-in; box-shadow: var(--shadow-sm); background: #fff; }
+.pbox.zoom .pimg { max-height: none; cursor: zoom-out; }
+.pempty { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--muted); font-size: 13.5px; padding: 12px 0 2px; text-align: center; }
+.pempty .ico { width: 34px; height: 34px; stroke-width: 1.5; }
+.pacts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.pacts label { cursor: pointer; }
+.dupwarn { border: 1px solid var(--wait); background: var(--wait-soft); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+#c-newtag { margin-top: 4px; }
+@media (max-width: 680px) {
+  .viewswitch button { padding: 7px 8px; font-size: 13.5px; gap: 5px; }
+  .chead h2 { font-size: 22px; }
+  .cexport .t { display: none; }
+  .cgrid { grid-template-columns: minmax(0, 1fr); }
+  .ctagbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-inline: -16px; padding-inline: 16px; }
+  .ctagbar::-webkit-scrollbar { display: none; }
+}
+
 /* ---------- calendar view ---------- */
 .viewswitch { display: inline-flex; background: var(--lane); border-radius: 999px; padding: 4px; gap: 2px; flex: none; }
 .viewswitch button { border: none; background: transparent; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 14px; color: var(--muted); display: inline-flex; gap: 7px; align-items: center; transition: background .15s, color .15s; }
@@ -532,6 +587,7 @@ body.locked { overflow: hidden; }
     <div class="viewswitch" role="tablist" aria-label="Vista">
       <button type="button" id="viewBoard" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
       <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+      <button type="button" id="viewContacts" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg>Contactos</button>
     </div>
     <div class="search">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
@@ -544,6 +600,7 @@ body.locked { overflow: hidden; }
 
   <main class="board" id="board"></main>
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
+  <section class="contacts" id="contacts" aria-label="Contactos" hidden></section>
 
   <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
@@ -584,7 +641,16 @@ body.locked { overflow: hidden; }
     flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
     chevL: '<path d="M15 5l-7 7 7 7"/>',
     chevR: '<path d="M9 5l7 7-7 7"/>',
-    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    phone: '<path d="M6.5 3.5h3l1.5 4-2 1.5a11 11 0 0 0 6 6l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16.5 16.5 0 0 1 4.5 5.5a2 2 0 0 1 2-2z"/>',
+    chat: '<path d="M20 11.5a8 8 0 0 1-11.6 7.1L4 20l1.4-4.2A8 8 0 1 1 20 11.5z"/>',
+    mail: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/>',
+    globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.5 3.5 5.5 3.5 8.5s-1 6-3.5 8.5c-2.5-2.5-3.5-5.5-3.5-8.5s1-6 3.5-8.5z"/>',
+    camera: '<path d="M4 8h3l1.5-2.5h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/>',
+    upload: '<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
+    download: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
+    card: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/>',
+    userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
   var state = {
@@ -789,6 +855,7 @@ body.locked { overflow: hidden; }
     renderStats();
     renderBoard();
     renderCal();
+    renderContacts();
   }
 
   function renderHero() {
@@ -1355,7 +1422,8 @@ body.locked { overflow: hidden; }
     return cap(fmtShort(dd)) + (dd.getFullYear() !== t.getFullYear() ? " " + dd.getFullYear() : "");
   }
   function timeLabel(iso) { var d = new Date(iso); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
-  var VERBS = { create: "creó", move: "movió", edit: "editó", "delete": "borró", settings: "cambió la configuración del tablero", restore: "restauró" };
+  var VERBS = { create: "creó", move: "movió", edit: "editó", "delete": "borró", settings: "cambió la configuración del tablero", restore: "restauró",
+    contact_create: "agregó el contacto", contact_edit: "editó el contacto", contact_delete: "borró el contacto", contact_restore: "restauró el contacto" };
   function drawEntries(box, entries, opts) {
     box.textContent = "";
     var list = entries.filter(function (e) { return e.at && !isNaN(Date.parse(e.at)); });
@@ -1372,7 +1440,15 @@ body.locked { overflow: hidden; }
       line.appendChild(document.createTextNode(" " + (VERBS[e.action] || "cambió") + " "));
       if (e.action !== "settings") {
         if (opts.hideTitle) line.appendChild(document.createTextNode("esta tarjeta"));
-        else {
+        else if (e.contactId) {
+          var ct = (state.contacts || []).filter(function (x) { return x.id === e.contactId; })[0];
+          var ctt = "«" + (e.title || "contacto") + "»";
+          if (ct && e.action !== "contact_delete") {
+            var ca = el("button", "log-task", ctt); ca.type = "button";
+            ca.onclick = function () { openContact(ct); };
+            line.appendChild(ca);
+          } else line.appendChild(el("span", "log-task gone", ctt));
+        } else {
           var task = state.tasks.filter(function (x) { return x.id === e.taskId; })[0];
           var tt = "«" + (e.title || "tarea") + "»";
           if (task && e.action !== "delete") {
@@ -1828,19 +1904,33 @@ body.locked { overflow: hidden; }
 
   /* ---------- calendar view ---------- */
   state.view = "board";
-  try { if (localStorage.getItem("tb-view") === "cal") state.view = "cal"; } catch (e) {}
+  try { var sv = localStorage.getItem("tb-view"); if (sv === "cal" || sv === "contacts") state.view = sv; } catch (e) {}
+  function applyView() {
+    var v = state.view;
+    $("board").hidden = v !== "board";
+    $("tabs").hidden = v !== "board";
+    $("cal").hidden = v !== "cal";
+    $("contacts").hidden = v !== "contacts";
+    $("viewBoard").setAttribute("aria-selected", String(v === "board"));
+    $("viewCal").setAttribute("aria-selected", String(v === "cal"));
+    $("viewContacts").setAttribute("aria-selected", String(v === "contacts"));
+    $("hint").innerHTML = HINTS[v];
+    $("search").placeholder = v === "contacts" ? "Buscar contactos: nombre, empresa, correo…" : "Buscar tareas, clientes o notas";
+    $("fab").setAttribute("aria-label", v === "contacts" ? "Nuevo contacto" : "Nueva tarea");
+  }
   state.calMonth = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
   state.calSel = todayStr();
   var calDir = 0;
   var HINTS = {
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
-    cal: "Arrastra una tarea a otro día para cambiar su fecha · toca un día para ver sus tareas"
+    cal: "Arrastra una tarea a otro día para cambiar su fecha · toca un día para ver sus tareas",
+    contacts: "Toma una foto de cada tarjeta al guardarla · <kbd>N</kbd> nuevo contacto"
   };
   function setView(v) {
     state.view = v;
     try { localStorage.setItem("tb-view", v); } catch (e) {}
     calDir = 0;
-    renderBoard(); renderCal();
+    renderBoard(); renderCal(); renderContacts();
   }
   function shiftMonth(n) {
     state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + n, 1);
@@ -1893,14 +1983,9 @@ body.locked { overflow: hidden; }
     return c;
   }
   function renderCal() {
+    applyView();
     var on = state.view === "cal";
     var box = $("cal");
-    box.hidden = !on;
-    $("board").hidden = on;
-    $("tabs").hidden = on;
-    $("viewBoard").setAttribute("aria-selected", String(!on));
-    $("viewCal").setAttribute("aria-selected", String(on));
-    $("hint").innerHTML = HINTS[on ? "cal" : "board"];
     if (!on) return;
     box.textContent = "";
 
@@ -2078,14 +2163,512 @@ body.locked { overflow: hidden; }
     });
   }
 
+  /* ---------- contacts ---------- */
+  state.contacts = [];
+  state.contactsLoaded = false;
+  state.ctag = "";
+  state.csort = "az";
+  try { var cso = localStorage.getItem("tb-csort"); if (cso === "az" || cso === "recent" || cso === "company") state.csort = cso; } catch (e) {}
+  var photoCache = {};
+  var CTAGS = ["Cliente", "Proveedor", "Aliado", "Prospecto"];
+
+  function findContact(id) { for (var i = 0; i < state.contacts.length; i++) if (state.contacts[i].id === id) return state.contacts[i]; return null; }
+  function contactTags(c) { return Array.isArray(c.tags) ? c.tags.filter(function (x) { return typeof x === "string" && x; }) : []; }
+  function contactTitle(c) { return c.name || c.company || "Contacto sin nombre"; }
+  function digits(s) { return String(s || "").replace(/\D/g, ""); }
+  function matchesContact(c) {
+    var q = norm(state.search);
+    if (!q) return true;
+    if (norm([c.name, c.role, c.company, c.phone, c.phone2, c.email, c.web, c.address, c.social, c.met, c.notes, contactTags(c).join(" ")].join(" ")).indexOf(q) >= 0) return true;
+    var qd = digits(q);
+    return qd.length >= 4 && (digits(c.phone) + " " + digits(c.phone2)).indexOf(qd) >= 0;
+  }
+  /* WhatsApp needs the international number; Venezuelan local numbers (0414…) become 58414… */
+  function waNumber(p) {
+    var raw = String(p || "").trim(), d = digits(raw);
+    if (!d) return "";
+    if (raw.charAt(0) === "+" || d.indexOf("00") === 0) return d.replace(/^00/, "");
+    if (d.length === 11 && d.charAt(0) === "0") return "58" + d.slice(1);
+    if (d.length === 10 && d.charAt(0) === "4") return "58" + d;
+    return d;
+  }
+  function webUrl(w) { w = String(w || "").trim(); if (!w) return ""; return /^https?:\/\//i.test(w) ? w : "https://" + w; }
+  function hueFor(s) { var h = 0; s = String(s || "?"); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return ["p1", "p2", "p3"][h % 3]; }
+  function cAvatar(c) {
+    var a = el("span", "cavatar " + hueFor(norm(c.company || c.name)), initials(c.name || c.company || "?"));
+    a.setAttribute("aria-hidden", "true");
+    return a;
+  }
+  function contactLinks(c) {
+    var out = [];
+    function link(cls, href, ic, label, ext) {
+      var a = el("a", "cact " + cls);
+      a.href = href;
+      if (ext) { a.target = "_blank"; a.rel = "noopener"; }
+      a.appendChild(icon(ic)); a.appendChild(document.createTextNode(label));
+      a.addEventListener("click", function (e) { e.stopPropagation(); });
+      out.push(a);
+    }
+    if (c.phone) link("call", "tel:" + String(c.phone).replace(/[^\d+]/g, ""), "phone", "Llamar");
+    var wa = waNumber(c.phone) || waNumber(c.phone2);
+    if (wa) link("wa", "https://wa.me/" + wa, "chat", "WhatsApp", true);
+    if (c.email) link("mail", "mailto:" + String(c.email).trim(), "mail", "Correo");
+    if (c.web) link("web", webUrl(c.web), "globe", "Web", true);
+    return out;
+  }
+  function shortDate(s) { var d = parseDay(s); return d ? d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear() : ""; }
+
+  function contactCard(c) {
+    var card = el("article", "ccard" + (state.flashContact === c.id ? " flash" : ""));
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", "Abrir contacto: " + contactTitle(c));
+    var top = el("div", "ccard-top");
+    top.appendChild(cAvatar(c));
+    var who = el("div", "cwho");
+    who.appendChild(el("h3", null, c.name || c.company || "Sin nombre"));
+    var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
+    if (sub) who.appendChild(el("div", "csub", sub));
+    top.appendChild(who);
+    if (c.photo) { var ph = el("span", "cphoto"); ph.title = "Tiene foto de la tarjeta"; ph.appendChild(icon("camera")); top.appendChild(ph); }
+    card.appendChild(top);
+    var tags = contactTags(c);
+    if (tags.length) {
+      var tg = el("div", "ctags");
+      tags.forEach(function (t) { tg.appendChild(el("span", "tag ct", t)); });
+      card.appendChild(tg);
+    }
+    var lines = el("div", "clines");
+    if (c.phone) lines.appendChild(el("span", null, c.phone));
+    if (c.email) lines.appendChild(el("span", null, c.email));
+    if (lines.childNodes.length) card.appendChild(lines);
+    var links = contactLinks(c);
+    if (links.length) { var acts = el("div", "cacts"); links.forEach(function (a) { acts.appendChild(a); }); card.appendChild(acts); }
+    var meta = [];
+    if (member(c.receivedBy)) meta.push("Recibida por " + member(c.receivedBy).name.split(" ")[0]);
+    if (c.met) meta.push(c.met);
+    if (c.date) meta.push(shortDate(c.date));
+    if (meta.length) card.appendChild(el("div", "cmeta", meta.join(" · ")));
+    card.addEventListener("click", function () { openContact(c); });
+    card.addEventListener("keydown", function (e) { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openContact(c); } });
+    return card;
+  }
+
+  function renderContacts() {
+    applyView();
+    if (state.view !== "contacts") return;
+    var box = $("contacts");
+    box.textContent = "";
+    var all = state.contacts;
+    var head = el("div", "chead");
+    head.appendChild(el("h2", null, "Contactos"));
+    head.appendChild(el("span", "ccount", String(all.length)));
+    head.appendChild(el("span", "spacer"));
+    var sort = select("c-sort", [{ value: "az", label: "Nombre A–Z" }, { value: "company", label: "Empresa" }, { value: "recent", label: "Más recientes" }], state.csort);
+    sort.className = "csort";
+    sort.setAttribute("aria-label", "Ordenar contactos");
+    sort.onchange = function () { state.csort = sort.value; try { localStorage.setItem("tb-csort", sort.value); } catch (e) {} renderContacts(); };
+    head.appendChild(sort);
+    if (all.length) {
+      var exp = el("button", "btn small cexport"); exp.type = "button";
+      exp.appendChild(icon("download")); exp.appendChild(el("span", "t", "Exportar"));
+      exp.title = "Descargar todos los contactos para Excel o Google Sheets";
+      exp.onclick = exportContactsCsv;
+      head.appendChild(exp);
+    }
+    if (state.canWrite) {
+      var nb = el("button", "btn primary small"); nb.type = "button";
+      nb.appendChild(icon("plus")); nb.appendChild(document.createTextNode("Nuevo contacto"));
+      nb.onclick = function () { openContact(null); };
+      head.appendChild(nb);
+    }
+    box.appendChild(head);
+
+    var counts = {};
+    all.forEach(function (c) { contactTags(c).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; }); });
+    var tagNames = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, "es"); });
+    if (state.ctag && !counts[state.ctag]) state.ctag = "";
+    if (tagNames.length) {
+      var tf = el("div", "people-pick ctagbar");
+      tf.setAttribute("role", "group"); tf.setAttribute("aria-label", "Filtrar por etiqueta");
+      [""].concat(tagNames).forEach(function (t) {
+        var b = el("button", "chip all", t || "Todas");
+        b.type = "button";
+        b.setAttribute("aria-pressed", String(state.ctag === t));
+        b.appendChild(el("span", "n", String(t ? counts[t] : all.length)));
+        b.onclick = function () { state.ctag = t; renderContacts(); };
+        tf.appendChild(b);
+      });
+      box.appendChild(tf);
+    }
+
+    var list = all.filter(function (c) { return (!state.ctag || contactTags(c).indexOf(state.ctag) >= 0) && matchesContact(c); });
+    list.sort(function (a, b) {
+      if (state.csort === "recent") return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+      if (state.csort === "company") return (norm(a.company) || "~").localeCompare(norm(b.company) || "~", "es") || norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
+      return norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
+    });
+    if (!state.contactsLoaded) { box.appendChild(el("div", "empty", "Cargando contactos…")); return; }
+    if (!list.length) {
+      var em = el("div", "empty cempty");
+      if (!all.length) {
+        em.appendChild(icon("card"));
+        em.appendChild(el("b", null, "Todavía no hay contactos"));
+        em.appendChild(el("span", null, state.canWrite ? "Cuando reciban una tarjeta de presentación, toca «Nuevo contacto», tómale una foto y completa los datos." : "Aquí aparecerán los contactos del equipo."));
+      } else em.appendChild(el("span", null, "Ningún contacto coincide con la búsqueda o la etiqueta elegida."));
+      box.appendChild(em);
+      return;
+    }
+    var grid = el("div", "cgrid");
+    var lastGroup = null;
+    list.forEach(function (c) {
+      if (state.csort === "company") {
+        var g = c.company || "Sin empresa";
+        if (g !== lastGroup) { grid.appendChild(el("div", "cgroup", g)); lastGroup = g; }
+      }
+      grid.appendChild(contactCard(c));
+    });
+    box.appendChild(grid);
+    state.flashContact = null;
+  }
+
+  function resizeImage(file, max, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        try {
+          var s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+          var cv = document.createElement("canvas");
+          cv.width = Math.max(1, Math.round(img.naturalWidth * s));
+          cv.height = Math.max(1, Math.round(img.naturalHeight * s));
+          var cx = cv.getContext("2d");
+          cx.fillStyle = "#ffffff"; cx.fillRect(0, 0, cv.width, cv.height);
+          cx.drawImage(img, 0, 0, cv.width, cv.height);
+          URL.revokeObjectURL(url);
+          resolve(cv.toDataURL("image/jpeg", quality));
+        } catch (e) { reject(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("imagen")); };
+      img.src = url;
+    });
+  }
+  function prepPhoto(file) {
+    return resizeImage(file, 1400, 0.72).then(function (d) {
+      return d.length <= 1100000 ? d : resizeImage(file, 1000, 0.6);
+    });
+  }
+
+  function vcardFor(c) {
+    var e = function (s) { return String(s || "").replace(/\\/g, "\\\\").replace(/\r?\n/g, "\\n").replace(/([,;])/g, "\\$1"); };
+    var parts = String(c.name || "").trim().split(/\s+/).filter(Boolean);
+    var first = parts.shift() || "", last = parts.join(" ");
+    var L = ["BEGIN:VCARD", "VERSION:3.0", "N:" + e(last) + ";" + e(first) + ";;;", "FN:" + e(contactTitle(c))];
+    if (c.company) L.push("ORG:" + e(c.company));
+    if (c.role) L.push("TITLE:" + e(c.role));
+    if (c.phone) L.push("TEL;TYPE=CELL:" + e(c.phone));
+    if (c.phone2) L.push("TEL;TYPE=WORK:" + e(c.phone2));
+    if (c.email) L.push("EMAIL;TYPE=INTERNET:" + e(c.email));
+    if (c.web) L.push("URL:" + e(webUrl(c.web)));
+    if (c.address) L.push("ADR;TYPE=WORK:;;" + e(c.address) + ";;;;");
+    var note = [c.social ? "Redes: " + c.social : "", c.met ? "Nos conocimos: " + c.met : "", c.notes || ""].filter(Boolean).join("\n");
+    if (note) L.push("NOTE:" + e(note));
+    L.push("END:VCARD");
+    return L.join("\r\n") + "\r\n";
+  }
+  function safeName(s) { return String(s || "contacto").replace(/[\\/:*?"<>|]+/g, "").trim().slice(0, 60) || "contacto"; }
+  function downloadText(text, name, type) {
+    try {
+      var blob = new Blob([text], { type: type });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+      return true;
+    } catch (e) { toast("No se pudo descargar el archivo en este navegador."); return false; }
+  }
+  function exportContactsCsv() {
+    var cols = [["Nombre", "name"], ["Cargo", "role"], ["Empresa", "company"], ["Teléfono", "phone"], ["Otro teléfono", "phone2"], ["Correo", "email"],
+      ["Sitio web", "web"], ["Dirección", "address"], ["Redes", "social"], ["Etiquetas", "tags"], ["Dónde nos conocimos", "met"], ["Fecha", "date"],
+      ["Recibida por", "receivedBy"], ["Notas", "notes"]];
+    var q = function (v) { v = String(v == null ? "" : v); return /[";\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var rows = [cols.map(function (c) { return c[0]; }).join(";")];
+    state.contacts.slice().sort(function (a, b) { return norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es"); }).forEach(function (c) {
+      rows.push(cols.map(function (col) {
+        var v = c[col[1]];
+        if (col[1] === "tags") v = contactTags(c).join(", ");
+        if (col[1] === "receivedBy") v = member(v) ? member(v).name : "";
+        return q(v);
+      }).join(";"));
+    });
+    if (downloadText("\ufeff" + rows.join("\r\n") + "\r\n", "contactos-" + todayStr() + ".csv", "text/csv;charset=utf-8")) toast("Contactos exportados");
+  }
+
+  function openContact(c) {
+    var isNew = !c;
+    c = c || { receivedBy: meKey() || "", date: todayStr(), tags: [] };
+    var ro = !state.canWrite;
+    var newPhoto;
+    var dupArmed = false;
+    openPanel(function (p) {
+      p.setAttribute("aria-label", isNew ? "Nuevo contacto" : "Contacto");
+      p.appendChild(el("h2", null, isNew ? "Nuevo contacto" : contactTitle(c)));
+
+      if (!isNew) {
+        var quick = el("div", "cquick");
+        contactLinks(c).forEach(function (a) { quick.appendChild(a); });
+        var vcf = el("button", "cact"); vcf.type = "button";
+        vcf.appendChild(icon("userplus")); vcf.appendChild(document.createTextNode("Guardar en mi teléfono"));
+        vcf.onclick = function () { if (downloadText(vcardFor(c), safeName(contactTitle(c)) + ".vcf", "text/vcard;charset=utf-8")) toast("Abre el archivo descargado para agregarlo a tus contactos."); };
+        quick.appendChild(vcf);
+        if (state.canWrite) {
+          var fu = el("button", "cact"); fu.type = "button";
+          fu.appendChild(icon("check")); fu.appendChild(document.createTextNode("Tarea de seguimiento"));
+          fu.onclick = function () {
+            var info = [c.name, c.role, c.company, c.phone, c.email].filter(Boolean).join(" · ");
+            openEditor(null, { title: "Seguimiento: " + contactTitle(c) + (c.name && c.company ? " (" + c.company + ")" : ""), client: c.company || "", notes: "Contacto: " + info });
+          };
+          quick.appendChild(fu);
+        }
+        p.appendChild(quick);
+      }
+
+      /* card photo */
+      var pbox = el("div", "pbox");
+      var camIn = document.createElement("input");
+      camIn.type = "file"; camIn.accept = "image/*"; camIn.setAttribute("capture", "environment"); camIn.id = "c-cam"; camIn.className = "visually-hidden";
+      var upIn = document.createElement("input");
+      upIn.type = "file"; upIn.accept = "image/*"; upIn.id = "c-up"; upIn.className = "visually-hidden";
+      function drawPhoto(src, msg) {
+        pbox.textContent = "";
+        pbox.classList.remove("zoom");
+        if (msg) { var w = el("div", "pempty"); w.appendChild(el("span", null, msg)); pbox.appendChild(w); return; }
+        if (src) {
+          var img = document.createElement("img");
+          img.src = src; img.alt = "Foto de la tarjeta de presentación"; img.className = "pimg";
+          img.title = "Toca para ampliar";
+          img.onclick = function () { pbox.classList.toggle("zoom"); };
+          pbox.appendChild(img);
+        } else {
+          var em = el("div", "pempty");
+          em.appendChild(icon("card"));
+          em.appendChild(el("span", null, ro ? "Sin foto de la tarjeta" : "Agrega una foto de la tarjeta de presentación"));
+          pbox.appendChild(em);
+        }
+        if (!ro) {
+          var row = el("div", "pacts");
+          var cam = el("label", "btn small"); cam.htmlFor = "c-cam";
+          cam.appendChild(icon("camera")); cam.appendChild(document.createTextNode(src ? "Otra foto" : "Tomar foto"));
+          var up = el("label", "btn small"); up.htmlFor = "c-up";
+          up.appendChild(icon("upload")); up.appendChild(document.createTextNode("Subir imagen"));
+          row.appendChild(cam); row.appendChild(up);
+          if (src) {
+            var rm = el("button", "btn small danger", "Quitar foto"); rm.type = "button";
+            rm.onclick = function () { newPhoto = ""; drawPhoto(""); };
+            row.appendChild(rm);
+          }
+          row.appendChild(camIn); row.appendChild(upIn);
+          pbox.appendChild(row);
+        }
+      }
+      function onFile(input) {
+        var f = input.files && input.files[0];
+        input.value = "";
+        if (!f) return;
+        drawPhoto(null, "Preparando la foto…");
+        prepPhoto(f).then(function (d) { newPhoto = d; drawPhoto(d); })
+          .catch(function () { drawPhoto(newPhoto !== undefined ? newPhoto : (photoCache[c.id] || "")); toast("No se pudo leer esa imagen. Prueba con otra foto."); });
+      }
+      camIn.addEventListener("change", function () { onFile(camIn); });
+      upIn.addEventListener("change", function () { onFile(upIn); });
+      if (!isNew && c.photo) {
+        if (photoCache[c.id] != null) drawPhoto(photoCache[c.id]);
+        else {
+          drawPhoto(null, "Cargando la foto…");
+          state.db.contactPhoto(c.id).then(function (img) {
+            photoCache[c.id] = img || "";
+            if (newPhoto === undefined && pbox.isConnected) drawPhoto(img || "");
+          }).catch(function () { if (pbox.isConnected) drawPhoto(""); });
+        }
+      } else drawPhoto("");
+      p.appendChild(pbox);
+
+      /* fields */
+      var nameIn = input("c-name", c.name); nameIn.className = "title-in" + (isNew ? " autofocus" : ""); nameIn.maxLength = 120;
+      nameIn.placeholder = "Nombre y apellido"; nameIn.autocomplete = "off";
+      p.appendChild(field("Nombre", nameIn));
+      var roleIn = input("c-role", c.role); roleIn.maxLength = 120; roleIn.placeholder = "p. ej. Gerente de compras";
+      var compIn = input("c-company", c.company); compIn.maxLength = 120; compIn.placeholder = "Empresa u organización";
+      var dl = document.createElement("datalist"); dl.id = "c-companies";
+      var seen = {};
+      state.contacts.forEach(function (x) { if (x.company && !seen[norm(x.company)]) { seen[norm(x.company)] = 1; var o = document.createElement("option"); o.value = x.company; dl.appendChild(o); } });
+      compIn.setAttribute("list", "c-companies");
+      var r1 = el("div", "row2"); r1.appendChild(field("Cargo", roleIn)); r1.appendChild(field("Empresa", compIn)); p.appendChild(r1); p.appendChild(dl);
+      var phIn = input("c-phone", c.phone, "tel"); phIn.maxLength = 40; phIn.placeholder = "0414-1234567";
+      var ph2In = input("c-phone2", c.phone2, "tel"); ph2In.maxLength = 40; ph2In.placeholder = "Oficina u otro";
+      var r2 = el("div", "row2"); r2.appendChild(field("Teléfono", phIn)); r2.appendChild(field("Otro teléfono", ph2In)); p.appendChild(r2);
+      var emIn = input("c-email", c.email, "email"); emIn.maxLength = 160; emIn.placeholder = "nombre@empresa.com"; emIn.autocapitalize = "off";
+      var webIn = input("c-web", c.web, "url"); webIn.maxLength = 200; webIn.placeholder = "empresa.com"; webIn.autocapitalize = "off";
+      var r3 = el("div", "row2"); r3.appendChild(field("Correo", emIn)); r3.appendChild(field("Sitio web", webIn)); p.appendChild(r3);
+      var adIn = input("c-address", c.address); adIn.maxLength = 240; adIn.placeholder = "Dirección de la oficina";
+      p.appendChild(field("Dirección", adIn));
+      var soIn = input("c-social", c.social); soIn.maxLength = 200; soIn.placeholder = "LinkedIn, Instagram…";
+      p.appendChild(field("Redes sociales", soIn));
+
+      /* tags */
+      var chosen = contactTags(c).slice();
+      var tagBox = el("div", "people-pick"); tagBox.id = "c-tags"; tagBox.setAttribute("role", "group");
+      var pool = CTAGS.slice();
+      state.contacts.forEach(function (x) { contactTags(x).forEach(function (t) { if (pool.indexOf(t) < 0) pool.push(t); }); });
+      chosen.forEach(function (t) { if (pool.indexOf(t) < 0) pool.push(t); });
+      function drawTags() {
+        tagBox.textContent = "";
+        pool.forEach(function (t) {
+          var b = el("button", "chip all", t); b.type = "button";
+          b.setAttribute("aria-pressed", String(chosen.indexOf(t) >= 0));
+          b.disabled = ro;
+          b.onclick = function () {
+            var i = chosen.indexOf(t);
+            if (i >= 0) chosen.splice(i, 1); else chosen.push(t);
+            drawTags();
+          };
+          tagBox.appendChild(b);
+        });
+      }
+      drawTags();
+      var tagIn = input("c-newtag", ""); tagIn.maxLength = 30; tagIn.placeholder = "Otra etiqueta y Enter";
+      tagIn.addEventListener("keydown", function (e) {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+        var v = tagIn.value.trim();
+        if (!v) return;
+        v = v.charAt(0).toUpperCase() + v.slice(1);
+        if (pool.indexOf(v) < 0) pool.push(v);
+        if (chosen.indexOf(v) < 0) chosen.push(v);
+        tagIn.value = ""; drawTags();
+      });
+      var tf = field("Etiquetas", tagBox);
+      tf.appendChild(tagIn);
+      p.appendChild(tf);
+
+      var metIn = input("c-met", c.met); metIn.maxLength = 160; metIn.placeholder = "p. ej. Feria de la construcción";
+      var dateIn = input("c-date", c.date, "date");
+      var r4 = el("div", "row2"); r4.appendChild(field("Dónde nos conocimos", metIn)); r4.appendChild(field("Fecha", dateIn)); p.appendChild(r4);
+      var recv = segmented("c-recv", state.members.map(function (m) { return { value: m.key, label: m.name.split(" ")[0] }; }).concat([{ value: "", label: "Sin indicar" }]), member(c.receivedBy) ? c.receivedBy : "");
+      p.appendChild(field("Recibida por", recv.el));
+      var notesIn = document.createElement("textarea"); notesIn.id = "c-notes"; notesIn.value = c.notes || ""; notesIn.maxLength = 4000;
+      notesIn.placeholder = "Qué necesita, qué le ofrecimos, cuándo volver a escribirle…";
+      p.appendChild(field("Notas", notesIn));
+
+      var dup = el("div", "dupwarn"); dup.hidden = true; dup.setAttribute("role", "alert");
+      p.appendChild(dup);
+
+      if (ro) Array.prototype.forEach.call(p.querySelectorAll("input, select, textarea, button.chip"), function (x) { x.disabled = true; });
+
+      if (!isNew && c.updatedAt) {
+        var d = new Date(c.updatedAt);
+        if (!isNaN(d)) p.appendChild(el("div", "stamp", "Último cambio: " + d.getDate() + " " + MONTHS[d.getMonth()] + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes())));
+      }
+
+      var acts = el("div", "panel-actions");
+      if (!ro) {
+        var save = el("button", "btn primary", isNew ? "Guardar contacto" : "Guardar cambios"); save.type = "button";
+        save.onclick = function () {
+          var name = nameIn.value.trim(), company = compIn.value.trim();
+          if (!name && !company) {
+            nameIn.focus(); nameIn.classList.remove("shake"); void nameIn.offsetWidth; nameIn.classList.add("shake");
+            toast("Escribe al menos el nombre o la empresa.");
+            return;
+          }
+          if (!state.db) { toast("El tablero no está conectado, así que no se puede guardar."); return; }
+          var now = new Date().toISOString();
+          var data = {
+            name: name, role: roleIn.value.trim(), company: company,
+            phone: phIn.value.trim(), phone2: ph2In.value.trim(), email: emIn.value.trim(), web: webIn.value.trim(),
+            address: adIn.value.trim(), social: soIn.value.trim(), tags: chosen.slice(),
+            met: metIn.value.trim(), date: dateIn.value || "", receivedBy: recv.get(), notes: notesIn.value.trim(),
+            photo: newPhoto === undefined ? !!c.photo : !!newPhoto,
+            createdAt: c.createdAt || now, updatedAt: now
+          };
+          if (!dupArmed) {
+            var em = data.email.toLowerCase(), pd = digits(data.phone).slice(-8);
+            var same = state.contacts.filter(function (x) {
+              if (x.id === c.id) return false;
+              if (em && String(x.email || "").trim().toLowerCase() === em) return true;
+              if (pd.length >= 7 && (digits(x.phone).slice(-8) === pd || digits(x.phone2).slice(-8) === pd)) return true;
+              return !!name && norm(x.name) === norm(name) && norm(x.company) === norm(company);
+            })[0];
+            if (same) {
+              dupArmed = true;
+              dup.textContent = "";
+              dup.appendChild(el("span", null, "Ya existe «" + contactTitle(same) + "»" + (same.company && same.name ? " (" + same.company + ")" : "") + " con datos parecidos. Puedes abrirlo para completarlo, o tocar «Guardar igual»."));
+              var open = el("button", "btn small", "Abrir «" + contactTitle(same) + "»"); open.type = "button";
+              open.onclick = function () { openContact(same); };
+              dup.appendChild(open);
+              dup.hidden = false;
+              save.textContent = "Guardar igual";
+              dup.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "nearest" });
+              return;
+            }
+          }
+          save.disabled = true;
+          var ref = isNew ? state.db.collection("contacts").doc() : state.db.doc("contacts/" + c.id);
+          var id = ref.id;
+          ref.set(data)
+            .then(function () { return newPhoto !== undefined ? state.db.setContactPhoto(id, newPhoto).then(function () { photoCache[id] = newPhoto; }) : null; })
+            .then(function () {
+              logEntry({ action: isNew ? "contact_create" : "contact_edit", contactId: id, title: name || company });
+              state.flashContact = id;
+              closePanel();
+              renderContacts();
+              toast(isNew ? "Contacto guardado" : "Cambios guardados");
+            })
+            .catch(function (e) {
+              save.disabled = false;
+              if (e && /imagen/i.test(e.message || "")) toast("El contacto se guardó, pero la foto no. Prueba con una foto más pequeña.");
+              else handleWriteError(e);
+            });
+        };
+        acts.appendChild(save);
+      }
+      var cancel = el("button", "btn", ro ? "Cerrar" : "Cancelar"); cancel.type = "button"; cancel.onclick = closePanel;
+      acts.appendChild(cancel);
+      if (!isNew && !ro) {
+        acts.appendChild(el("span", "spacer"));
+        var del = el("button", "btn danger", "Borrar"); del.type = "button";
+        del.onclick = function () {
+          if (!del.classList.contains("armed")) {
+            del.classList.add("armed"); del.textContent = "Confirmar borrado";
+            setTimeout(function () { if (del.isConnected) { del.classList.remove("armed"); del.textContent = "Borrar"; } }, 4000);
+            return;
+          }
+          del.disabled = true;
+          var copy = Object.assign({}, c); delete copy.id; delete copy._deleted;
+          state.db.doc("contacts/" + c.id).delete().then(function () {
+            logEntry({ action: "contact_delete", contactId: c.id, title: contactTitle(c) });
+            closePanel();
+            toast("Contacto borrado", function () {
+              state.db.doc("contacts/" + c.id).set(copy).then(function () {
+                logEntry({ action: "contact_restore", contactId: c.id, title: contactTitle(c) });
+                toast("Contacto restaurado");
+              }).catch(handleWriteError);
+            });
+          }).catch(function (e) { del.disabled = false; handleWriteError(e); });
+        };
+        acts.appendChild(del);
+      }
+      p.appendChild(acts);
+    });
+  }
+
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
-  $("fab").onclick = function () { openEditor(null); };
+  $("fab").onclick = function () { if (state.view === "contacts") openContact(null); else openEditor(null); };
+  $("viewContacts").onclick = function () { setView("contacts"); };
   $("teamBtn").onclick = openTeam;
   $("logBtn").onclick = openLog;
   $("meBtn").onclick = openMe;
-  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); }
-  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); });
+  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); renderContacts(); }
+  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); renderContacts(); });
   $("viewBoard").onclick = function () { setView("board"); };
   $("viewCal").onclick = function () { setView("cal"); };
   $("searchClear").onclick = function () { setSearch(""); $("search").focus(); };
@@ -2097,7 +2680,7 @@ body.locked { overflow: hidden; }
       if (e.key === "Escape" && tg.id === "search") { setSearch(""); tg.blur(); }
       return;
     }
-    if ((e.key === "n" || e.key === "N") && state.canWrite) { e.preventDefault(); openEditor(null); }
+    if ((e.key === "n" || e.key === "N") && state.canWrite) { e.preventDefault(); if (state.view === "contacts") openContact(null); else openEditor(null); }
     else if (e.key === "/") { e.preventDefault(); $("search").focus(); }
   });
 
@@ -2134,7 +2717,7 @@ body.locked { overflow: hidden; }
 
   /* A small stand-in for the db API the board was written against, backed by key-checked Supabase functions. */
   function makeDb(key, onLocked) {
-    var cache = { tasks: {}, settings: null, log: [], loaded: false };
+    var cache = { tasks: {}, contacts: {}, settings: null, log: [], loaded: false };
     var subs = [];
     var pending = 0, loading = null, again = false, channel = null;
 
@@ -2158,6 +2741,7 @@ body.locked { overflow: hidden; }
     }
     function runQuery(q) {
       if (q.coll === "tasks") return Object.keys(cache.tasks).map(function (id) { return docSnap(id, cache.tasks[id]); });
+      if (q.coll === "contacts") return Object.keys(cache.contacts).map(function (id) { return docSnap(id, cache.contacts[id]); });
       if (q.coll === "log") {
         var rows = cache.log.slice();
         q.filters.forEach(function (f) { rows = rows.filter(function (r) { return r.data && r.data[f[0]] === f[2]; }); });
@@ -2185,6 +2769,9 @@ body.locked { overflow: hidden; }
         var t = {};
         (d && d.tasks || []).forEach(function (x) { t[x.id] = x.data; });
         cache.tasks = t;
+        var cs = {};
+        (d && d.contacts || []).forEach(function (x) { cs[x.id] = x.data; });
+        cache.contacts = cs;
         cache.settings = d && d.settings || null;
         cache.log = (d && d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
         cache.loaded = true;
@@ -2227,16 +2814,19 @@ body.locked { overflow: hidden; }
         if (path === "board/settings") return write("settings_set", { p_data: data }, function () { cache.settings = data; });
         if (coll === "tasks") return write("task_set", { p_id: id, p_data: data }, function () { cache.tasks[id] = data; });
         if (coll === "log") return write("log_add", { p_id: id, p_data: data }, function () { cache.log.unshift({ id: id, data: data }); });
+        if (coll === "contacts") return write("contact_set", { p_id: id, p_data: data }, function () { cache.contacts[id] = data; });
         return Promise.resolve();
       };
       ref.update = function (data) {
         data = clone(data);
+        if (coll === "contacts") return ref.set(Object.assign({}, cache.contacts[id] || {}, data));
         if (coll !== "tasks") return ref.set(data);
         return write("task_update", { p_id: id, p_data: data }, function () {
           if (cache.tasks[id]) cache.tasks[id] = Object.assign({}, cache.tasks[id], data);
         });
       };
       ref.delete = function () {
+        if (coll === "contacts") return write("contact_delete", { p_id: id }, function () { delete cache.contacts[id]; });
         if (coll !== "tasks") return Promise.resolve();
         return write("task_delete", { p_id: id }, function () { delete cache.tasks[id]; });
       };
@@ -2277,7 +2867,9 @@ body.locked { overflow: hidden; }
       collection: function (c) { return query(c, [], null, null); },
       reload: load,
       calendarToken: function () { return rpc("calendar_token"); },
-      calendarTokenReset: function () { return rpc("calendar_token_reset"); }
+      calendarTokenReset: function () { return rpc("calendar_token_reset"); },
+      contactPhoto: function (id) { return rpc("contact_photo_get", { p_id: id }); },
+      setContactPhoto: function (id, img) { return rpc("contact_photo_set", { p_id: id, p_img: img }); }
     };
   }
 
@@ -2353,6 +2945,11 @@ body.locked { overflow: hidden; }
       state.tasks = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       state.loaded = true;
       render();
+    });
+    db.collection("contacts").onSnapshot(function (snap) {
+      state.contacts = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.contactsLoaded = true;
+      renderContacts();
     });
   }
 
