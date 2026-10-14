@@ -692,6 +692,108 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 :root[data-theme="dark"] .fthumb.k-draw { background: #2a1f45; color: #c3a8f2; }
 :root[data-theme="dark"] .fthumb.k-img { background: #16303a; color: #8cc9de; }
 @media (hover: none) { .fdrop-hint { font-size: 12px; } }
+/* ---------- labels ---------- */
+.lb-azul { --lb-bg: #dbe7ff; --lb-fg: #1d4ed8; }
+.lb-verde { --lb-bg: #d9f2e3; --lb-fg: #17784a; }
+.lb-amarillo { --lb-bg: #fff0bf; --lb-fg: #855c00; }
+.lb-naranja { --lb-bg: #ffe2cc; --lb-fg: #b04a0c; }
+.lb-rojo { --lb-bg: #fde0dc; --lb-fg: #b42318; }
+.lb-rosa { --lb-bg: #fde0ef; --lb-fg: #ab2266; }
+.lb-morado { --lb-bg: #ebe2fb; --lb-fg: #6d3fc0; }
+.lb-turquesa { --lb-bg: #d2f1f0; --lb-fg: #0c6f72; }
+.lb-cafe { --lb-bg: #efe3d6; --lb-fg: #774620; }
+.lb-gris { --lb-bg: #e6e8ef; --lb-fg: #4b5372; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lb-azul { --lb-bg: #1c2b58; --lb-fg: #a8c1ff; }
+  :root:not([data-theme="light"]) .lb-verde { --lb-bg: #143a2a; --lb-fg: #86d9ab; }
+  :root:not([data-theme="light"]) .lb-amarillo { --lb-bg: #3d3212; --lb-fg: #f5d06a; }
+  :root:not([data-theme="light"]) .lb-naranja { --lb-bg: #43270f; --lb-fg: #ffb37a; }
+  :root:not([data-theme="light"]) .lb-rojo { --lb-bg: #45201c; --lb-fg: #ff9d90; }
+  :root:not([data-theme="light"]) .lb-rosa { --lb-bg: #42193a; --lb-fg: #f7a2cf; }
+  :root:not([data-theme="light"]) .lb-morado { --lb-bg: #2e2150; --lb-fg: #c9b0f7; }
+  :root:not([data-theme="light"]) .lb-turquesa { --lb-bg: #113a3c; --lb-fg: #7fd8d8; }
+  :root:not([data-theme="light"]) .lb-cafe { --lb-bg: #3a2a1c; --lb-fg: #e0b98d; }
+  :root:not([data-theme="light"]) .lb-gris { --lb-bg: #262c4a; --lb-fg: #b7bdd5; }
+}
+:root[data-theme="dark"] .lb-azul { --lb-bg: #1c2b58; --lb-fg: #a8c1ff; }
+:root[data-theme="dark"] .lb-verde { --lb-bg: #143a2a; --lb-fg: #86d9ab; }
+:root[data-theme="dark"] .lb-amarillo { --lb-bg: #3d3212; --lb-fg: #f5d06a; }
+:root[data-theme="dark"] .lb-naranja { --lb-bg: #43270f; --lb-fg: #ffb37a; }
+:root[data-theme="dark"] .lb-rojo { --lb-bg: #45201c; --lb-fg: #ff9d90; }
+:root[data-theme="dark"] .lb-rosa { --lb-bg: #42193a; --lb-fg: #f7a2cf; }
+:root[data-theme="dark"] .lb-morado { --lb-bg: #2e2150; --lb-fg: #c9b0f7; }
+:root[data-theme="dark"] .lb-turquesa { --lb-bg: #113a3c; --lb-fg: #7fd8d8; }
+:root[data-theme="dark"] .lb-cafe { --lb-bg: #3a2a1c; --lb-fg: #e0b98d; }
+:root[data-theme="dark"] .lb-gris { --lb-bg: #262c4a; --lb-fg: #b7bdd5; }
+
+/* small pill on cards and wherever a label is shown */
+.lbl { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: .01em;
+  color: var(--lb-fg); background: var(--lb-bg); border-radius: 999px; padding: 1px 8px 1px 6px; max-width: 150px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none; }
+.lbl::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--lb-fg); flex: none; }
+.card.is-done .lbl { opacity: .75; }
+.lbdot { width: 8px; height: 8px; border-radius: 50%; background: var(--lb-fg); flex: none; }
+
+/* calendar chip dots */
+.ctask .cdots { display: inline-flex; gap: 2px; margin-right: 5px; flex: none; vertical-align: middle; }
+.ctask .cdot { width: 6px; height: 6px; border-radius: 50%; background: var(--lb-fg); }
+
+/* filter bar */
+.labelbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: -2px 0 0; }
+.lb-title { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.lb-title .ico { width: 15px; height: 15px; }
+.lb-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 0 1 auto; min-width: 0; }
+.lbchip { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid transparent; background: var(--lb-bg); color: var(--lb-fg);
+  border-radius: 999px; padding: 4px 6px 4px 9px; font-size: 13px; font-weight: 700; cursor: pointer; max-width: 220px;
+  transition: transform .12s, box-shadow .15s, opacity .15s; }
+.lbchip:hover { transform: translateY(-1px); }
+.lbchip .lbname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lbchip .lbn { font-family: var(--font-mono); font-size: 11px; min-width: 20px; text-align: center; padding: 0 5px; border-radius: 999px; background: var(--surface); color: var(--lb-fg); }
+.lbchip[aria-pressed="true"] { border-color: var(--lb-fg); box-shadow: 0 0 0 3px var(--lb-bg); }
+.labelbar.filtering .lbchip[aria-pressed="false"] { opacity: .55; }
+.lb-empty { font-size: 13px; color: var(--muted); }
+.lb-manage { margin-left: auto; }
+.lb-clear { font-size: 13px; }
+
+/* editor */
+.lbpick { display: flex; flex-wrap: wrap; gap: 6px; }
+.lbtoggle { display: inline-flex; align-items: center; gap: 6px; border: 1.5px dashed var(--line-strong); background: transparent; color: var(--muted);
+  border-radius: 999px; padding: 5px 11px 5px 9px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s, color .15s, transform .12s; }
+.lbtoggle:hover { color: var(--ink); }
+.lbtoggle .lbdot { opacity: .8; }
+.lbtoggle[aria-pressed="true"] { border: 1.5px solid var(--lb-fg); background: var(--lb-bg); color: var(--lb-fg); font-weight: 700; }
+.lbtoggle[aria-pressed="true"]:active { transform: scale(.96); }
+.lbtoggle:disabled { cursor: default; }
+.lbadd { display: inline-flex; align-items: center; gap: 5px; border: 1.5px dashed var(--line-strong); background: transparent; color: var(--ink);
+  border-radius: 999px; padding: 5px 12px 5px 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.lbadd:hover { background: var(--lane); }
+.lbadd .ico { width: 15px; height: 15px; }
+.lbadd.big { border-radius: 12px; padding: 10px 14px; width: 100%; justify-content: center; margin-top: 4px; }
+.lbnew { display: flex; flex-direction: column; gap: 10px; border: 1px solid var(--line); border-radius: 12px; padding: 12px; background: var(--bg); animation: fade .15s ease; }
+.lbnew-prev { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.lbnew-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px; }
+.sw { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--lb-bg); background: radial-gradient(circle at 50% 50%, var(--lb-fg) 0 45%, var(--lb-bg) 47%); cursor: pointer; padding: 0; transition: transform .12s; }
+.sw:hover { transform: scale(1.1); }
+.sw[aria-checked="true"] { border-color: var(--ink); transform: scale(1.08); }
+
+/* manager */
+.lbman { display: flex; flex-direction: column; gap: 10px; }
+.lbrow { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 9px; background: var(--bg); }
+.lbrow-top { display: flex; align-items: center; gap: 8px; }
+.lbrow-top input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 8px 10px; font-weight: 600; }
+.lbcount { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.lbrow-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.fbtn.fx.armed { background: var(--late); color: var(--surface); }
+@media (max-width: 680px) {
+  .labelbar { flex-wrap: nowrap; overflow-x: auto; margin-left: -16px; margin-right: -16px; padding: 2px 16px 4px; scrollbar-width: none; }
+  .labelbar::-webkit-scrollbar { display: none; }
+  .lb-chips { flex-wrap: nowrap; flex: none; }
+  .sw { width: 26px; height: 26px; }
+  .lb-manage { margin-left: 0; white-space: nowrap; flex: none; }
+  .lb-title { flex: none; }
+  .lb-clear { flex: none; white-space: nowrap; }
+}
 </style>
 </head>
 <body>
@@ -765,6 +867,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
   </div>
 
+  <div class="labelbar" id="labelBar" hidden></div>
   <main class="board" id="board"></main>
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
   <section class="contacts" id="contacts" aria-label="Contactos" hidden></section>
@@ -824,6 +927,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/>',
     clip: '<path d="M20 11.5l-7.6 7.6a5 5 0 0 1-7.1-7.1l8.3-8.3a3.3 3.3 0 0 1 4.7 4.7l-8.3 8.3a1.7 1.7 0 0 1-2.4-2.4l7.6-7.6"/>',
     image: '<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M20.5 15.5l-4.5-4.5-8.5 8.5"/>',
+    tag: '<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-7.7 7.7a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7z"/><circle cx="8" cy="8" r="1.6"/>',
+    pencil: '<path d="M4 20l1-4.5L15.8 4.7a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.5 19z"/><path d="M14 6.5l3.5 3.5"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
@@ -1017,9 +1122,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   /* Everyone works on every task, so the board shows all of them; names only sign the activity log. */
   function byPerson(list) { return list; }
   function matchesSearch(t) {
+    if (state.labelFilter && labelById(state.labelFilter) && labelIds(t).indexOf(state.labelFilter) < 0) return false;
     var q = norm(state.search);
     if (!q) return true;
-    return norm([t.title, titleOf(t), t.client, t.notes, t.waitingOn].concat(filesOf(t).map(function (f) { return f.name; })).join(" ")).indexOf(q) >= 0;
+    return norm([t.title, titleOf(t), t.client, t.notes, t.waitingOn].concat(filesOf(t).map(function (f) { return f.name; }), labelsOf(t).map(function (l) { return l.name; })).join(" ")).indexOf(q) >= 0;
   }
   function sortOpen(a, b) {
     var da = dayDiff(a.due), db_ = dayDiff(b.due);
@@ -1077,6 +1183,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
   /* ---------- render ---------- */
   function render() {
+    renderLabelBar();
     renderHero();
     renderMe();
     renderStats();
@@ -1249,7 +1356,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       if (!state.db) { toast("El tablero no está conectado, así que no se puede guardar."); return; }
       var now = new Date().toISOString();
       var data = { title: title, people: [], owner: "", status: "todo", waitingOn: "", due: "", priority: "normal",
-        client: "", notes: "", repeat: null, createdAt: now, updatedAt: now, doneAt: null };
+        client: "", notes: "", repeat: null, createdAt: now, updatedAt: now, doneAt: null,
+        labels: state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [] };
       inp.value = "";
       persist(null, data).then(function (r) {
         logEntry({ action: "create", taskId: r.id, title: title, to: "todo" });
@@ -1324,6 +1432,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
     var main = el("div", "card-main");
     var metaItems = [];
+    labelsOf(t).forEach(function (l) { metaItems.push(labelPill(l)); });
     if (t.client) metaItems.push(el("span", "tag", t.client));
     if (t.priority === "high" && !done) { var pt = el("span", "tag pri"); pt.appendChild(icon("flag")); pt.appendChild(document.createTextNode("Alta")); metaItems.push(pt); }
     if (ruleValid(t.repeat) && !done) {
@@ -1510,7 +1619,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     return nref.set({
       title: nameForNext(merged.title, merged.due) || "Tarea sin título", people: peopleOf(merged), owner: peopleOf(merged)[0] || "", status: "todo", waitingOn: "",
       due: nextDue, priority: merged.priority || "normal", client: merged.client || "", notes: merged.notes || "",
-      repeat: merged.repeat, seriesId: merged.seriesId || main.id, createdAt: now, updatedAt: now, doneAt: null
+      repeat: merged.repeat, seriesId: merged.seriesId || main.id, createdAt: now, updatedAt: now, doneAt: null,
+      labels: labelIds(merged)
     }).then(function () {
       var nextTitle = renderTitle(nameForNext(merged.title, merged.due) || "Tarea sin título", nextDue);
       return write({ spawnedNext: nref.id }).then(function () { return { nextDue: nextDue, nextTitle: nextTitle, id: main.id, spawnedId: nref.id }; },
@@ -1626,6 +1736,13 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     if ((prev.client || "") !== (next.client || "")) ch.push({ f: "client", from: prev.client || "", to: next.client || "" });
     if (next.waitingOn && (prev.waitingOn || "") !== next.waitingOn) ch.push({ f: "waitingOn", to: next.waitingOn });
     if ((prev.notes || "") !== (next.notes || "")) ch.push({ f: "notes" });
+    if (Array.isArray(next.labels)) {
+      var la = labelIds(prev), lb2 = next.labels;
+      var nm = function (id) { var l = labelById(id); return l ? l.name : null; };
+      var ladd = lb2.filter(function (k) { return la.indexOf(k) < 0; }).map(nm).filter(Boolean);
+      var lrem = la.filter(function (k) { return lb2.indexOf(k) < 0; }).map(nm).filter(Boolean);
+      if (ladd.length || lrem.length) ch.push({ f: "labels", added: ladd, removed: lrem });
+    }
     if (ruleText(prev.repeat) !== ruleText(next.repeat)) ch.push({ f: "repeat", to: ruleValid(next.repeat) ? next.repeat : null });
     return ch;
   }
@@ -1647,6 +1764,15 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       case "waitingOn": return "esperando a: " + c.to;
       case "notes": return "editó las notas";
       case "file": return "«" + (c.name || "archivo") + "»";
+      case "labels":
+        var lp = [];
+        if (c.added && c.added.length) lp.push("le puso " + (c.added.length === 1 ? "la etiqueta " : "las etiquetas ") + c.added.map(function (x) { return "«" + x + "»"; }).join(", "));
+        if (c.removed && c.removed.length) lp.push("le quitó " + (c.removed.length === 1 ? "la etiqueta " : "las etiquetas ") + c.removed.map(function (x) { return "«" + x + "»"; }).join(", "));
+        return lp.join(" y ");
+      case "label_new": return "creó la etiqueta «" + c.to + "»";
+      case "label_rename": return "renombró la etiqueta «" + c.from + "» a «" + c.to + "»";
+      case "label_color": return "cambió el color de la etiqueta «" + c.to + "»";
+      case "label_del": return "borró la etiqueta «" + c.from + "»";
       case "mdate": return "la movió del " + dueLabel(c.from) + " al " + dueLabel(c.to);
       case "repeat": return ruleValid(c.to) ? "repetición: " + ruleText(c.to).toLowerCase() : "dejó de repetirse";
       case "board": return "renombró el tablero de «" + c.from + "» a «" + c.to + "»";
@@ -2133,9 +2259,299 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   document.addEventListener("dragover", function (e) { if (isFileDrag(e)) e.preventDefault(); });
   document.addEventListener("drop", function (e) { if (isFileDrag(e)) e.preventDefault(); });
 
+  /* ---------- labels ---------- */
+  /* The team makes its own labels (name + color). They live in the board settings; a card keeps the ids
+     of its labels. A label that gets deleted simply stops showing on the cards that had it. */
+  var LABEL_COLORS = [
+    { key: "azul", name: "Azul" }, { key: "verde", name: "Verde" }, { key: "amarillo", name: "Amarillo" },
+    { key: "naranja", name: "Naranja" }, { key: "rojo", name: "Rojo" }, { key: "rosa", name: "Rosa" },
+    { key: "morado", name: "Morado" }, { key: "turquesa", name: "Turquesa" }, { key: "cafe", name: "Café" }, { key: "gris", name: "Gris" }
+  ];
+  state.labels = [];
+  state.settingsRaw = null;
+  state.labelFilter = "";
+  try { state.labelFilter = localStorage.getItem("tb-label") || ""; } catch (e) {}
+  function colorKey(c) { return LABEL_COLORS.some(function (x) { return x.key === c; }) ? c : "gris"; }
+  function cleanLabels(list) {
+    var seen = {};
+    return (Array.isArray(list) ? list : []).filter(function (l) {
+      if (!l || typeof l.id !== "string" || !l.id || seen[l.id] || typeof l.name !== "string" || !l.name.trim()) return false;
+      seen[l.id] = true; return true;
+    }).map(function (l) { return { id: l.id, name: l.name.trim().slice(0, 30), color: colorKey(l.color) }; });
+  }
+  function labelById(id) { for (var i = 0; i < state.labels.length; i++) if (state.labels[i].id === id) return state.labels[i]; return null; }
+  function labelIds(t) { return t && Array.isArray(t.labels) ? t.labels.filter(function (x) { return typeof x === "string"; }) : []; }
+  /* a card's labels, in the order the team keeps them */
+  function labelsOf(t) { var ids = labelIds(t); return state.labels.filter(function (l) { return ids.indexOf(l.id) >= 0; }); }
+  function labelPill(l) {
+    var s = el("span", "lbl lb-" + colorKey(l.color), l.name);
+    s.title = "Etiqueta: " + l.name;
+    return s;
+  }
+  function newLabelId() {
+    var a = "abcdefghijklmnopqrstuvwxyz0123456789", s = "lb";
+    for (var i = 0; i < 8; i++) s += a[Math.floor(Math.random() * 36)];
+    return s;
+  }
+  function nextLabelColor(list) {
+    var used = (list || state.labels).map(function (l) { return l.color; });
+    var free = LABEL_COLORS.filter(function (c) { return used.indexOf(c.key) < 0; })[0];
+    return free ? free.key : LABEL_COLORS[(list || state.labels).length % LABEL_COLORS.length].key;
+  }
+  /* Settings are one document: always write it whole, so saving the team names never drops the labels (or the other way round). */
+  function saveSettings(patch) {
+    var base = state.settingsRaw || { name: state.boardName, members: state.members.map(function (m) { return { key: m.key, name: m.name }; }) };
+    var next = Object.assign({}, base, patch);
+    state.settingsRaw = next;
+    if (patch.labels) state.labels = cleanLabels(patch.labels);
+    return state.db.doc("board/settings").set(next);
+  }
+  function createLabel(name, color) {
+    name = String(name || "").trim().replace(/\s+/g, " ").slice(0, 30);
+    if (!name) return Promise.reject(new Error("sin nombre"));
+    var same = state.labels.filter(function (l) { return norm(l.name) === norm(name); })[0];
+    if (same) return Promise.resolve(same);
+    var l = { id: newLabelId(), name: name, color: colorKey(color) };
+    return saveSettings({ labels: state.labels.concat([l]) }).then(function () {
+      logEntry({ action: "settings", changes: [{ f: "label_new", to: name }] });
+      renderLabelBar();
+      return l;
+    });
+  }
+  function swatchPicker(current, onPick) {
+    var row = el("div", "swatches");
+    row.setAttribute("role", "radiogroup");
+    row.setAttribute("aria-label", "Color");
+    var btns = LABEL_COLORS.map(function (c) {
+      var b = el("button", "sw lb-" + c.key);
+      b.type = "button";
+      b.setAttribute("role", "radio");
+      b.setAttribute("aria-label", c.name);
+      b.title = c.name;
+      b.onclick = function () { set(c.key); onPick(c.key); };
+      row.appendChild(b);
+      return b;
+    });
+    function set(k) { btns.forEach(function (b, i) { b.setAttribute("aria-checked", String(LABEL_COLORS[i].key === k)); }); }
+    set(colorKey(current));
+    return { el: row, set: set };
+  }
+  function setLabelFilter(id) {
+    state.labelFilter = id || "";
+    try { if (state.labelFilter) localStorage.setItem("tb-label", state.labelFilter); else localStorage.removeItem("tb-label"); } catch (e) {}
+    renderLabelBar(); renderBoard(); renderCal();
+  }
+  function renderLabelBar() {
+    var bar = $("labelBar");
+    if (!bar) return;
+    var show = !!(state.view !== "contacts" && state.db && state.loaded && (state.labels.length || state.canWrite));
+    bar.hidden = !show;
+    if (!show) return;
+    bar.className = "labelbar" + (state.labelFilter ? " filtering" : "");
+    if (state.labelFilter && !labelById(state.labelFilter)) state.labelFilter = "";
+    bar.textContent = "";
+    var tl = el("span", "lb-title");
+    tl.appendChild(icon("tag"));
+    tl.appendChild(document.createTextNode("Etiquetas"));
+    bar.appendChild(tl);
+    var chips = el("div", "lb-chips");
+    state.labels.forEach(function (l) {
+      var on = state.labelFilter === l.id;
+      var b = el("button", "lbchip lb-" + colorKey(l.color));
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(on));
+      b.title = on ? "Ver todas las tarjetas" : "Ver solo las tarjetas con «" + l.name + "»";
+      b.appendChild(el("span", "lbdot"));
+      b.appendChild(el("span", "lbname", l.name));
+      var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
+      b.appendChild(el("span", "lbn", String(n)));
+      b.onclick = function () { setLabelFilter(on ? "" : l.id); };
+      chips.appendChild(b);
+    });
+    if (!state.labels.length) chips.appendChild(el("span", "lb-empty", "Marca tarjetas como Mensual, Semanal, Colven, Araya…"));
+    bar.appendChild(chips);
+    if (state.labelFilter) {
+      var clr = el("button", "linkbtn lb-clear", "Ver todas");
+      clr.type = "button";
+      clr.onclick = function () { setLabelFilter(""); };
+      bar.appendChild(clr);
+    }
+    if (state.canWrite) {
+      var m = el("button", "btn small lb-manage");
+      m.type = "button";
+      m.appendChild(icon(state.labels.length ? "pencil" : "plus"));
+      m.appendChild(document.createTextNode(state.labels.length ? "Editar etiquetas" : "Crear etiquetas"));
+      m.onclick = function () { openLabels(); };
+      bar.appendChild(m);
+    }
+  }
+  /* The labels block in the task editor: tap to put a label on or take it off; new ones can be made right there. */
+  function labelsField(selected, ro) {
+    var sel = (selected || []).filter(function (id) { return labelById(id); });
+    var wrap = el("div", "field lb-field");
+    var lbl = el("div", "flabel", "Etiquetas");
+    lbl.id = "f-labels-lbl";
+    wrap.appendChild(lbl);
+    var row = el("div", "lbpick");
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-labelledby", "f-labels-lbl");
+    wrap.appendChild(row);
+    var creator = el("div", "lbnew");
+    creator.hidden = true;
+    var nm = input("f-newlabel", "");
+    nm.placeholder = "Nombre, p. ej. Mensual, Colven, Araya";
+    nm.maxLength = 30;
+    nm.setAttribute("aria-label", "Nombre de la etiqueta nueva");
+    var color = nextLabelColor();
+    var sw = swatchPicker(color, function (k) { color = k; prev.className = "lbl lb-" + k; });
+    var prevRow = el("div", "lbnew-prev");
+    prevRow.appendChild(el("span", "lbnew-lbl", "Se verá así:"));
+    var prev = el("span", "lbl lb-" + color, "Etiqueta");
+    prevRow.appendChild(prev);
+    nm.addEventListener("input", function () { prev.textContent = nm.value.trim() || "Etiqueta"; });
+    var acts = el("div", "lbnew-acts");
+    var ok = el("button", "btn primary small", "Crear y poner");
+    ok.type = "button";
+    var no = el("button", "btn small", "Cancelar");
+    no.type = "button";
+    acts.appendChild(ok); acts.appendChild(no);
+    [nm, sw.el, prevRow, acts].forEach(function (n) { creator.appendChild(n); });
+    wrap.appendChild(creator);
+    function make() {
+      if (!nm.value.trim()) { nm.focus(); return; }
+      if (!state.db) { toast("El tablero no está conectado."); return; }
+      ok.disabled = true;
+      createLabel(nm.value, color).then(function (l) {
+        if (sel.indexOf(l.id) < 0) sel.push(l.id);
+        nm.value = ""; prev.textContent = "Etiqueta";
+        color = nextLabelColor(); sw.set(color); prev.className = "lbl lb-" + color;
+        creator.hidden = true; ok.disabled = false;
+        draw();
+      }).catch(function (e) { ok.disabled = false; handleWriteError(e); });
+    }
+    ok.onclick = make;
+    no.onclick = function () { creator.hidden = true; draw(); };
+    nm.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); make(); } else if (e.key === "Escape") { e.stopPropagation(); creator.hidden = true; draw(); } });
+    function draw() {
+      row.textContent = "";
+      state.labels.forEach(function (l) {
+        var on = sel.indexOf(l.id) >= 0;
+        var b = el("button", "lbtoggle lb-" + colorKey(l.color));
+        b.type = "button";
+        b.disabled = ro;
+        b.setAttribute("aria-pressed", String(on));
+        b.appendChild(el("span", "lbdot"));
+        b.appendChild(document.createTextNode(l.name));
+        b.onclick = function () {
+          var i = sel.indexOf(l.id);
+          if (i >= 0) sel.splice(i, 1); else sel.push(l.id);
+          draw();
+        };
+        row.appendChild(b);
+      });
+      if (!ro && creator.hidden) {
+        var add = el("button", "lbadd");
+        add.type = "button";
+        add.appendChild(icon("plus"));
+        add.appendChild(document.createTextNode(state.labels.length ? "Nueva" : "Crear etiqueta"));
+        add.onclick = function () { creator.hidden = false; draw(); nm.focus(); };
+        row.appendChild(add);
+      }
+      if (ro && !sel.length) row.appendChild(el("span", "help", "Sin etiquetas."));
+    }
+    draw();
+    return { el: wrap, get: function () { return sel.slice(); } };
+  }
+  function openLabels() {
+    openPanel(function (p) {
+      p.setAttribute("aria-label", "Etiquetas");
+      p.appendChild(el("h2", null, "Etiquetas"));
+      p.appendChild(el("div", "help-line", "Ustedes eligen el nombre y el color. Se ven pequeñas en cada tarjeta y en el calendario, y sirven para filtrar el tablero: por ejemplo Mensual, Semanal, Trimestral, Colven o Araya."));
+      var work = state.labels.map(function (l) { return { id: l.id, name: l.name, color: l.color, orig: l }; });
+      var list = el("div", "lbman");
+      p.appendChild(list);
+      var addBtn = el("button", "lbadd big");
+      addBtn.type = "button";
+      addBtn.appendChild(icon("plus"));
+      addBtn.appendChild(document.createTextNode("Agregar etiqueta"));
+      addBtn.onclick = function () {
+        work.push({ id: newLabelId(), name: "", color: nextLabelColor(work), isNew: true });
+        draw();
+        var ins = list.querySelectorAll("input");
+        if (ins.length) ins[ins.length - 1].focus();
+      };
+      p.appendChild(addBtn);
+      function draw() {
+        list.textContent = "";
+        if (!work.length) list.appendChild(el("div", "empty", "Todavía no hay etiquetas. Agrega la primera."));
+        work.forEach(function (w, idx) {
+          var r = el("div", "lbrow");
+          var top = el("div", "lbrow-top");
+          var pill = el("span", "lbl lb-" + w.color, w.name || "Etiqueta");
+          var nm = input("lbm-" + idx, w.name);
+          nm.maxLength = 30;
+          nm.placeholder = "Nombre de la etiqueta";
+          nm.setAttribute("aria-label", "Nombre de la etiqueta");
+          nm.addEventListener("input", function () { w.name = nm.value; pill.textContent = nm.value.trim() || "Etiqueta"; });
+          top.appendChild(nm);
+          var n = state.tasks.filter(function (t) { return labelIds(t).indexOf(w.id) >= 0; }).length;
+          top.appendChild(el("span", "lbcount", n === 1 ? "1 tarjeta" : n + " tarjetas"));
+          var del = el("button", "fbtn fx");
+          del.type = "button"; del.title = "Borrar etiqueta"; del.setAttribute("aria-label", "Borrar la etiqueta " + (w.name || ""));
+          del.appendChild(icon("x"));
+          del.onclick = function () {
+            if (n && !del.classList.contains("armed")) {
+              del.classList.add("armed"); del.title = "Toca otra vez para borrarla de " + (n === 1 ? "1 tarjeta" : n + " tarjetas");
+              toast("Toca otra vez la X para borrar «" + (w.name || "la etiqueta") + "». Se quita de " + (n === 1 ? "1 tarjeta" : n + " tarjetas") + ".");
+              return;
+            }
+            work.splice(work.indexOf(w), 1); draw();
+          };
+          top.appendChild(del);
+          r.appendChild(top);
+          var bottom = el("div", "lbrow-bottom");
+          var sw = swatchPicker(w.color, function (k) { w.color = k; pill.className = "lbl lb-" + k; });
+          bottom.appendChild(sw.el);
+          bottom.appendChild(pill);
+          r.appendChild(bottom);
+          list.appendChild(r);
+        });
+      }
+      draw();
+      var acts = el("div", "panel-actions");
+      var save = el("button", "btn primary", "Guardar etiquetas");
+      save.type = "button";
+      save.onclick = function () {
+        if (!state.db) { toast("El tablero no está conectado, así que no se puede guardar."); return; }
+        var out = [], ch = [], names = {};
+        work.forEach(function (w) {
+          var name = String(w.name || "").trim().replace(/\s+/g, " ").slice(0, 30);
+          if (!name) return;
+          if (names[norm(name)]) return;
+          names[norm(name)] = 1;
+          out.push({ id: w.id, name: name, color: colorKey(w.color) });
+          if (!w.orig) ch.push({ f: "label_new", to: name });
+          else if (w.orig.name !== name) ch.push({ f: "label_rename", from: w.orig.name, to: name });
+          else if (w.orig.color !== w.color) ch.push({ f: "label_color", to: name });
+        });
+        state.labels.forEach(function (l) { if (!out.some(function (o) { return o.id === l.id; })) ch.push({ f: "label_del", from: l.name }); });
+        save.disabled = true;
+        saveSettings({ labels: out }).then(function () {
+          if (ch.length) logEntry({ action: "settings", changes: ch });
+          closePanel(); toast("Etiquetas guardadas");
+          render();
+        }).catch(function (e) { save.disabled = false; handleWriteError(e); });
+      };
+      acts.appendChild(save);
+      var cancel = el("button", "btn", "Cancelar"); cancel.type = "button"; cancel.onclick = closePanel;
+      acts.appendChild(cancel);
+      p.appendChild(acts);
+    });
+  }
+
   function openEditor(t, preset) {
     var isNew = !t;
-    t = t || Object.assign({ status: "todo", priority: "normal" }, preset || {});
+    t = t || Object.assign({ status: "todo", priority: "normal", labels: state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [] }, preset || {});
     var ro = !state.canWrite;
     openPanel(function (p) {
       p.setAttribute("aria-label", isNew ? "Nueva tarea" : "Editar tarea");
@@ -2181,6 +2597,9 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       }
       title.addEventListener("input", updTitlePreview);
       p.appendChild(titleField);
+
+      var lf = labelsField(labelIds(t), ro);
+      p.appendChild(lf.el);
 
       var status = segmented("f-status", STATUSES.map(function (s) { return { value: s.id, label: s.label, dot: s.id }; }), t.status || "todo");
       p.appendChild(field("Estado", status.el));
@@ -2432,6 +2851,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
             client: client.value.trim(),
             notes: notes.value.trim(),
             repeat: rule,
+            labels: lf.get(),
             updatedAt: now
           };
           if (isNew) { data.createdAt = now; data.people = []; data.owner = ""; }
@@ -2517,7 +2937,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
         if (newName !== state.boardName) ch.push({ f: "board", from: state.boardName, to: newName });
         members.forEach(function (m, i) { if (m.name !== state.members[i].name) ch.push({ f: "member", from: state.members[i].name, to: m.name }); });
         save.disabled = true;
-        state.db.doc("board/settings").set({ name: newName, members: members })
+        saveSettings({ name: newName, members: members })
           .then(function () { if (ch.length) logEntry({ action: "settings", changes: ch }); closePanel(); toast("Guardado"); })
           .catch(function (e) { save.disabled = false; handleWriteError(e); });
       };
@@ -2561,7 +2981,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     state.view = v;
     try { localStorage.setItem("tb-view", v); } catch (e) {}
     calDir = 0;
-    renderBoard(); renderCal(); renderContacts();
+    renderLabelBar(); renderBoard(); renderCal(); renderContacts();
   }
   function shiftMonth(n) {
     state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + n, 1);
@@ -2603,7 +3023,13 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var done = t.status === "done";
     var c = el("div", "ctask" + (done ? " done" : "") + (isOverdue(t) ? " late" : "") + (t.priority === "high" && !done ? " hi" : ""));
     c.dataset.status = t.status || "todo";
-    c.title = (titleOf(t) || "Tarea") + " · " + statusLabel(t.status || "todo");
+    var tls = labelsOf(t);
+    c.title = (titleOf(t) || "Tarea") + " · " + statusLabel(t.status || "todo") + (tls.length ? " · " + tls.map(function (l) { return l.name; }).join(", ") : "");
+    if (tls.length) {
+      var dots = el("span", "cdots");
+      tls.slice(0, 3).forEach(function (l) { dots.appendChild(el("i", "cdot lb-" + colorKey(l.color))); });
+      c.appendChild(dots);
+    }
     c.appendChild(el("span", null, titleOf(t) || "Tarea sin título"));
     c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openEditor(t); });
     if (state.canWrite) {
@@ -4383,6 +4809,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     try { var storedMe = localStorage.getItem("tb-me"); if (storedMe) state.me.key = storedMe; } catch (e) {}
     render();
     db.doc("board/settings").onSnapshot(function (s) {
+      state.settingsRaw = s.exists ? (s.data() || {}) : null;
+      state.labels = cleanLabels(state.settingsRaw && state.settingsRaw.labels);
       if (s.exists) {
         var v = s.data() || {};
         if (typeof v.name === "string" && v.name) { state.boardName = v.name; document.title = v.name + " · Tablero"; }
