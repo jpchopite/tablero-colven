@@ -2468,7 +2468,6 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       b.onclick = function () { setLabelFilter(on ? "" : l.id); };
       chips.appendChild(b);
     });
-    if (!state.labels.length) chips.appendChild(el("span", "lb-empty", "Marca tarjetas como Mensual, Semanal, Colven, Araya…"));
     bar.appendChild(chips);
     if (state.labelFilter) {
       var clr = el("button", "linkbtn lb-clear", "Ver todas");
