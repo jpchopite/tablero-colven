@@ -454,6 +454,16 @@ body.locked { overflow: hidden; }
 .pacts label { cursor: pointer; }
 .dupwarn { border: 1px solid var(--wait); background: var(--wait-soft); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 #c-newtag { margin-top: 4px; }
+.tokrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; }
+.toklbl { font-size: 12.5px; color: var(--muted); }
+.tok { border: 1px dashed var(--line-strong); background: var(--surface); border-radius: 7px; padding: 3px 8px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--accent-text); transition: background .15s, border-color .15s, transform .12s; }
+.tok:hover { border-style: solid; background: var(--accent-soft); }
+.tok:active { transform: scale(.94); }
+.tok[disabled] { opacity: .5; cursor: default; }
+.tprev { font-size: 13px; color: var(--muted); background: var(--accent-soft); border-radius: 8px; padding: 7px 10px; }
+.tprev b { color: var(--ink); }
+.tprev.warn { color: var(--wait); background: var(--wait-soft); }
+
 .ocr { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; margin-top: -6px; }
 .ocr-msg { font-size: 14px; display: flex; gap: 8px; align-items: flex-start; }
 .ocr-msg .ico { flex: none; margin-top: 1px; }
@@ -936,7 +946,7 @@ button.pchip-s:hover { border-color: var(--line-strong); }
   function matchesSearch(t) {
     var q = norm(state.search);
     if (!q) return true;
-    return norm([t.title, t.client, t.notes, t.waitingOn].join(" ")).indexOf(q) >= 0;
+    return norm([t.title, titleOf(t), t.client, t.notes, t.waitingOn].join(" ")).indexOf(q) >= 0;
   }
   function sortOpen(a, b) {
     var da = dayDiff(a.due), db_ = dayDiff(b.due);
@@ -949,6 +959,27 @@ button.pchip-s:hover { border-color: var(--line-strong); }
   }
   function sortDone(a, b) { return String(b.doneAt || b.updatedAt || "").localeCompare(String(a.doneAt || a.updatedAt || "")); }
   function findTask(id) { for (var i = 0; i < state.tasks.length; i++) if (state.tasks[i].id === id) return state.tasks[i]; return null; }
+
+  /* ---------- name placeholders: [Semana], [Mes], [Año], [Trimestre] take their value from the due date ---------- */
+  var TOKEN_TEST = /\[(semana|mes|a[ñn]o|trimestre)\]/i;
+  /* week of the month as the calendar shows it: rows that start on Monday */
+  function weekOfMonth(d) {
+    var first = new Date(d.getFullYear(), d.getMonth(), 1);
+    return Math.floor((d.getDate() - 1 + mIdx(first.getDay())) / 7) + 1;
+  }
+  function renderTitle(raw, dueStr) {
+    raw = String(raw || "");
+    var d = parseDay(dueStr);
+    if (!d || !TOKEN_TEST.test(raw)) return raw;
+    return raw.replace(/\[(semana|mes|a[ñn]o|trimestre)\]/gi, function (_, k) {
+      k = k.toLowerCase();
+      if (k === "semana") return String(weekOfMonth(d));
+      if (k === "mes") return cap(MONTHS_LONG[d.getMonth()]);
+      if (k === "trimestre") return String(Math.floor(d.getMonth() / 3) + 1);
+      return String(d.getFullYear());
+    });
+  }
+  function titleOf(t) { return renderTitle(t && t.title, t && t.due); }
 
   /* ---------- render ---------- */
   function render() {
@@ -1185,7 +1216,7 @@ button.pchip-s:hover { border-color: var(--line-strong); }
     c.dataset.id = t.id;
     c.tabIndex = 0;
     c.setAttribute("role", "button");
-    c.setAttribute("aria-label", "Abrir tarea: " + (t.title || "Sin título"));
+    c.setAttribute("aria-label", "Abrir tarea: " + (titleOf(t) || "Sin título"));
 
     var row = el("div", "card-row");
     var chk = el("button", "check");
@@ -1214,7 +1245,7 @@ button.pchip-s:hover { border-color: var(--line-strong); }
       metaItems.forEach(function (n) { meta.appendChild(n); });
       main.appendChild(meta);
     }
-    main.appendChild(el("h3", null, t.title || "Tarea sin título"));
+    main.appendChild(el("h3", null, titleOf(t) || "Tarea sin título"));
     if (t.status === "waiting" && t.waitingOn) main.appendChild(el("div", "waiting-on", "Esperando: " + t.waitingOn));
     row.appendChild(main);
     c.appendChild(row);
@@ -1466,6 +1497,10 @@ button.pchip-s:hover { border-color: var(--line-strong); }
   /* ---------- activity log ---------- */
   function logEntry(o) {
     if (!state.db) return;
+    if (o.taskId && o.title && TOKEN_TEST.test(o.title)) {
+      var tk = findTask(o.taskId);
+      o = Object.assign({}, o, { title: renderTitle(o.title, tk && tk.due) });
+    }
     var e = clean(Object.assign({ at: new Date().toISOString(), actorId: state.me.id || null, actorKey: meKey() || "" }, o));
     state.db.collection("log").add(e).catch(function () {});
   }
@@ -1722,7 +1757,42 @@ button.pchip-s:hover { border-color: var(--line-strong); }
       title.className = "title-in" + (isNew ? " autofocus" : "");
       title.placeholder = "p. ej. Enviar la 2.ª ronda del logo al cliente";
       title.maxLength = 200;
-      p.appendChild(field("Tarea", title));
+      var titleField = field("Tarea", title);
+      /* placeholders: tap to insert, with a live preview of the name the card will show */
+      var tokRow = el("div", "tokrow");
+      tokRow.appendChild(el("span", "toklbl", "Agregar al nombre:"));
+      [["[Semana]", "número de semana del mes"], ["[Mes]", "mes de entrega"], ["[Año]", "año"], ["[Trimestre]", "trimestre (1 a 4)"]].forEach(function (tk) {
+        var b = el("button", "tok", tk[0]); b.type = "button"; b.title = "Se reemplaza por el " + tk[1];
+        b.disabled = ro;
+        b.onclick = function () {
+          var v = title.value, a = title.selectionStart != null ? title.selectionStart : v.length, z = title.selectionEnd != null ? title.selectionEnd : v.length;
+          var ins = (a > 0 && v.charAt(a - 1) !== " " ? " " : "") + tk[0];
+          title.value = v.slice(0, a) + ins + v.slice(z);
+          title.focus();
+          var pos = a + ins.length;
+          try { title.setSelectionRange(pos, pos); } catch (e) {}
+          updTitlePreview();
+        };
+        tokRow.appendChild(b);
+      });
+      titleField.appendChild(tokRow);
+      var tPrev = el("div", "tprev"); tPrev.hidden = true;
+      titleField.appendChild(tPrev);
+      function updTitlePreview() {
+        var v = title.value;
+        if (!TOKEN_TEST.test(v)) { tPrev.hidden = true; return; }
+        tPrev.hidden = false; tPrev.textContent = "";
+        if (!due || !parseDay(due.value)) {
+          tPrev.className = "tprev warn";
+          tPrev.appendChild(document.createTextNode("Ponle fecha de entrega para que [Semana] o [Mes] se llenen solos."));
+          return;
+        }
+        tPrev.className = "tprev";
+        tPrev.appendChild(document.createTextNode("En la tarjeta se verá: "));
+        tPrev.appendChild(el("b", null, renderTitle(v, due.value)));
+      }
+      title.addEventListener("input", updTitlePreview);
+      p.appendChild(titleField);
 
       var status = segmented("f-status", STATUSES.map(function (s) { return { value: s.id, label: s.label, dot: s.id }; }), t.status || "todo");
       p.appendChild(field("Estado", status.el));
@@ -1736,11 +1806,13 @@ button.pchip-s:hover { border-color: var(--line-strong); }
       status.onChange(syncWaiting); syncWaiting();
 
       var due = input("f-due", t.due, "date");
+      due.addEventListener("input", updTitlePreview); due.addEventListener("change", updTitlePreview);
       var pri = segmented("f-pri", [{ value: "high", label: "Alta" }, { value: "normal", label: "Normal" }, { value: "low", label: "Baja" }], t.priority || "normal");
       var r2 = el("div", "row2");
       r2.appendChild(field("Fecha de entrega", due, "Déjala vacía si no hay una fecha límite real."));
       r2.appendChild(field("Prioridad", pri.el));
       p.appendChild(r2);
+      updTitlePreview();
 
       /* --- repeat --- */
       var refDate = function () { return parseDay(due.value) || parseDay(todayStr()); };
@@ -2093,8 +2165,8 @@ button.pchip-s:hover { border-color: var(--line-strong); }
     var done = t.status === "done";
     var c = el("div", "ctask" + (done ? " done" : "") + (isOverdue(t) ? " late" : "") + (t.priority === "high" && !done ? " hi" : ""));
     c.dataset.status = t.status || "todo";
-    c.title = (t.title || "Tarea") + " · " + statusLabel(t.status || "todo");
-    c.appendChild(el("span", null, t.title || "Tarea sin título"));
+    c.title = (titleOf(t) || "Tarea") + " · " + statusLabel(t.status || "todo");
+    c.appendChild(el("span", null, titleOf(t) || "Tarea sin título"));
     c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openEditor(t); });
     if (state.canWrite) {
       c.draggable = true;
