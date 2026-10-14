@@ -794,10 +794,105 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   .lb-title { flex: none; }
   .lb-clear { flex: none; white-space: nowrap; }
 }
+/* ---------- brand ---------- */
+.brand { display: inline-flex; margin: 0 0 14px -2px; border-radius: 8px; }
+.brand img { display: block; height: 70px; width: auto; }
+.brand:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.gate-col { display: flex; flex-direction: column; align-items: center; gap: 22px; width: min(420px, 100%); }
+.gate-logo { height: 72px; width: auto; display: block; }
+
+/* ---------- home ---------- */
+.home { display: flex; flex-direction: column; gap: 14px; }
+.home-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.qa { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 14px; padding: 11px 14px; font-weight: 700; font-size: 14.5px; text-align: left; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform .15s cubic-bezier(.2,.8,.2,1), box-shadow .15s, border-color .15s; }
+.qa:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--line-strong); }
+.qa:active { transform: translateY(0) scale(.98); }
+.qa-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--lane); color: var(--ink); flex: none; }
+.qa-ico .ico { width: 18px; height: 18px; }
+.qa.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.qa.primary .qa-ico { background: rgba(18,26,65,.12); color: var(--accent-ink); }
+.home-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; align-items: stretch; }
+.wg { grid-column: span 4; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 14px 10px; box-shadow: var(--shadow-sm); min-width: 0; display: flex; flex-direction: column; gap: 10px; animation: fade .25s ease; }
+.wg.w-today { grid-column: span 7; }
+.wg.w-week { grid-column: span 5; }
+.wg-head { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.wg-head h2 { margin: 0; font-size: 15.5px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wg-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-text); flex: none; }
+.wg-ico .ico { width: 16px; height: 16px; }
+.w-today .wg-ico { background: var(--late-soft); color: var(--late); }
+.w-week .wg-ico, .w-contacts .wg-ico { background: var(--meet-soft); color: var(--meet); }
+.w-wait .wg-ico { background: var(--wait-soft); color: var(--wait); }
+.w-doing .wg-ico { background: var(--lane); color: var(--p1); }
+.wg-count { font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; background: var(--lane); color: var(--ink); border-radius: 999px; padding: 1px 8px; flex: none; }
+.wg-head .spacer { flex: 1; }
+.wg-link { display: inline-flex; align-items: center; gap: 2px; border: none; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; padding: 4px 4px 4px 8px; border-radius: 8px; flex: none; cursor: pointer; }
+.wg-link:hover { color: var(--ink); background: var(--lane); }
+.wg-link .ico { width: 15px; height: 15px; }
+.wg-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wg-empty { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13.5px; padding: 12px 6px 14px; }
+.wg-empty .ico { width: 20px; height: 20px; flex: none; color: var(--ok); }
+.hgroup { display: flex; flex-direction: column; gap: 2px; }
+.hgroup + .hgroup { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.hgroup-t { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding: 0 6px 4px; }
+.hgroup.late .hgroup-t { color: var(--late); }
+.hgroup.meet .hgroup-t { color: var(--meet); }
+.hrow { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent; color: var(--ink); text-align: left; padding: 7px 6px; border-radius: 10px; cursor: pointer; font: inherit; min-width: 0; transition: background .12s; }
+.hrow:hover, .hrow:focus-visible { background: var(--lane); }
+.hdot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.hmid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.htitle { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hsub { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-width: 0; }
+.hsub.plain { display: block; font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hclient { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.hmeta { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; flex: none; padding-left: 4px; }
+.hmeta.late { color: var(--late); font-weight: 700; }
+.hmeta.soon { color: var(--accent-text); font-weight: 700; }
+.htime { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; color: var(--meet); min-width: 44px; flex: none; }
+.hmeet.past { opacity: .55; }
+.hmeet.cancelled .htitle { text-decoration: line-through; color: var(--muted); }
+.hmore { align-self: flex-start; border: none; background: transparent; color: var(--muted); font-size: 12.5px; font-weight: 600; padding: 5px 6px; border-radius: 8px; cursor: pointer; }
+.hmore:hover { color: var(--ink); background: var(--lane); }
+.hday { display: flex; flex-direction: column; gap: 1px; }
+.hday + .hday { margin-top: 6px; }
+.hday-t { align-self: flex-start; border: none; background: transparent; font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--ink); padding: 3px 6px; border-radius: 6px; cursor: pointer; }
+.hday-t:hover { background: var(--lane); }
+.hlab { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) auto; align-items: center; gap: 10px; width: 100%; border: none; background: transparent; padding: 7px 6px; border-radius: 10px; cursor: pointer; text-align: left; color: var(--ink); }
+.hlab:hover { background: var(--lane); }
+.hlab .lbl { max-width: 100%; justify-self: start; }
+.hbar { height: 8px; border-radius: 999px; background: var(--lane); overflow: hidden; }
+.hbar i { display: block; height: 100%; border-radius: inherit; background: var(--lb-fg); transform-origin: left; animation: hgrow .6s cubic-bezier(.2,.8,.2,1); }
+@keyframes hgrow { from { transform: scaleX(0); } }
+.hnums { display: inline-flex; gap: 6px; align-items: baseline; font-family: var(--font-mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.hnums b { font-size: 14px; color: var(--ink); }
+.hnums .late { color: var(--late); font-weight: 700; }
+.hcontact .cavatar { width: 32px; height: 32px; border-radius: 9px; font-size: 11.5px; flex: none; }
+.hfile .fthumb { width: 34px; height: 34px; }
+.log-list.compact .log-item { padding-block: 6px; }
+.log-list.compact .log-day { margin-top: 2px; }
+@media (max-width: 1180px) {
+  .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wg, .wg.w-today, .wg.w-week { grid-column: span 1; }
+  .wg.w-today { grid-column: 1 / -1; }
+}
+@media (max-width: 680px) {
+  .brand img { height: 54px; }
+  .brand { margin-bottom: 10px; }
+  .gate-logo { height: 58px; }
+  .home-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .qa { padding: 10px 11px; font-size: 13.5px; gap: 8px; }
+  .qa-ico { width: 30px; height: 30px; }
+  .home-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .wg, .wg.w-today, .wg.w-week { grid-column: 1 / -1; }
+  .viewswitch button { padding: 7px 4px; font-size: 12.5px; gap: 4px; }
+  .viewswitch .ico { width: 14px; height: 14px; }
+}
+@media (max-width: 380px) { .viewswitch .ico { display: none; } }
 </style>
 </head>
 <body>
 <div class="gate" id="gate" hidden>
+  <div class="gate-col">
+  <img class="gate-logo" src="assets/colven-logo.png" alt="Colven Business Corp." width="445" height="214">
   <div class="gate-card" id="gateCard">
     <form id="gateForm" autocomplete="on">
       <div class="gate-eyebrow">Acceso del equipo</div>
@@ -813,11 +908,13 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       <button class="btn primary gate-btn" id="gateBtn" type="submit">Entrar</button>
     </form>
   </div>
+  </div>
 </div>
 <header class="hero">
   <div class="wrap hero-inner">
     <div class="hero-top">
       <div class="hero-title">
+        <a class="brand" id="brandHome" href="#inicio" aria-label="Colven Business Corp. · Ir al inicio"><img src="assets/colven-logo.png" alt="Colven Business Corp." width="445" height="214"></a>
         <div class="eyebrow" id="today"></div>
         <h1 id="boardName">Nuestro tablero de tareas</h1>
         <p class="greet" id="greet">Cada tarea tiene a alguien asignado. Si no está en el tablero, todavía no es una tarea.</p>
@@ -854,7 +951,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
   <div class="toolbar">
     <div class="viewswitch" role="tablist" aria-label="Vista">
-      <button type="button" id="viewBoard" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
+      <button type="button" id="viewHome" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
+      <button type="button" id="viewBoard" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
       <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
       <button type="button" id="viewContacts" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg>Contactos</button>
     </div>
@@ -867,6 +965,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
   </div>
 
+  <section class="home" id="home" aria-label="Inicio" hidden></section>
   <div class="labelbar" id="labelBar" hidden></div>
   <main class="board" id="board"></main>
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
@@ -1190,10 +1289,11 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     renderBoard();
     renderCal();
     renderContacts();
+    renderHome();
   }
 
   function renderHero() {
-    $("boardName").textContent = state.boardName || "Nuestro tablero de tareas";
+    $("boardName").textContent = viewTitle();
     var now = new Date();
     $("today").textContent = WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()];
     $("addBtn").hidden = !state.canWrite;
@@ -1208,7 +1308,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     g.textContent = "";
     var open = state.tasks.filter(function (t) { return t.status !== "done"; });
     var late = open.filter(isOverdue).length;
-    if (m) g.appendChild(document.createTextNode("Hola, " + m.name.split(" ")[0] + ". "));
+    if (m && state.view !== "home") g.appendChild(document.createTextNode("Hola, " + m.name.split(" ")[0] + ". "));
     if (!open.length) g.appendChild(document.createTextNode("No hay tareas abiertas. Todo al día."));
     else {
       g.appendChild(document.createTextNode("El equipo tiene "));
@@ -2344,7 +2444,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
-    var show = !!(state.view !== "contacts" && state.db && state.loaded && (state.labels.length || state.canWrite));
+    var show = !!(state.view !== "contacts" && state.view !== "home" && state.db && state.loaded && (state.labels.length || state.canWrite));
     bar.hidden = !show;
     if (!show) return;
     bar.className = "labelbar" + (state.labelFilter ? " filtering" : "");
@@ -2547,6 +2647,293 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       acts.appendChild(cancel);
       p.appendChild(acts);
     });
+  }
+
+  /* ---------- home (Inicio): the most important things from every part of the page ---------- */
+  state.recentLog = [];
+  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", contacts: "Contactos" };
+  function greetingWord() { var h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; }
+  function viewTitle() {
+    if (state.view !== "home") return VIEW_TITLES[state.view] || "Tablero de tareas";
+    var m = member(meKey());
+    return greetingWord() + (m ? ", " + m.name.split(" ")[0] : "");
+  }
+  function widget(cls, ic, title, count, link) {
+    var box = el("section", "wg " + cls);
+    var head = el("div", "wg-head");
+    var disc = el("span", "wg-ico"); disc.appendChild(icon(ic)); head.appendChild(disc);
+    var h = el("h2", null, title); head.appendChild(h);
+    if (count != null) head.appendChild(el("span", "wg-count", String(count)));
+    head.appendChild(el("span", "spacer"));
+    if (link) {
+      var a = el("button", "wg-link"); a.type = "button";
+      a.appendChild(document.createTextNode(link.text)); a.appendChild(icon("chevR"));
+      a.onclick = link.go;
+      head.appendChild(a);
+    }
+    box.appendChild(head);
+    var body = el("div", "wg-body");
+    box.appendChild(body);
+    box.setAttribute("aria-label", title);
+    return { box: box, body: body };
+  }
+  function homeEmpty(text, ic) {
+    var e = el("div", "wg-empty");
+    if (ic) e.appendChild(icon(ic));
+    e.appendChild(el("span", null, text));
+    return e;
+  }
+  function taskRow(t, meta, metaCls) {
+    var r = el("button", "hrow");
+    r.type = "button";
+    r.appendChild(el("span", "hdot s-" + (t.status || "todo")));
+    var mid = el("span", "hmid");
+    var tt = el("span", "htitle", titleOf(t) || "Tarea sin título");
+    mid.appendChild(tt);
+    var ls = labelsOf(t);
+    if (ls.length || t.client) {
+      var sub = el("span", "hsub");
+      ls.slice(0, 3).forEach(function (l) { sub.appendChild(labelPill(l)); });
+      if (t.client) sub.appendChild(el("span", "hclient", t.client));
+      mid.appendChild(sub);
+    }
+    r.appendChild(mid);
+    if (meta) r.appendChild(el("span", "hmeta" + (metaCls ? " " + metaCls : ""), meta));
+    r.onclick = function () { openEditor(t); };
+    r.setAttribute("aria-label", (titleOf(t) || "Tarea") + (meta ? ", " + meta : ""));
+    return r;
+  }
+  function meetRow(m, showDay) {
+    var r = el("button", "hrow hmeet" + (m.status === "cancelled" ? " cancelled" : "") + (m.date === todayStr() && m.start && (m.end || m.start) < nowHM() ? " past" : ""));
+    r.type = "button";
+    var tm = el("span", "htime", m.start || "Día");
+    r.appendChild(tm);
+    var mid = el("span", "hmid");
+    mid.appendChild(el("span", "htitle", meetingTitle(m)));
+    var who = meetingContacts(m).map(function (c) { return contactTitle(c); });
+    var sub = [who.join(", "), m.mode === "video" ? "Videollamada" : m.mode === "llamada" ? "Llamada" : (m.place || "")].filter(Boolean).join(" · ");
+    if (sub) mid.appendChild(el("span", "hsub plain", sub));
+    r.appendChild(mid);
+    if (showDay) r.appendChild(el("span", "hmeta", m.status === "cancelled" ? "Cancelada" : "Reunión"));
+    else if (m.status === "cancelled") r.appendChild(el("span", "hmeta", "Cancelada"));
+    r.onclick = function () { openMeeting(m); };
+    return r;
+  }
+  function moreRow(n, text, go) {
+    var b = el("button", "hmore", "+ " + n + " " + text);
+    b.type = "button"; b.onclick = go;
+    return b;
+  }
+  function goBoard(tab) { if (tab) { state.tab = tab; try { localStorage.setItem("tb-tab", tab); } catch (e) {} } setView("board"); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); }
+  function goCal(day) {
+    if (day) { state.calSel = day; var d = parseDay(day); state.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); }
+    setView("cal");
+  }
+  function relDay(s) {
+    var n = dayDiff(s);
+    if (n === 0) return "Hoy";
+    if (n === 1) return "Mañana";
+    return cap(fmtShort(parseDay(s)));
+  }
+  function sinceText(iso) {
+    var d = new Date(iso); if (isNaN(d)) return "";
+    var n = Math.max(0, Math.round((parseDay(todayStr()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000));
+    return n === 0 ? "desde hoy" : n === 1 ? "desde ayer" : "hace " + n + " d";
+  }
+
+  function renderHome() {
+    applyView();
+    var box = $("home");
+    if (!box || state.view !== "home") return;
+    box.textContent = "";
+    if (!state.loaded) { box.appendChild(el("div", "empty", "Cargando…")); return; }
+    var today = todayStr();
+    var meets = state.meetings || [];
+    var open = state.tasks.filter(function (t) { return t.status !== "done"; });
+
+    /* quick actions */
+    if (state.canWrite) {
+      var qa = el("div", "home-actions");
+      [["plus", "Nueva tarea", function () { openEditor(null); }],
+       ["users", "Nueva reunión", function () { openMeeting(null, { date: today }); }],
+       ["card", "Nuevo contacto", function () { openContact(null); }],
+       ["chevR", "Ver el tablero", function () { goBoard(); }]].forEach(function (a, i) {
+        var b = el("button", "qa" + (i === 0 ? " primary" : ""));
+        b.type = "button";
+        var d = el("span", "qa-ico"); d.appendChild(icon(a[0])); b.appendChild(d);
+        b.appendChild(el("span", null, a[1]));
+        b.onclick = a[2];
+        qa.appendChild(b);
+      });
+      box.appendChild(qa);
+    }
+
+    var grid = el("div", "home-grid");
+    box.appendChild(grid);
+
+    /* 1. today: overdue, due today, today's meetings */
+    var late = open.filter(isOverdue).sort(function (a, b) { return String(a.due).localeCompare(String(b.due)); });
+    var dueToday = open.filter(function (t) { return t.due === today; }).sort(sortOpen);
+    var mtToday = meets.filter(function (m) { return m.date === today; }).sort(byStart);
+    var w1 = widget("w-today", "clock", "Para hoy", late.length + dueToday.length + mtToday.filter(function (m) { return m.status !== "cancelled"; }).length || null,
+      { text: "Tablero", go: function () { goBoard(); } });
+    if (!late.length && !dueToday.length && !mtToday.length) {
+      w1.body.appendChild(homeEmpty("Nada atrasado ni pendiente para hoy. Buen momento para adelantar lo que viene.", "check"));
+    }
+    function group(title, cls, items, render, max, moreGo) {
+      if (!items.length) return;
+      var g = el("div", "hgroup " + (cls || ""));
+      g.appendChild(el("div", "hgroup-t", title + " · " + items.length));
+      items.slice(0, max).forEach(function (x) { g.appendChild(render(x)); });
+      if (items.length > max) g.appendChild(moreRow(items.length - max, "más", moreGo));
+      w1.body.appendChild(g);
+    }
+    group("Atrasadas", "late", late, function (t) { var n = -dayDiff(t.due); return taskRow(t, n === 1 ? "1 día de atraso" : n + " días de atraso", "late"); }, 5, function () { goBoard("todo"); });
+    group("Vencen hoy", "soon", dueToday, function (t) { return taskRow(t, statusLabel(t.status || "todo")); }, 5, function () { goBoard(); });
+    group("Reuniones de hoy", "meet", mtToday, function (m) { return meetRow(m); }, 5, function () { goCal(today); });
+    grid.appendChild(w1.box);
+
+    /* 2. next 7 days */
+    var days = [];
+    for (var i = 1; i <= 7; i++) days.push(fmt(addDays(parseDay(today), i)));
+    var w2 = widget("w-week", "cal", "Próximos 7 días", null, { text: "Calendario", go: function () { goCal(); } });
+    var shown = 0, total = 0;
+    days.forEach(function (ds) {
+      var ms = meets.filter(function (m) { return m.date === ds && m.status !== "cancelled"; }).sort(byStart);
+      var ts = open.filter(function (t) { return t.due === ds; }).sort(sortOpen);
+      if (!ms.length && !ts.length) return;
+      total += ms.length + ts.length;
+      if (shown >= 12) return;
+      var g = el("div", "hday");
+      var dh = el("button", "hday-t", relDay(ds));
+      dh.type = "button"; dh.title = "Ver este día en el calendario";
+      dh.onclick = function () { goCal(ds); };
+      g.appendChild(dh);
+      ms.forEach(function (m) { if (shown < 12) { g.appendChild(meetRow(m)); shown++; } });
+      ts.forEach(function (t) { if (shown < 12) { g.appendChild(taskRow(t, statusLabel(t.status || "todo"))); shown++; } });
+      w2.body.appendChild(g);
+    });
+    if (!total) w2.body.appendChild(homeEmpty("No hay entregas ni reuniones en los próximos 7 días.", "cal"));
+    else if (total > shown) w2.body.appendChild(moreRow(total - shown, "más en el calendario", function () { goCal(); }));
+    grid.appendChild(w2.box);
+
+    /* 3. in progress */
+    var doing = open.filter(function (t) { return t.status === "doing"; }).sort(sortOpen);
+    var w3 = widget("w-doing", "move", "En curso", doing.length, { text: "Ver", go: function () { goBoard("doing"); } });
+    doing.slice(0, 6).forEach(function (t) { var di = dueInfo(t); w3.body.appendChild(taskRow(t, di ? di.text : "Sin fecha", di ? di.cls : "")); });
+    if (doing.length > 6) w3.body.appendChild(moreRow(doing.length - 6, "más", function () { goBoard("doing"); }));
+    if (!doing.length) w3.body.appendChild(homeEmpty("Nadie tiene una tarea en curso ahora mismo."));
+    grid.appendChild(w3.box);
+
+    /* 4. waiting on someone */
+    var waiting = open.filter(function (t) { return t.status === "waiting"; })
+      .sort(function (a, b) { return String(a.updatedAt || "").localeCompare(String(b.updatedAt || "")); });
+    var w4 = widget("w-wait", "clock", "Esperando a alguien", waiting.length, { text: "Ver", go: function () { goBoard("waiting"); } });
+    waiting.slice(0, 6).forEach(function (t) {
+      var row = taskRow(t, t.updatedAt ? sinceText(t.updatedAt) : "");
+      if (t.waitingOn) {
+        var mid = row.querySelector(".hmid");
+        mid.appendChild(el("span", "hsub plain", "Esperando: " + t.waitingOn));
+      }
+      w4.body.appendChild(row);
+    });
+    if (waiting.length > 6) w4.body.appendChild(moreRow(waiting.length - 6, "más", function () { goBoard("waiting"); }));
+    if (!waiting.length) w4.body.appendChild(homeEmpty("Nada bloqueado por ahora.", "check"));
+    grid.appendChild(w4.box);
+
+    /* 5. by label */
+    var w5 = widget("w-labels", "tag", "Por etiqueta", null, state.canWrite ? { text: state.labels.length ? "Editar" : "Crear", go: function () { openLabels(); } } : null);
+    if (!state.labels.length) w5.body.appendChild(homeEmpty("Crea etiquetas como Mensual, Semanal, Colven o Araya para ver aquí cuánto hay de cada una.", "tag"));
+    else {
+      var rows = state.labels.map(function (l) {
+        var ts = open.filter(function (t) { return labelIds(t).indexOf(l.id) >= 0; });
+        return { l: l, n: ts.length, late: ts.filter(isOverdue).length };
+      });
+      var max = Math.max.apply(null, rows.map(function (r) { return r.n; }).concat([1]));
+      rows.forEach(function (r) {
+        var b = el("button", "hlab lb-" + colorKey(r.l.color));
+        b.type = "button";
+        b.title = "Ver en el tablero las tarjetas con «" + r.l.name + "»";
+        b.appendChild(labelPill(r.l));
+        var bar = el("span", "hbar"); var fill = el("i"); fill.style.width = (r.n / max * 100).toFixed(1) + "%"; bar.appendChild(fill);
+        b.appendChild(bar);
+        var nums = el("span", "hnums");
+        nums.appendChild(el("b", null, String(r.n)));
+        if (r.late) nums.appendChild(el("span", "late", r.late + " atras."));
+        b.appendChild(nums);
+        b.onclick = function () { state.labelFilter = r.l.id; try { localStorage.setItem("tb-label", r.l.id); } catch (e) {} goBoard(); };
+        w5.body.appendChild(b);
+      });
+    }
+    grid.appendChild(w5.box);
+
+    /* 6. recent activity */
+    var w6 = widget("w-log", "chat", "Actividad reciente", null, { text: "Ver toda", go: function () { openLog(); } });
+    var lg = el("div", "log-list compact");
+    w6.body.appendChild(lg);
+    var entries = state.recentLog.slice(0, 6);
+    var drawLog = function () { drawEntries(lg, entries, { emptyText: "Todavía no hay actividad." }); };
+    drawLog(); resolveActors(entries, drawLog);
+    grid.appendChild(w6.box);
+
+    /* 7. contacts */
+    var cs = (state.contacts || []).slice().sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); });
+    var w7 = widget("w-contacts", "card", "Contactos", cs.length, { text: "Ver todos", go: function () { setView("contacts"); } });
+    var withMeet = cs.map(function (c) { return { c: c, m: nextMeetingFor(c.id) }; }).filter(function (x) { return x.m; })
+      .sort(function (a, b) { return whenKey(a.m).localeCompare(whenKey(b.m)); });
+    if (withMeet.length) {
+      var gm = el("div", "hgroup meet");
+      gm.appendChild(el("div", "hgroup-t", "Próximas reuniones con contactos"));
+      withMeet.slice(0, 2).forEach(function (x) {
+        var r = el("button", "hrow hcontact"); r.type = "button";
+        r.appendChild(cAvatar(x.c));
+        var mid = el("span", "hmid");
+        mid.appendChild(el("span", "htitle", contactTitle(x.c)));
+        mid.appendChild(el("span", "hsub plain", relDay(x.m.date) + (x.m.start ? " · " + x.m.start : "") + " · " + meetingTitle(x.m)));
+        r.appendChild(mid);
+        r.onclick = function () { openMeeting(x.m); };
+        gm.appendChild(r);
+      });
+      w7.body.appendChild(gm);
+    }
+    if (cs.length) {
+      var gr = el("div", "hgroup");
+      gr.appendChild(el("div", "hgroup-t", "Agregados recientemente"));
+      cs.slice(0, withMeet.length ? 3 : 4).forEach(function (c) {
+        var r = el("button", "hrow hcontact"); r.type = "button";
+        r.appendChild(cAvatar(c));
+        var mid = el("span", "hmid");
+        mid.appendChild(el("span", "htitle", c.name || c.company || "Sin nombre"));
+        var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
+        if (sub) mid.appendChild(el("span", "hsub plain", sub));
+        r.appendChild(mid);
+        if (c.createdAt) { var d = new Date(c.createdAt); if (!isNaN(d)) r.appendChild(el("span", "hmeta", d.getDate() + " " + MONTHS[d.getMonth()])); }
+        r.onclick = function () { openContact(c); };
+        gr.appendChild(r);
+      });
+      w7.body.appendChild(gr);
+    } else w7.body.appendChild(homeEmpty("Guarda aquí las tarjetas de presentación: con una foto se llenan los datos solos.", "camera"));
+    grid.appendChild(w7.box);
+
+    /* 8. recent files */
+    var files = [];
+    state.tasks.forEach(function (t) { filesOf(t).forEach(function (f) { files.push({ f: f, t: t }); }); });
+    files.sort(function (a, b) { return String(b.f.at || "").localeCompare(String(a.f.at || "")); });
+    var w8 = widget("w-files", "clip", "Archivos recientes", files.length || null, null);
+    files.slice(0, 5).forEach(function (x) {
+      var r = el("button", "hrow hfile"); r.type = "button";
+      var th = el("span", "fthumb k-" + fileKind(x.f)); th.appendChild(el("b", null, (fileExt(x.f.name) || "ARCH").slice(0, 4)));
+      r.appendChild(th);
+      var mid = el("span", "hmid");
+      mid.appendChild(el("span", "htitle", x.f.name));
+      mid.appendChild(el("span", "hsub plain", "En «" + (titleOf(x.t) || "tarea") + "» · " + fileMeta(x.f)));
+      r.appendChild(mid);
+      r.title = "Abrir " + x.f.name;
+      r.onclick = function () { openFile(x.f, false); };
+      w8.body.appendChild(r);
+    });
+    if (!files.length) w8.body.appendChild(homeEmpty("Los documentos que adjunten a las tarjetas aparecerán aquí.", "clip"));
+    grid.appendChild(w8.box);
   }
 
   function openEditor(t, preset) {
@@ -2954,10 +3341,19 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   }
 
   /* ---------- calendar view ---------- */
-  state.view = "board";
-  try { var sv = localStorage.getItem("tb-view"); if (sv === "cal" || sv === "contacts") state.view = sv; } catch (e) {}
+  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", contacts: "contactos" };
+  function viewFromHash() {
+    var h = String(location.hash || "").replace(/^#/, "");
+    for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
+    return "home";
+  }
+  state.view = viewFromHash();
+  window.addEventListener("hashchange", function () { var v = viewFromHash(); if (v !== state.view) setView(v); });
   function applyView() {
     var v = state.view;
+    $("home").hidden = v !== "home";
+    $("viewHome").setAttribute("aria-selected", String(v === "home"));
+    document.querySelector(".toolbar .search").hidden = v === "home";
     $("board").hidden = v !== "board";
     $("tabs").hidden = v !== "board";
     $("cal").hidden = v !== "cal";
@@ -2968,11 +3364,13 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     $("hint").innerHTML = HINTS[v];
     $("search").placeholder = v === "contacts" ? "Buscar contactos: nombre, empresa, correo…" : "Buscar tareas, clientes o notas";
     $("fab").setAttribute("aria-label", v === "contacts" ? "Nuevo contacto" : "Nueva tarea");
+    var h1 = $("boardName"); if (h1) { var vt = viewTitle(); if (h1.textContent !== vt) h1.textContent = vt; }
   }
   state.calMonth = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
   state.calSel = todayStr();
   var calDir = 0;
   var HINTS = {
+    home: "Lo más importante de hoy y de los próximos días · <kbd>N</kbd> nueva tarea · <kbd>R</kbd> nueva reunión",
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
     cal: "<kbd>R</kbd> nueva reunión · arrastra reuniones y tareas a otro día · toca un día para ver su agenda",
     contacts: "Toma una foto de cada tarjeta al guardarla · <kbd>N</kbd> nuevo contacto"
@@ -2980,8 +3378,9 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function setView(v) {
     state.view = v;
     try { localStorage.setItem("tb-view", v); } catch (e) {}
+    try { if (location.hash.replace(/^#/, "") !== VIEW_HASH[v]) history.replaceState(null, "", "#" + VIEW_HASH[v]); } catch (e) {}
     calDir = 0;
-    renderLabelBar(); renderBoard(); renderCal(); renderContacts();
+    renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderContacts();
   }
   function shiftMonth(n) {
     state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + n, 1);
@@ -4508,6 +4907,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); renderContacts(); }
   $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); renderContacts(); });
   $("viewBoard").onclick = function () { setView("board"); };
+  $("viewHome").onclick = function () { setView("home"); };
+  $("brandHome").onclick = function (e) { e.preventDefault(); setView("home"); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); };
   $("viewCal").onclick = function () { setView("cal"); };
   $("searchClear").onclick = function () { setSearch(""); $("search").focus(); };
   document.addEventListener("keydown", function (e) {
@@ -4823,6 +5224,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       }
       render();
     });
+    db.collection("log").orderBy("at", "desc").limit(8).onSnapshot(function (snap) {
+      state.recentLog = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      renderHome();
+    });
     db.collection("tasks").onSnapshot(function (snap) {
       state.tasks = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       state.loaded = true;
@@ -4830,12 +5235,12 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     });
     db.collection("meetings").onSnapshot(function (snap) {
       state.meetings = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
-      renderHero(); renderCal(); renderContacts();
+      renderHero(); renderCal(); renderContacts(); renderHome();
     });
     db.collection("contacts").onSnapshot(function (snap) {
       state.contacts = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       state.contactsLoaded = true;
-      renderContacts();
+      renderContacts(); renderHome();
     });
   }
 
