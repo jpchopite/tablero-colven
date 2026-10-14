@@ -324,6 +324,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .preview { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
 .preview .dates { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
 .preview .warn { color: var(--wait); }
+.preview .next-name { color: var(--ink); border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 2px; }
 
 .history { border-top: 1px solid var(--line); padding-top: 4px; }
 .log-list { display: flex; flex-direction: column; }
@@ -937,6 +938,16 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       for (i = 0; i < 1500; i += n) for (var k = 0; k < wds.length; k++) { c = addDays(ws, i * 7 + mIdx(wds[k])); if (ok(c)) return c; }
       return null;
     }
+    if (r.freq === "month" && n > 1 && r.startMonth != null && r.startMonth !== "") {
+      /* months fixed by the cycle (e.g. every 3 months starting in January: ene, abr, jul, oct), whatever the start date */
+      var sm = Number(r.startMonth) || 0;
+      for (i = 0; i < 1200; i++) {
+        var abs = from.getFullYear() * 12 + from.getMonth() + i;
+        if (((abs - sm) % n + n) % n !== 0) continue;
+        c = dateInMonth(r, from.getFullYear(), from.getMonth() + i); if (ok(c)) return c;
+      }
+      return null;
+    }
     if (r.freq === "month") { for (i = 0; i < 1200; i += n) { c = dateInMonth(r, from.getFullYear(), from.getMonth() + i); if (ok(c)) return c; } return null; }
     if (r.freq === "year") { for (i = 0; i < 200; i += n) { c = dateInMonth(r, from.getFullYear() + i, Number(r.month) || 0); if (ok(c)) return c; } return null; }
     return null;
@@ -954,6 +965,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     if (!ruleValid(r)) return "";
     var n = Math.max(1, parseInt(r.interval, 10) || 1);
     var base = n === 1 ? { day: "Cada día", week: "Cada semana", month: "Cada mes", year: "Cada año" }[r.freq]
+      : r.freq === "month" && n === 3 ? "Cada trimestre"
       : "Cada " + n + " " + { day: "días", week: "semanas", month: "meses", year: "años" }[r.freq];
     if (r.freq === "day") return base;
     if (r.freq === "week") {
@@ -1040,6 +1052,27 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     });
   }
   function titleOf(t) { return renderTitle(t && t.title, t && t.due); }
+  function quarterMonths(sm) { return [0, 3, 6, 9].map(function (k) { return MONTHS[(Number(sm) + k) % 12]; }).join(", "); }
+  /* Name for the next card of a repeating series. Placeholders are kept as they are. A name written
+     without them, like "Cierre Octubre" or "Informe Semana 3", has the parts that match the finished
+     card's due date (its month, week of the month, quarter or year) turned into placeholders, so the
+     next card shows its own month or week instead of repeating the old one. */
+  var LETTER = "A-Za-zÀ-ÖØ-öø-ÿ";
+  function nameForNext(raw, dueStr) {
+    raw = String(raw || "");
+    var d = parseDay(dueStr);
+    if (!d || TOKEN_TEST.test(raw)) return raw;
+    var out = raw, nb = "(^|[^" + LETTER + "])", na = "(?![" + LETTER + "])";
+    var mName = MONTHS_LONG[d.getMonth()], alts = mName === "septiembre" ? "septiembre|setiembre" : mName;
+    out = out.replace(new RegExp(nb + "(" + alts + ")" + na, "i"), function (_, pre) { return pre + "[Mes]"; });
+    out = out.replace(new RegExp(nb + "(" + MONTHS[d.getMonth()] + "\\.?)(?=\\s*(?:\\d{4}|$))", "i"), function (_, pre) { return pre + "[Mes]"; });
+    out = out.replace(new RegExp(nb + "(semana|sem\\.?)(\\s*)" + weekOfMonth(d) + "(?!\\d)", "i"), function (_, pre, w, sp) { return pre + w + sp + "[Semana]"; });
+    var q = Math.floor(d.getMonth() / 3) + 1;
+    out = out.replace(new RegExp(nb + "(trimestre)(\\s*)" + q + "(?!\\d)", "i"), function (_, pre, w, sp) { return pre + w + sp + "[Trimestre]"; });
+    out = out.replace(new RegExp(nb + "([TQ])" + q + "(?!\\d)"), function (_, pre, w) { return pre + w + "[Trimestre]"; });
+    out = out.replace(new RegExp("(^|\\D)" + d.getFullYear() + "(?!\\d)"), function (_, pre) { return pre + "[Año]"; });
+    return out;
+  }
 
   /* ---------- render ---------- */
   function render() {
@@ -1474,11 +1507,12 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var now = new Date().toISOString();
     var nref = db.collection("tasks").doc();
     return nref.set({
-      title: merged.title || "Tarea sin título", people: peopleOf(merged), owner: peopleOf(merged)[0] || "", status: "todo", waitingOn: "",
+      title: nameForNext(merged.title, merged.due) || "Tarea sin título", people: peopleOf(merged), owner: peopleOf(merged)[0] || "", status: "todo", waitingOn: "",
       due: nextDue, priority: merged.priority || "normal", client: merged.client || "", notes: merged.notes || "",
       repeat: merged.repeat, seriesId: merged.seriesId || main.id, createdAt: now, updatedAt: now, doneAt: null
     }).then(function () {
-      return write({ spawnedNext: nref.id }).then(function () { return { nextDue: nextDue, id: main.id, spawnedId: nref.id }; },
+      var nextTitle = renderTitle(nameForNext(merged.title, merged.due) || "Tarea sin título", nextDue);
+      return write({ spawnedNext: nref.id }).then(function () { return { nextDue: nextDue, nextTitle: nextTitle, id: main.id, spawnedId: nref.id }; },
         function (e) { nref.delete().catch(function () {}); throw e; });
     });
   }
@@ -1495,7 +1529,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var from = t.status || "todo", prevDone = t.doneAt || null;
     persist(t, statusPatch(status, t.status)).then(function (r) {
       logEntry({ action: "move", taskId: t.id, title: t.title || "", from: from, to: status, next: r.nextDue || null });
-      var msg = r.nextDue ? "Hecha. La siguiente quedó para el " + fmtShort(parseDay(r.nextDue)) + "."
+      var msg = r.nextDue ? "Hecha. Se agregó «" + r.nextTitle + "» para el " + fmtShort(parseDay(r.nextDue)) + "."
         : status === "done" ? "¡Hecha!" : "Movida a " + statusLabel(status);
       toast(msg, function () { undoMove(t, from, prevDone, r.spawnedId); });
     }).catch(handleWriteError);
@@ -2172,13 +2206,14 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       var defaults = function () {
         var d = refDate(), nth = Math.ceil(d.getDate() / 7);
         return { interval: 1, weekdays: [d.getDay()], monthMode: "date", monthDay: d.getDate(),
-          nth: nth > 4 ? -1 : nth, weekday: d.getDay(), month: d.getMonth() };
+          nth: nth > 4 ? -1 : nth, weekday: d.getDay(), month: d.getMonth(), startMonth: d.getMonth() % 3 };
       };
       var work = Object.assign(defaults(), ruleValid(t.repeat) ? JSON.parse(JSON.stringify(t.repeat)) : {});
+      var isQuarter = function (r) { return ruleValid(r) && r.freq === "month" && Number(r.interval) === 3; };
       var repSel = select("f-rep", [
         { value: "", label: "No se repite" }, { value: "day", label: "Cada día" }, { value: "week", label: "Cada semana" },
-        { value: "month", label: "Cada mes" }, { value: "year", label: "Cada año" }
-      ], ruleValid(t.repeat) ? t.repeat.freq : "");
+        { value: "month", label: "Cada mes" }, { value: "quarter", label: "Cada trimestre" }, { value: "year", label: "Cada año" }
+      ], ruleValid(t.repeat) ? (isQuarter(t.repeat) ? "quarter" : t.repeat.freq) : "");
       p.appendChild(field("Se repite", repSel, "Cuando una tarea que se repite se marca como Hecho, la siguiente se agrega sola."));
 
       var box = el("div", "repeat-box");
@@ -2224,6 +2259,17 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       [modeSel, daySel, nthSel, wdSel, ofLabel, monSel].forEach(function (n) { monRow.appendChild(n); });
       box.appendChild(monRow);
 
+      /* quarterly: which three-month cycle (the month of each quarter it falls in) */
+      var qRow = el("div", "inline");
+      qRow.appendChild(el("span", null, "En los meses"));
+      var qSel = select("f-qmonths", [0, 1, 2].map(function (k) { return { value: String(k), label: quarterMonths(k) }; }),
+        String(((Number(work.startMonth) || 0) % 3 + 3) % 3));
+      qSel.setAttribute("aria-label", "Meses de cada trimestre");
+      var qTouched = isQuarter(t.repeat) && t.repeat.startMonth != null;
+      qSel.addEventListener("change", function () { qTouched = true; });
+      qRow.appendChild(qSel);
+      box.appendChild(qRow);
+
       var preview = el("div", "preview");
       box.appendChild(preview);
       p.appendChild(box);
@@ -2233,7 +2279,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       function buildRule() {
         var f = repSel.value;
         if (!f) return null;
-        var r = { freq: f, interval: Math.max(1, Math.min(99, parseInt(intIn.value, 10) || 1)) };
+        var quarter = f === "quarter";
+        if (quarter) f = "month";
+        var r = { freq: f, interval: quarter ? 3 : Math.max(1, Math.min(99, parseInt(intIn.value, 10) || 1)) };
+        if (quarter) r.startMonth = Number(qSel.value);
         if (f === "week") r.weekdays = wdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.wd); });
         if (f === "month" || f === "year") {
           r.monthMode = modeSel.value;
@@ -2247,6 +2296,11 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
         var f = repSel.value;
         box.hidden = !f;
         if (!f) return;
+        var quarter = f === "quarter";
+        if (quarter && !qTouched) { var rd = parseDay(due.value); if (rd) qSel.value = String(rd.getMonth() % 3); }
+        if (quarter) f = "month";
+        intRow.hidden = quarter;
+        qRow.hidden = !quarter;
         var n = parseInt(intIn.value, 10) || 1;
         unit.textContent = { day: ["día", "días"], week: ["semana", "semanas"], month: ["mes", "meses"], year: ["año", "años"] }[f][n === 1 ? 0 : 1];
         wdRow.hidden = f !== "week";
@@ -2268,16 +2322,29 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
           if (!m || fmt(m) !== due.value) preview.appendChild(el("div", "warn", "La fecha de entrega no cae en este patrón. Se usa una vez y luego sigue el patrón."));
         }
         if (f !== "day" && f !== "week" && !nthMode && Number(daySel.value) > 28) preview.appendChild(el("div", null, "Los meses que no tienen ese día usan su último día."));
+        var tv = title.value.trim(), cur0 = parseDay(due.value) || dates[0];
+        if (tv && cur0) {
+          var nd = parseDay(nextDueAfterDone(r, fmt(cur0)));
+          if (nd) {
+            var nx = el("div", "next-name");
+            nx.appendChild(document.createTextNode("Al marcarla como hecha se agrega "));
+            nx.appendChild(el("b", null, "«" + renderTitle(nameForNext(tv, fmt(cur0)), fmt(nd)) + "»"));
+            nx.appendChild(document.createTextNode(" para el " + fmtShort(nd) + "."));
+            preview.appendChild(nx);
+          }
+        }
       }
+      title.addEventListener("input", function () { if (repSel.value) update(); });
       repSel.addEventListener("change", function () {
         if (repSel.value && !ruleValid(t.repeat)) {
           var dd = defaults();
           daySel.value = String(dd.monthDay); nthSel.value = String(dd.nth); wdSel.value = String(dd.weekday); monSel.value = String(dd.month);
+          if (!qTouched) qSel.value = String(dd.startMonth);
           wdBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(Number(b.dataset.wd) === dd.weekdays[0])); });
         }
         update();
       });
-      [intIn, modeSel, daySel, nthSel, wdSel, monSel, due].forEach(function (c) { c.addEventListener("input", update); c.addEventListener("change", update); });
+      [intIn, modeSel, daySel, nthSel, wdSel, monSel, qSel, due].forEach(function (c) { c.addEventListener("input", update); c.addEventListener("change", update); });
       update();
 
 
@@ -2383,7 +2450,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
               }
               var waitingFiles = ff.pending();
               closePanel();
-              toast(r.nextDue ? "Hecha. La siguiente quedó para el " + fmtShort(parseDay(r.nextDue)) + "."
+              toast(r.nextDue ? "Hecha. Se agregó «" + r.nextTitle + "» para el " + fmtShort(parseDay(r.nextDue)) + "."
                 : isNew ? (waitingFiles.length ? "Tarea agregada. Subiendo " + plural(waitingFiles.length, "adjunto", "adjuntos") + "…" : "Tarea agregada") : becameDone ? "¡Hecha!" : "Guardado");
               if (isNew && waitingFiles.length) attachFiles(r.id, waitingFiles);
             })
