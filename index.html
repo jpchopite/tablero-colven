@@ -59,6 +59,8 @@
   --c-waiting: var(--wait);
   --c-done: var(--ok);
   --fill-done: rgba(29,134,87,.13);
+  --meet: #6a3dd0;
+  --meet-soft: #efe9ff;
   --font-display: "Bricolage Grotesque", "Figtree", system-ui, sans-serif;
   --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -75,6 +77,7 @@
     --grid-dot: rgba(255,255,255,.07);
     --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-done: #182d46;
     --c-todo: #6f78a3; --fill-done: rgba(85,211,156,.12);
+    --meet: #b39bff; --meet-soft: #2b2456;
     color-scheme: dark;
   }
 }
@@ -89,6 +92,7 @@
   --grid-dot: rgba(255,255,255,.07);
   --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-done: #182d46;
   --c-todo: #6f78a3; --fill-done: rgba(85,211,156,.12);
+    --meet: #b39bff; --meet-soft: #2b2456;
   color-scheme: dark;
 }
 
@@ -471,6 +475,77 @@ body.locked { overflow: hidden; }
   .ctagbar::-webkit-scrollbar { display: none; }
 }
 
+/* ---------- meetings ---------- */
+.cmeet { --lane-c: var(--meet); background: var(--meet-soft); border-color: var(--meet-soft); }
+.cmeet .mtime { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--meet); margin-right: 5px; flex: none; }
+.cmeet.cancelled span { text-decoration: line-through; color: var(--muted); }
+.cmeet.mdone { opacity: .7; }
+.cell-pick { position: absolute; top: 34px; right: 6px; z-index: 6; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow-md); padding: 5px; display: flex; flex-direction: column; gap: 2px; animation: fade .15s ease; }
+.cell-pick button { border: none; background: transparent; border-radius: 8px; padding: 8px 12px; display: flex; gap: 8px; align-items: center; font-size: 13.5px; font-weight: 600; color: var(--ink); white-space: nowrap; }
+.cell-pick button:hover, .cell-pick button:focus-visible { background: var(--lane); }
+.cell-pick button:first-child .ico { color: var(--meet); }
+.cell-pick .ico { width: 16px; height: 16px; }
+.agenda-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.ag-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; color: var(--muted); margin-top: 2px; }
+.mlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
+.mcard { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--meet); border-radius: 13px; padding: 12px; box-shadow: var(--shadow-sm); cursor: pointer; min-width: 0; transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s; }
+.mcard:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.mcard.cancelled { border-left-color: var(--muted); opacity: .72; }
+.mcard.cancelled h3 { text-decoration: line-through; }
+.mcard.mdone { border-left-color: var(--ok); }
+.mtimecol { display: flex; flex-direction: column; align-items: flex-start; flex: none; min-width: 50px; font-family: var(--font-mono); line-height: 1.3; }
+.mtimecol b { font-size: 15px; color: var(--meet); }
+.mcard.mdone .mtimecol b { color: var(--ok); }
+.mtimecol span { font-size: 12px; color: var(--muted); }
+.mbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.mbody h3 { margin: 0; font-size: 15px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.mtitle-row { display: flex; gap: 8px; align-items: flex-start; justify-content: space-between; }
+.mrow { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); min-width: 0; }
+.mrow span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mrow .ico { width: 14px; height: 14px; flex: none; }
+.mpeople { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.pchip-s { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--bg); border-radius: 999px; padding: 2px 10px 2px 2px; font-size: 12.5px; font-weight: 600; color: var(--ink); max-width: 100%; }
+.pchip-s.plain { padding-left: 10px; color: var(--muted); font-weight: 500; }
+button.pchip-s { cursor: pointer; }
+button.pchip-s:hover { border-color: var(--line-strong); }
+.pchip-s .cavatar { width: 22px; height: 22px; border-radius: 50%; font-size: 9.5px; }
+.pchip-s .x { border: none; background: none; color: var(--muted); padding: 0 0 0 2px; font-size: 16px; line-height: 1; cursor: pointer; }
+.mpill { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; background: var(--meet-soft); color: var(--meet); flex: none; }
+.mpill.done { background: var(--ok-soft); color: var(--ok); }
+.mpill.cancelled { background: var(--late-soft); color: var(--late); }
+.row3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; }
+.m-timehelp { margin-top: -8px; }
+.cpick { position: relative; display: flex; flex-direction: column; gap: 8px; }
+.cpick > input { border: 1px solid var(--line); background: var(--bg); border-radius: 10px; padding: 10px 12px; width: 100%; }
+.cpick-results { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
+.cpick-results button { display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent; padding: 8px 10px; text-align: left; font-size: 14px; font-weight: 600; color: var(--ink); }
+.cpick-results button:hover, .cpick-results button:focus-visible { background: var(--lane); }
+.cpick-results .cavatar { width: 30px; height: 30px; border-radius: 8px; font-size: 11px; }
+.cpick-results small { display: block; color: var(--muted); font-size: 12px; font-weight: 500; }
+.cpick-none { padding: 10px 12px; font-size: 13px; color: var(--muted); }
+.cnext { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--meet); background: var(--meet-soft); border-radius: 8px; padding: 5px 9px; min-width: 0; }
+.cnext span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cnext .ico { width: 14px; height: 14px; flex: none; }
+.cmeets { display: flex; flex-direction: column; gap: 6px; }
+.cmeet-row { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--bg); cursor: pointer; font-size: 13.5px; text-align: left; width: 100%; color: var(--ink); }
+.cmeet-row:hover { border-color: var(--line-strong); }
+.cmeet-row b { font-family: var(--font-mono); font-size: 12px; color: var(--meet); flex: none; }
+.cmeet-row > span:not(.mpill) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmeet-row.cancelled > span:not(.mpill) { text-decoration: line-through; color: var(--muted); }
+@media (max-width: 680px) {
+  .row3 { grid-template-columns: 1fr 1fr; }
+  .row3 > :first-child { grid-column: 1 / -1; }
+  .mlist { grid-template-columns: minmax(0, 1fr); }
+  .agenda-acts { width: 100%; }
+  .agenda-acts .btn { flex: 1; justify-content: center; }
+  .cmeet, .cell.sel .cmeet { background: var(--meet); }
+  .cell.sel .ctask:not(.cmeet) { background: var(--lane-c, var(--muted)); }
+  .cell.sel .ctask.late { background: var(--late); }
+  .cmeet .mtime { display: none; }
+  .cal-head .btn.primary { order: 5; width: 100%; justify-content: center; }
+  .cal-head .sub-btn { order: 6; }
+}
+
 /* ---------- calendar view ---------- */
 .viewswitch { display: inline-flex; background: var(--lane); border-radius: 999px; padding: 4px; gap: 2px; flex: none; }
 .viewswitch button { border: none; background: transparent; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 14px; color: var(--muted); display: inline-flex; gap: 7px; align-items: center; transition: background .15s, color .15s; }
@@ -669,6 +744,10 @@ body.locked { overflow: hidden; }
     download: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
     card: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/>',
     scan: '<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M7.5 9.5h9M7.5 12h9M7.5 14.5h5"/>',
+    pin: '<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/>',
+    video: '<rect x="3" y="6.5" width="12.5" height="11" rx="2"/><path d="M15.5 10.5l5-3v9l-5-3"/>',
+    copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
@@ -894,11 +973,20 @@ body.locked { overflow: hidden; }
     var open = state.tasks.filter(function (t) { return t.status !== "done"; });
     var late = open.filter(isOverdue).length;
     if (m) g.appendChild(document.createTextNode("Hola, " + m.name.split(" ")[0] + ". "));
-    if (!open.length) { g.appendChild(document.createTextNode("No hay tareas abiertas. Todo al día.")); return; }
-    g.appendChild(document.createTextNode("El equipo tiene "));
-    g.appendChild(el("b", null, plural(open.length, "tarea abierta", "tareas abiertas")));
-    if (late) { g.appendChild(document.createTextNode(", ")); g.appendChild(el("span", "late", plural(late, "atrasada", "atrasadas"))); }
-    g.appendChild(document.createTextNode("."));
+    if (!open.length) g.appendChild(document.createTextNode("No hay tareas abiertas. Todo al día."));
+    else {
+      g.appendChild(document.createTextNode("El equipo tiene "));
+      g.appendChild(el("b", null, plural(open.length, "tarea abierta", "tareas abiertas")));
+      if (late) { g.appendChild(document.createTextNode(", ")); g.appendChild(el("span", "late", plural(late, "atrasada", "atrasadas"))); }
+      g.appendChild(document.createTextNode("."));
+    }
+    var todays = (state.meetings || []).filter(function (x) { return x.date === todayStr() && x.status !== "cancelled"; }).sort(byStart);
+    if (todays.length) {
+      var nextM = todays.filter(function (x) { return !x.start || (x.end || x.start) >= nowHM(); })[0];
+      g.appendChild(document.createTextNode(" Hoy hay "));
+      g.appendChild(el("b", null, plural(todays.length, "reunión", "reuniones")));
+      g.appendChild(document.createTextNode(nextM && nextM.start ? ": la próxima, «" + meetingTitle(nextM) + "», a las " + nextM.start + "." : "."));
+    }
   }
 
   function setNum(key, n) {
@@ -1408,6 +1496,7 @@ body.locked { overflow: hidden; }
       case "client": return c.to ? "cliente/proyecto: " + c.to : "quitó el cliente/proyecto";
       case "waitingOn": return "esperando a: " + c.to;
       case "notes": return "editó las notas";
+      case "mdate": return "la movió del " + dueLabel(c.from) + " al " + dueLabel(c.to);
       case "repeat": return ruleValid(c.to) ? "repetición: " + ruleText(c.to).toLowerCase() : "dejó de repetirse";
       case "board": return "renombró el tablero de «" + c.from + "» a «" + c.to + "»";
       case "member": return "cambió «" + c.from + "» por «" + c.to + "» en el equipo";
@@ -1442,7 +1531,8 @@ body.locked { overflow: hidden; }
   }
   function timeLabel(iso) { var d = new Date(iso); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
   var VERBS = { create: "creó", move: "movió", edit: "editó", "delete": "borró", settings: "cambió la configuración del tablero", restore: "restauró",
-    contact_create: "agregó el contacto", contact_edit: "editó el contacto", contact_delete: "borró el contacto", contact_restore: "restauró el contacto" };
+    contact_create: "agregó el contacto", contact_edit: "editó el contacto", contact_delete: "borró el contacto", contact_restore: "restauró el contacto",
+    meeting_create: "agendó la reunión", meeting_edit: "editó la reunión", meeting_delete: "borró la reunión", meeting_restore: "restauró la reunión" };
   function drawEntries(box, entries, opts) {
     box.textContent = "";
     var list = entries.filter(function (e) { return e.at && !isNaN(Date.parse(e.at)); });
@@ -1459,7 +1549,15 @@ body.locked { overflow: hidden; }
       line.appendChild(document.createTextNode(" " + (VERBS[e.action] || "cambió") + " "));
       if (e.action !== "settings") {
         if (opts.hideTitle) line.appendChild(document.createTextNode("esta tarjeta"));
-        else if (e.contactId) {
+        else if (e.meetingId) {
+          var mt = (state.meetings || []).filter(function (x) { return x.id === e.meetingId; })[0];
+          var mtt = "«" + (e.title || "reunión") + "»";
+          if (mt && e.action !== "meeting_delete") {
+            var ma = el("button", "log-task", mtt); ma.type = "button";
+            ma.onclick = function () { openMeeting(mt); };
+            line.appendChild(ma);
+          } else line.appendChild(el("span", "log-task gone", mtt));
+        } else if (e.contactId) {
           var ct = (state.contacts || []).filter(function (x) { return x.id === e.contactId; })[0];
           var ctt = "«" + (e.title || "contacto") + "»";
           if (ct && e.action !== "contact_delete") {
@@ -1942,7 +2040,7 @@ body.locked { overflow: hidden; }
   var calDir = 0;
   var HINTS = {
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
-    cal: "Arrastra una tarea a otro día para cambiar su fecha · toca un día para ver sus tareas",
+    cal: "<kbd>R</kbd> nueva reunión · arrastra reuniones y tareas a otro día · toca un día para ver su agenda",
     contacts: "Toma una foto de cada tarjeta al guardarla · <kbd>N</kbd> nuevo contacto"
   };
   function setView(v) {
@@ -2024,6 +2122,12 @@ body.locked { overflow: hidden; }
     };
     head.appendChild(prev); head.appendChild(title); head.appendChild(next); head.appendChild(todayB);
     head.appendChild(el("span", "spacer"));
+    if (state.canWrite) {
+      var nm = el("button", "btn primary small"); nm.type = "button";
+      nm.appendChild(icon("users")); nm.appendChild(document.createTextNode("Nueva reunión"));
+      nm.onclick = function () { openMeeting(null, { date: state.calSel || todayStr() }); };
+      head.appendChild(nm);
+    }
     if (state.db && state.db.calendarToken) {
       var sub = el("button", "btn small sub-btn"); sub.type = "button";
       sub.appendChild(icon("cal")); sub.appendChild(document.createTextNode("Suscribirse en tu calendario"));
@@ -2036,40 +2140,43 @@ body.locked { overflow: hidden; }
     grid.style.setProperty("--dx", (calDir > 0 ? 28 : calDir < 0 ? -28 : 0) + "px");
     calDir = 0;
     ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"].forEach(function (n) {
-      var w = el("div", "wday", n.charAt(0) === "M" && n !== "Martes" ? "X" : n.charAt(0));
+      var w = el("div", "wday", n.charAt(0));
       w.title = n; w.setAttribute("aria-hidden", "true");
       grid.appendChild(w);
     });
     var start = addDays(m, -mIdx(m.getDay()));
     var weeks = Math.ceil((mIdx(m.getDay()) + daysIn(y, mo)) / 7);
-    var map = tasksByDay(), days = [];
+    var map = tasksByDay(), mmap = meetingsByDay(), days = [];
     for (var i = 0; i < weeks * 7; i++) days.push(addDays(start, i));
     days.forEach(function (d) {
-      var ds = fmt(d), list = map[ds] || [];
+      var ds = fmt(d), list = map[ds] || [], mlist = mmap[ds] || [];
       var late = list.some(isOverdue);
       var cell = el("div", "cell" + (d.getMonth() !== mo ? " out" : "") + (ds === today ? " today" : "") + (ds === state.calSel ? " sel" : "")
         + (d.getDay() === 0 || d.getDay() === 6 ? " weekend" : "") + (late ? " has-late" : ""));
       cell.dataset.date = ds;
       cell.tabIndex = 0;
       cell.setAttribute("role", "button");
-      cell.setAttribute("aria-label", longDate(ds) + (list.length ? ", " + plural(list.length, "tarea", "tareas") : ", sin tareas"));
+      cell.setAttribute("aria-label", longDate(ds) + (mlist.length ? ", " + plural(mlist.length, "reunión", "reuniones") : "") + (list.length ? ", " + plural(list.length, "tarea", "tareas") : (mlist.length ? "" : ", sin tareas")));
       cell.appendChild(el("span", "dnum", String(d.getDate())));
       var ct = el("div", "ctasks");
       var maxChips = isPhone() ? 4 : 3;
-      list.slice(0, maxChips).forEach(function (t) { ct.appendChild(calChip(t)); });
-      if (list.length > maxChips) ct.appendChild(el("span", "cmore", "+" + (list.length - maxChips) + " más"));
+      var chipEls = mlist.map(meetChip).concat(list.map(calChip));
+      chipEls.slice(0, maxChips).forEach(function (n) { ct.appendChild(n); });
+      if (chipEls.length > maxChips) ct.appendChild(el("span", "cmore", "+" + (chipEls.length - maxChips) + " más"));
       cell.appendChild(ct);
       if (state.canWrite) {
         var add = el("button", "cell-add"); add.type = "button";
-        add.setAttribute("aria-label", "Agregar tarea el " + longDate(ds));
+        add.setAttribute("aria-label", "Agregar reunión o tarea el " + longDate(ds));
         add.appendChild(icon("plus"));
-        add.onclick = function (e) { e.stopPropagation(); openEditor(null, { due: ds }); };
+        add.onclick = function (e) { e.stopPropagation(); showAddPick(cell, ds); };
         cell.appendChild(add);
         cell.addEventListener("dragover", function (e) { e.preventDefault(); cell.classList.add("drop"); });
         cell.addEventListener("dragleave", function (e) { if (!cell.contains(e.relatedTarget)) cell.classList.remove("drop"); });
         cell.addEventListener("drop", function (e) {
           e.preventDefault(); cell.classList.remove("drop");
-          reschedule(findTask(e.dataTransfer.getData("text/plain")), ds);
+          var did = e.dataTransfer.getData("text/plain");
+          if (did.indexOf("m:") === 0) moveMeeting(findMeeting(did.slice(2)), ds);
+          else reschedule(findTask(did), ds);
         });
       }
       function pick() {
@@ -2089,15 +2196,27 @@ body.locked { overflow: hidden; }
     var ah = el("div", "agenda-head");
     ah.appendChild(el("h3", null, (sel === today ? "Hoy · " : "") + longDate(sel)));
     if (state.canWrite) {
+      var aacts = el("div", "agenda-acts");
+      var addm = el("button", "btn small primary"); addm.type = "button";
+      addm.appendChild(icon("users")); addm.appendChild(document.createTextNode("Agregar reunión"));
+      addm.onclick = function () { openMeeting(null, { date: sel }); };
       var addb = el("button", "btn small"); addb.type = "button";
-      addb.appendChild(icon("plus")); addb.appendChild(document.createTextNode("Agregar tarea este día"));
+      addb.appendChild(icon("plus")); addb.appendChild(document.createTextNode("Agregar tarea"));
       addb.onclick = function () { openEditor(null, { due: sel }); };
-      ah.appendChild(addb);
+      aacts.appendChild(addm); aacts.appendChild(addb);
+      ah.appendChild(aacts);
     }
     ag.appendChild(ah);
-    var items = map[sel] || [];
-    if (!items.length) ag.appendChild(el("div", "empty", state.search ? "Ninguna tarea de este día coincide con la búsqueda." : "No hay tareas con entrega este día."));
-    else {
+    var items = map[sel] || [], mitems = mmap[sel] || [];
+    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : "No hay reuniones ni tareas este día."));
+    if (mitems.length) {
+      ag.appendChild(el("div", "ag-label", plural(mitems.length, "reunión", "reuniones")));
+      var ml = el("div", "mlist");
+      mitems.forEach(function (x) { ml.appendChild(meetingCard(x)); });
+      ag.appendChild(ml);
+    }
+    if (items.length) {
+      if (mitems.length) ag.appendChild(el("div", "ag-label", plural(items.length, "tarea", "tareas")));
       var cards = el("div", "cards");
       items.forEach(function (t) { cards.appendChild(card(t)); });
       ag.appendChild(cards);
@@ -2478,6 +2597,13 @@ body.locked { overflow: hidden; }
     if (member(c.receivedBy)) meta.push("Recibida por " + member(c.receivedBy).name.split(" ")[0]);
     if (c.met) meta.push(c.met);
     if (c.date) meta.push(shortDate(c.date));
+    var nxt = nextMeetingFor(c.id);
+    if (nxt) {
+      var nl = el("div", "cnext"); nl.appendChild(icon("users"));
+      nl.appendChild(el("span", null, "Reunión " + fmtShort(parseDay(nxt.date)) + (nxt.start ? " · " + nxt.start : "") + ": " + meetingTitle(nxt)));
+      nl.addEventListener("click", function (e) { e.stopPropagation(); openMeeting(nxt); });
+      card.appendChild(nl);
+    }
     if (meta.length) card.appendChild(el("div", "cmeta", meta.join(" · ")));
     card.addEventListener("click", function () { openContact(c); });
     card.addEventListener("keydown", function (e) { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openContact(c); } });
@@ -2659,7 +2785,30 @@ body.locked { overflow: hidden; }
           };
           quick.appendChild(fu);
         }
+        if (state.canWrite) {
+          var sm = el("button", "cact"); sm.type = "button";
+          sm.appendChild(icon("users")); sm.appendChild(document.createTextNode("Agendar reunión"));
+          sm.onclick = function () { openMeeting(null, { contactIds: [c.id], title: "Reunión con " + contactTitle(c), date: todayStr() }); };
+          quick.appendChild(sm);
+        }
         p.appendChild(quick);
+        var cms = meetingsFor(c.id);
+        if (cms.length) {
+          var mbox = el("div", "cmeets");
+          mbox.appendChild(el("div", "flabel", "Reuniones con " + (c.name ? c.name.split(" ")[0] : contactTitle(c))));
+          cms.slice(0, 6).forEach(function (mm) {
+            var r = el("button", "cmeet-row" + (mm.status === "cancelled" ? " cancelled" : "")); r.type = "button";
+            r.appendChild(el("b", null, fmtShort(parseDay(mm.date)) + (mm.start ? " " + mm.start : "")));
+            r.appendChild(el("span", null, meetingTitle(mm)));
+            if (mm.status === "done") r.appendChild(el("span", "mpill done", "Realizada"));
+            else if (mm.status === "cancelled") r.appendChild(el("span", "mpill cancelled", "Cancelada"));
+            else if (isUpcoming(mm)) r.appendChild(el("span", "mpill", "Próxima"));
+            r.onclick = function () { openMeeting(mm); };
+            mbox.appendChild(r);
+          });
+          if (cms.length > 6) mbox.appendChild(el("div", "help", "Y " + plural(cms.length - 6, "reunión más", "reuniones más") + " en el calendario."));
+          p.appendChild(mbox);
+        }
       }
 
       /* card photo */
@@ -2992,6 +3141,423 @@ body.locked { overflow: hidden; }
     });
   }
 
+  /* ---------- meetings ---------- */
+  state.meetings = [];
+  var MODES = [{ value: "presencial", label: "Presencial" }, { value: "video", label: "Videollamada" }, { value: "llamada", label: "Llamada" }];
+  var MSTATUS = [{ value: "scheduled", label: "Programada" }, { value: "done", label: "Realizada" }, { value: "cancelled", label: "Cancelada" }];
+  var MODE_ICON = { presencial: "pin", video: "video", llamada: "phone" };
+
+  function findMeeting(id) { for (var i = 0; i < state.meetings.length; i++) if (state.meetings[i].id === id) return state.meetings[i]; return null; }
+  function byStart(a, b) { return String(a.start || "99:99").localeCompare(String(b.start || "99:99")); }
+  function whenKey(m) { return (m.date || "") + " " + (m.start || "99:99"); }
+  function nowHM() { var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function addMinutes(hhmm, min) {
+    var p = String(hhmm || "10:00").split(":"), t = (+p[0]) * 60 + (+p[1]) + min;
+    t = Math.max(0, Math.min(23 * 60 + 59, t));
+    return pad(Math.floor(t / 60)) + ":" + pad(t % 60);
+  }
+  function minutesBetween(a, b) { var x = a.split(":"), y = b.split(":"); return ((+y[0]) * 60 + (+y[1])) - ((+x[0]) * 60 + (+x[1])); }
+  function timeRange(m) { return m.start ? m.start + (m.end ? "–" + m.end : "") : "Todo el día"; }
+  function meetingContacts(m) { return (Array.isArray(m.contactIds) ? m.contactIds : []).map(findContact).filter(Boolean); }
+  function meetingTitle(m) { return m.title || "Reunión"; }
+  function matchesMeeting(m) {
+    var q = norm(state.search);
+    if (!q) return true;
+    return norm([m.title, m.place, m.link, m.others, m.agenda, m.minutes,
+      meetingContacts(m).map(function (c) { return contactTitle(c) + " " + (c.company || ""); }).join(" ")].join(" ")).indexOf(q) >= 0;
+  }
+  function meetingsByDay() {
+    var map = {};
+    state.meetings.filter(matchesMeeting).forEach(function (m) {
+      if (!parseDay(m.date)) return;
+      (map[m.date] = map[m.date] || []).push(m);
+    });
+    Object.keys(map).forEach(function (k) { map[k].sort(byStart); });
+    return map;
+  }
+  function isUpcoming(m) {
+    var d = todayStr();
+    return m.status !== "cancelled" && (m.date > d || (m.date === d && (!m.start || (m.end || m.start) >= nowHM())));
+  }
+  function nextMeetingFor(cid) {
+    return state.meetings.filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0 && isUpcoming(m); })
+      .sort(function (a, b) { return whenKey(a).localeCompare(whenKey(b)); })[0] || null;
+  }
+  function meetingsFor(cid) {
+    return state.meetings.filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0; })
+      .sort(function (a, b) { return whenKey(b).localeCompare(whenKey(a)); });
+  }
+  function inviteText(m) {
+    var lines = ["Reunión: " + meetingTitle(m), longDate(m.date) + (m.start ? ", " + timeRange(m) : "")];
+    if (m.mode === "video") lines.push("Videollamada" + (m.link ? ": " + m.link : ""));
+    else if (m.mode === "llamada") lines.push("Por llamada telefónica");
+    else if (m.place) lines.push("Lugar: " + m.place);
+    if (m.agenda) lines.push("", "Temas: " + m.agenda);
+    return lines.join("\n");
+  }
+
+  function meetChip(m) {
+    var c = el("div", "ctask cmeet" + (m.status === "cancelled" ? " cancelled" : "") + (m.status === "done" ? " mdone" : ""));
+    c.title = timeRange(m) + " · " + meetingTitle(m);
+    if (m.start) c.appendChild(el("b", "mtime", m.start));
+    c.appendChild(el("span", null, meetingTitle(m)));
+    c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openMeeting(m); });
+    if (state.canWrite) {
+      c.draggable = true;
+      c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", "m:" + m.id); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging"); });
+      c.addEventListener("dragend", function () { c.classList.remove("dragging"); });
+    }
+    return c;
+  }
+  function personChip(c, onRemove) {
+    var b = el(onRemove ? "span" : "button", "pchip-s");
+    if (!onRemove) b.type = "button";
+    b.appendChild(cAvatar(c));
+    b.appendChild(document.createTextNode(contactTitle(c)));
+    if (onRemove) {
+      var x = el("button", "x", "×"); x.type = "button";
+      x.setAttribute("aria-label", "Quitar a " + contactTitle(c));
+      x.onclick = function (e) { e.stopPropagation(); onRemove(); };
+      b.appendChild(x);
+    } else {
+      b.title = "Abrir contacto";
+      b.addEventListener("click", function (e) { e.stopPropagation(); openContact(c); });
+    }
+    return b;
+  }
+  function meetingCard(m) {
+    var card = el("article", "mcard" + (m.status === "cancelled" ? " cancelled" : "") + (m.status === "done" ? " mdone" : ""));
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
+    card.setAttribute("aria-label", "Abrir reunión: " + meetingTitle(m) + ", " + timeRange(m));
+    var tc = el("div", "mtimecol");
+    tc.appendChild(el("b", null, m.start || "Todo"));
+    tc.appendChild(el("span", null, m.start ? (m.end || "") : "el día"));
+    card.appendChild(tc);
+    var body = el("div", "mbody");
+    var tr = el("div", "mtitle-row");
+    tr.appendChild(el("h3", null, meetingTitle(m)));
+    if (m.status === "done") tr.appendChild(el("span", "mpill done", "Realizada"));
+    if (m.status === "cancelled") tr.appendChild(el("span", "mpill cancelled", "Cancelada"));
+    body.appendChild(tr);
+    var where = m.mode === "video" ? (m.link ? "Videollamada · " + m.link.replace(/^https?:\/\//, "") : "Videollamada") : m.mode === "llamada" ? "Llamada" : (m.place || "Presencial");
+    var row = el("div", "mrow"); row.appendChild(icon(MODE_ICON[m.mode] || "pin")); row.appendChild(el("span", null, where));
+    body.appendChild(row);
+    var ppl = meetingContacts(m);
+    var team = (m.team || []).filter(function (k) { return member(k); });
+    if (ppl.length || team.length || m.others) {
+      var pp = el("div", "mpeople");
+      ppl.forEach(function (c) { pp.appendChild(personChip(c)); });
+      if (m.others) pp.appendChild(el("span", "pchip-s plain", m.others));
+      if (team.length) {
+        var st = el("span", "stack"); st.title = "Del equipo: " + namesOf(team);
+        team.forEach(function (k) { st.appendChild(avatarFor(k)); });
+        pp.appendChild(st);
+      }
+      body.appendChild(pp);
+    }
+    var acts = el("div", "cacts");
+    if (m.mode === "video" && /^https?:\/\//i.test(m.link || "") && m.status !== "cancelled") {
+      var j = el("a", "cact web"); j.href = m.link; j.target = "_blank"; j.rel = "noopener";
+      j.appendChild(icon("video")); j.appendChild(document.createTextNode("Unirse"));
+      j.addEventListener("click", function (e) { e.stopPropagation(); });
+      acts.appendChild(j);
+    }
+    if (m.mode === "llamada" && ppl[0] && ppl[0].phone && m.status !== "cancelled") {
+      var cl = el("a", "cact call"); cl.href = "tel:" + String(ppl[0].phone).replace(/[^\d+]/g, "");
+      cl.appendChild(icon("phone")); cl.appendChild(document.createTextNode("Llamar a " + contactTitle(ppl[0]).split(" ")[0]));
+      cl.addEventListener("click", function (e) { e.stopPropagation(); });
+      acts.appendChild(cl);
+    }
+    if (acts.childNodes.length) body.appendChild(acts);
+    card.appendChild(body);
+    card.addEventListener("click", function () { openMeeting(m); });
+    card.addEventListener("keydown", function (e) { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openMeeting(m); } });
+    return card;
+  }
+
+  function showAddPick(cell, ds) {
+    var old = document.querySelector(".cell-pick"); if (old) old.remove();
+    var pk = el("div", "cell-pick");
+    pk.setAttribute("role", "menu");
+    var b1 = el("button"); b1.type = "button"; b1.setAttribute("role", "menuitem");
+    b1.appendChild(icon("users")); b1.appendChild(document.createTextNode("Reunión"));
+    b1.onclick = function (e) { e.stopPropagation(); pk.remove(); openMeeting(null, { date: ds }); };
+    var b2 = el("button"); b2.type = "button"; b2.setAttribute("role", "menuitem");
+    b2.appendChild(icon("check")); b2.appendChild(document.createTextNode("Tarea"));
+    b2.onclick = function (e) { e.stopPropagation(); pk.remove(); openEditor(null, { due: ds }); };
+    pk.appendChild(b1); pk.appendChild(b2);
+    pk.addEventListener("click", function (e) { e.stopPropagation(); });
+    cell.appendChild(pk);
+    b1.focus();
+    setTimeout(function () {
+      document.addEventListener("click", function h(e) {
+        if (!pk.contains(e.target)) { pk.remove(); document.removeEventListener("click", h, true); }
+      }, true);
+    }, 0);
+  }
+
+  function saveMeeting(id, data) { return state.db.doc("meetings/" + id).set(data); }
+  function moveMeeting(m, ds) {
+    if (!state.canWrite || !state.db || !m || m.date === ds) return;
+    var from = m.date;
+    var data = Object.assign({}, m, { date: ds, updatedAt: new Date().toISOString() }); delete data.id;
+    saveMeeting(m.id, data).then(function () {
+      logEntry({ action: "meeting_edit", meetingId: m.id, title: meetingTitle(m), changes: [{ f: "mdate", from: from, to: ds }] });
+      toast("Reunión movida al " + fmtShort(parseDay(ds)), function () {
+        var cur = findMeeting(m.id) || m;
+        var back = Object.assign({}, cur, { date: from, updatedAt: new Date().toISOString() }); delete back.id;
+        saveMeeting(m.id, back).then(function () {
+          logEntry({ action: "meeting_edit", meetingId: m.id, title: meetingTitle(m), changes: [{ f: "mdate", from: ds, to: from }] });
+          toast("Deshecho");
+        }).catch(handleWriteError);
+      });
+    }).catch(handleWriteError);
+  }
+
+  function openMeeting(m, preset) {
+    var isNew = !m;
+    var base = { date: state.calSel || todayStr(), start: "10:00", end: "11:00", mode: "presencial", team: meKey() ? [meKey()] : [], contactIds: [], status: "scheduled" };
+    m = m || Object.assign(base, preset || {});
+    var ro = !state.canWrite;
+    var chosen = (m.contactIds || []).filter(function (id) { return findContact(id); });
+    var conflictArmed = false;
+    openPanel(function (p) {
+      p.setAttribute("aria-label", isNew ? "Nueva reunión" : "Reunión");
+      p.appendChild(el("h2", null, isNew ? "Nueva reunión" : meetingTitle(m)));
+
+      if (!isNew) {
+        var quick = el("div", "cquick");
+        if (m.mode === "video" && /^https?:\/\//i.test(m.link || "")) {
+          var j = el("a", "cact web"); j.href = m.link; j.target = "_blank"; j.rel = "noopener";
+          j.appendChild(icon("video")); j.appendChild(document.createTextNode("Unirse a la videollamada")); quick.appendChild(j);
+        }
+        var withPhone = meetingContacts(m).filter(function (c) { return waNumber(c.phone) || waNumber(c.phone2); })[0];
+        if (withPhone) {
+          var wa = el("a", "cact wa"); wa.target = "_blank"; wa.rel = "noopener";
+          wa.href = "https://wa.me/" + (waNumber(withPhone.phone) || waNumber(withPhone.phone2)) + "?text=" + encodeURIComponent(inviteText(m));
+          wa.appendChild(icon("chat")); wa.appendChild(document.createTextNode("Confirmar por WhatsApp a " + contactTitle(withPhone).split(" ")[0]));
+          quick.appendChild(wa);
+        }
+        var cp = el("button", "cact"); cp.type = "button";
+        cp.appendChild(icon("copy")); cp.appendChild(document.createTextNode("Copiar invitación"));
+        cp.onclick = function () {
+          try { navigator.clipboard.writeText(inviteText(m)).then(function () { toast("Invitación copiada. Pégala donde quieras enviarla."); }, function () { toast("No se pudo copiar en este navegador."); }); }
+          catch (e) { toast("No se pudo copiar en este navegador."); }
+        };
+        quick.appendChild(cp);
+        if (state.canWrite) {
+          var fu = el("button", "cact"); fu.type = "button";
+          fu.appendChild(icon("check")); fu.appendChild(document.createTextNode("Tarea de seguimiento"));
+          fu.onclick = function () {
+            var first = meetingContacts(m)[0];
+            var d = parseDay(m.date) || parseDay(todayStr());
+            openEditor(null, { title: "Seguimiento: " + meetingTitle(m), due: fmt(addDays(d, 2)), client: first && first.company || "",
+              notes: (m.minutes ? "Acuerdos: " + m.minutes : m.agenda ? "Temas: " + m.agenda : "") + "\nReunión del " + longDate(m.date) });
+          };
+          quick.appendChild(fu);
+        }
+        p.appendChild(quick);
+      }
+
+      var titleIn = input("m-title", m.title); titleIn.className = "title-in" + (isNew ? " autofocus" : ""); titleIn.maxLength = 160;
+      titleIn.placeholder = "p. ej. Presentación de la propuesta";
+      p.appendChild(field("Reunión", titleIn));
+
+      var dateIn = input("m-date", m.date, "date");
+      var startIn = input("m-start", m.start, "time"); startIn.step = 300;
+      var endIn = input("m-end", m.end, "time"); endIn.step = 300;
+      /* the meeting keeps its length: moving the start moves the end with it */
+      var dur = startIn.value && endIn.value && minutesBetween(startIn.value, endIn.value) > 0 ? minutesBetween(startIn.value, endIn.value) : 60;
+      startIn.addEventListener("change", function () { if (startIn.value) endIn.value = addMinutes(startIn.value, dur); });
+      endIn.addEventListener("change", function () {
+        if (startIn.value && endIn.value && minutesBetween(startIn.value, endIn.value) > 0) dur = minutesBetween(startIn.value, endIn.value);
+      });
+      var r1 = el("div", "row3");
+      r1.appendChild(field("Fecha", dateIn)); r1.appendChild(field("Empieza", startIn)); r1.appendChild(field("Termina", endIn));
+      p.appendChild(r1);
+      p.appendChild(el("div", "help m-timehelp", "Deja la hora vacía si dura todo el día. Al cambiar el inicio, el final se mueve con él."));
+
+      var mode = segmented("m-mode", MODES, m.mode || "presencial");
+      p.appendChild(field("Modalidad", mode.el));
+      var placeIn = input("m-place", m.place); placeIn.maxLength = 240; placeIn.placeholder = "Dirección u oficina";
+      var placeF = field("Lugar", placeIn);
+      var linkIn = input("m-link", m.link, "url"); linkIn.maxLength = 400; linkIn.placeholder = "https://meet.google.com/…"; linkIn.autocapitalize = "off";
+      var linkF = field("Enlace de la videollamada", linkIn);
+      var callHelp = el("div", "help", "Se llama al teléfono del contacto. Lo verás como botón en la reunión.");
+      p.appendChild(placeF); p.appendChild(linkF); p.appendChild(callHelp);
+      function syncMode() { var v = mode.get(); placeF.hidden = v !== "presencial"; linkF.hidden = v !== "video"; callHelp.hidden = v !== "llamada"; }
+      mode.onChange(syncMode); syncMode();
+
+      /* contacts picker */
+      var pick = el("div", "cpick"); pick.id = "m-contacts";
+      var chips = el("div", "mpeople");
+      var search = input("m-csearch", ""); search.placeholder = state.contacts.length ? "Buscar un contacto guardado…" : "Todavía no hay contactos guardados";
+      search.autocomplete = "off"; search.disabled = ro || !state.contacts.length;
+      search.setAttribute("aria-label", "Buscar contacto para agregar");
+      var results = el("div", "cpick-results"); results.hidden = true;
+      function drawChosen() {
+        chips.textContent = "";
+        chosen.forEach(function (id) {
+          var c = findContact(id); if (!c) return;
+          chips.appendChild(personChip(c, ro ? null : function () { chosen.splice(chosen.indexOf(id), 1); drawChosen(); }));
+        });
+        chips.hidden = !chosen.length;
+      }
+      function drawResults() {
+        var q = norm(search.value);
+        results.textContent = "";
+        if (!q) { results.hidden = true; return; }
+        var hits = state.contacts.filter(function (c) {
+          return chosen.indexOf(c.id) < 0 && norm([c.name, c.company, c.role, c.email].join(" ")).indexOf(q) >= 0;
+        }).slice(0, 6);
+        if (!hits.length) {
+          results.appendChild(el("div", "cpick-none", "No hay contactos con «" + search.value.trim() + "». Escríbelo en «Otros asistentes» o guárdalo antes en Contactos."));
+        }
+        hits.forEach(function (c) {
+          var b = el("button"); b.type = "button";
+          b.appendChild(cAvatar(c));
+          var t = el("span");
+          t.appendChild(document.createTextNode(contactTitle(c)));
+          var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
+          if (sub) t.appendChild(el("small", null, sub));
+          b.appendChild(t);
+          b.onclick = function () {
+            chosen.push(c.id); search.value = ""; drawResults(); drawChosen(); search.focus();
+            if (!titleIn.value.trim()) { titleIn.value = "Reunión con " + contactTitle(c); titleIn.classList.remove("filled"); void titleIn.offsetWidth; titleIn.classList.add("filled"); }
+          };
+          results.appendChild(b);
+        });
+        results.hidden = false;
+      }
+      search.addEventListener("input", drawResults);
+      search.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); var f = results.querySelector("button"); if (f) f.click(); }
+        if (e.key === "Escape" && search.value) { e.stopPropagation(); search.value = ""; drawResults(); }
+      });
+      pick.appendChild(chips); pick.appendChild(search); pick.appendChild(results);
+      drawChosen();
+      p.appendChild(field("Con quién (contactos guardados)", pick));
+      var othersIn = input("m-others", m.others); othersIn.maxLength = 240; othersIn.placeholder = "Personas que no están en Contactos";
+      p.appendChild(field("Otros asistentes", othersIn));
+
+      var teamSel = (m.team || []).slice();
+      var teamBox = el("div", "people-pick"); teamBox.id = "m-team"; teamBox.setAttribute("role", "group");
+      state.members.forEach(function (mm) {
+        var b = el("button", "chip"); b.type = "button";
+        b.setAttribute("aria-pressed", String(teamSel.indexOf(mm.key) >= 0));
+        b.appendChild(avatarFor(mm.key)); b.appendChild(document.createTextNode(mm.name.split(" ")[0]));
+        b.disabled = ro;
+        b.onclick = function () {
+          var i = teamSel.indexOf(mm.key);
+          if (i >= 0) teamSel.splice(i, 1); else teamSel.push(mm.key);
+          b.setAttribute("aria-pressed", String(i < 0));
+        };
+        teamBox.appendChild(b);
+      });
+      p.appendChild(field("Del equipo van", teamBox));
+
+      var agendaIn = document.createElement("textarea"); agendaIn.id = "m-agenda"; agendaIn.value = m.agenda || ""; agendaIn.maxLength = 4000;
+      agendaIn.placeholder = "Temas a tratar, qué llevar, qué queremos lograr…";
+      p.appendChild(field("Agenda", agendaIn));
+      var status = segmented("m-status", MSTATUS, m.status || "scheduled");
+      p.appendChild(field("Estado", status.el));
+      var minutesIn = document.createElement("textarea"); minutesIn.id = "m-minutes"; minutesIn.value = m.minutes || ""; minutesIn.maxLength = 6000;
+      minutesIn.placeholder = "Qué se decidió, compromisos y próximos pasos…";
+      var minutesF = field("Acuerdos de la reunión", minutesIn, "Complétalo después de la reunión. Con «Tarea de seguimiento» conviertes un acuerdo en tarea.");
+      p.appendChild(minutesF);
+
+      var warn = el("div", "dupwarn"); warn.hidden = true; warn.setAttribute("role", "alert");
+      p.appendChild(warn);
+
+      if (ro) Array.prototype.forEach.call(p.querySelectorAll("input, select, textarea, .seg button"), function (x) { x.disabled = true; });
+
+      if (!isNew && m.updatedAt) {
+        var d = new Date(m.updatedAt);
+        if (!isNaN(d)) p.appendChild(el("div", "stamp", "Último cambio: " + d.getDate() + " " + MONTHS[d.getMonth()] + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes())));
+      }
+
+      var acts = el("div", "panel-actions");
+      if (!ro) {
+        var save = el("button", "btn primary", isNew ? "Agendar reunión" : "Guardar cambios"); save.type = "button";
+        save.onclick = function () {
+          var title = titleIn.value.trim();
+          if (!title && chosen.length) title = "Reunión con " + contactTitle(findContact(chosen[0]));
+          if (!title) {
+            titleIn.focus(); titleIn.classList.remove("shake"); void titleIn.offsetWidth; titleIn.classList.add("shake");
+            toast("Ponle un nombre a la reunión o elige con quién es.");
+            return;
+          }
+          if (!dateIn.value) { dateIn.focus(); toast("Elige la fecha de la reunión."); return; }
+          if (!state.db) { toast("El tablero no está conectado, así que no se puede guardar."); return; }
+          var st = startIn.value || "", en = endIn.value || "";
+          if (st && en && en <= st) en = addMinutes(st, 60);
+          if (!st) en = "";
+          var now = new Date().toISOString();
+          var data = {
+            title: title, date: dateIn.value, start: st, end: en, mode: mode.get(),
+            place: mode.get() === "presencial" ? placeIn.value.trim() : "", link: mode.get() === "video" ? linkIn.value.trim() : "",
+            contactIds: chosen.slice(), others: othersIn.value.trim(), team: teamSel.slice(),
+            agenda: agendaIn.value.trim(), status: status.get(), minutes: minutesIn.value.trim(),
+            createdAt: m.createdAt || now, updatedAt: now
+          };
+          if (!conflictArmed && st && data.status !== "cancelled") {
+            var clash = state.meetings.filter(function (o) {
+              if (o.id === m.id || o.date !== data.date || o.status === "cancelled" || !o.start) return false;
+              var oe = o.end || addMinutes(o.start, 60), de = en || addMinutes(st, 60);
+              return o.start < de && st < oe;
+            })[0];
+            if (clash) {
+              conflictArmed = true;
+              warn.textContent = "";
+              warn.appendChild(el("span", null, "Ese día ya hay «" + meetingTitle(clash) + "» de " + timeRange(clash) + ". Cambia la hora o toca «Agendar igual»."));
+              warn.hidden = false;
+              save.textContent = isNew ? "Agendar igual" : "Guardar igual";
+              warn.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "nearest" });
+              return;
+            }
+          }
+          save.disabled = true;
+          var id = isNew ? state.db.collection("meetings").doc().id : m.id;
+          saveMeeting(id, data).then(function () {
+            logEntry({ action: isNew ? "meeting_create" : "meeting_edit", meetingId: id, title: title });
+            closePanel();
+            if (state.view === "cal") { state.calSel = data.date; var dd = parseDay(data.date); state.calMonth = new Date(dd.getFullYear(), dd.getMonth(), 1); renderCal(); }
+            toast(isNew ? "Reunión agendada para el " + fmtShort(parseDay(data.date)) + (st ? " a las " + st : "") : "Cambios guardados");
+          }).catch(function (e) { save.disabled = false; handleWriteError(e); });
+        };
+        acts.appendChild(save);
+      }
+      var cancel = el("button", "btn", ro ? "Cerrar" : "Cancelar"); cancel.type = "button"; cancel.onclick = closePanel;
+      acts.appendChild(cancel);
+      if (!isNew && !ro) {
+        acts.appendChild(el("span", "spacer"));
+        var del = el("button", "btn danger", "Borrar"); del.type = "button";
+        del.onclick = function () {
+          if (!del.classList.contains("armed")) {
+            del.classList.add("armed"); del.textContent = "Confirmar borrado";
+            setTimeout(function () { if (del.isConnected) { del.classList.remove("armed"); del.textContent = "Borrar"; } }, 4000);
+            return;
+          }
+          del.disabled = true;
+          var copy = Object.assign({}, m); delete copy.id; delete copy._deleted;
+          state.db.doc("meetings/" + m.id).delete().then(function () {
+            logEntry({ action: "meeting_delete", meetingId: m.id, title: meetingTitle(m) });
+            closePanel();
+            toast("Reunión borrada", function () {
+              saveMeeting(m.id, copy).then(function () {
+                logEntry({ action: "meeting_restore", meetingId: m.id, title: meetingTitle(m) });
+                toast("Reunión restaurada");
+              }).catch(handleWriteError);
+            });
+          }).catch(function (e) { del.disabled = false; handleWriteError(e); });
+        };
+        acts.appendChild(del);
+      }
+      p.appendChild(acts);
+    });
+  }
+
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
   $("fab").onclick = function () { if (state.view === "contacts") openContact(null); else openEditor(null); };
@@ -3013,6 +3579,7 @@ body.locked { overflow: hidden; }
       return;
     }
     if ((e.key === "n" || e.key === "N") && state.canWrite) { e.preventDefault(); if (state.view === "contacts") openContact(null); else openEditor(null); }
+    else if ((e.key === "r" || e.key === "R") && state.canWrite) { e.preventDefault(); openMeeting(null, { date: state.view === "cal" ? state.calSel : todayStr() }); }
     else if (e.key === "/") { e.preventDefault(); $("search").focus(); }
   });
 
@@ -3049,7 +3616,7 @@ body.locked { overflow: hidden; }
 
   /* A small stand-in for the db API the board was written against, backed by key-checked Supabase functions. */
   function makeDb(key, onLocked) {
-    var cache = { tasks: {}, contacts: {}, settings: null, log: [], loaded: false };
+    var cache = { tasks: {}, contacts: {}, meetings: {}, settings: null, log: [], loaded: false };
     var subs = [];
     var pending = 0, loading = null, again = false, channel = null;
 
@@ -3074,6 +3641,7 @@ body.locked { overflow: hidden; }
     function runQuery(q) {
       if (q.coll === "tasks") return Object.keys(cache.tasks).map(function (id) { return docSnap(id, cache.tasks[id]); });
       if (q.coll === "contacts") return Object.keys(cache.contacts).map(function (id) { return docSnap(id, cache.contacts[id]); });
+      if (q.coll === "meetings") return Object.keys(cache.meetings).map(function (id) { return docSnap(id, cache.meetings[id]); });
       if (q.coll === "log") {
         var rows = cache.log.slice();
         q.filters.forEach(function (f) { rows = rows.filter(function (r) { return r.data && r.data[f[0]] === f[2]; }); });
@@ -3104,6 +3672,9 @@ body.locked { overflow: hidden; }
         var cs = {};
         (d && d.contacts || []).forEach(function (x) { cs[x.id] = x.data; });
         cache.contacts = cs;
+        var ms = {};
+        (d && d.meetings || []).forEach(function (x) { ms[x.id] = x.data; });
+        cache.meetings = ms;
         cache.settings = d && d.settings || null;
         cache.log = (d && d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
         cache.loaded = true;
@@ -3147,11 +3718,13 @@ body.locked { overflow: hidden; }
         if (coll === "tasks") return write("task_set", { p_id: id, p_data: data }, function () { cache.tasks[id] = data; });
         if (coll === "log") return write("log_add", { p_id: id, p_data: data }, function () { cache.log.unshift({ id: id, data: data }); });
         if (coll === "contacts") return write("contact_set", { p_id: id, p_data: data }, function () { cache.contacts[id] = data; });
+        if (coll === "meetings") return write("meeting_set", { p_id: id, p_data: data }, function () { cache.meetings[id] = data; });
         return Promise.resolve();
       };
       ref.update = function (data) {
         data = clone(data);
         if (coll === "contacts") return ref.set(Object.assign({}, cache.contacts[id] || {}, data));
+        if (coll === "meetings") return ref.set(Object.assign({}, cache.meetings[id] || {}, data));
         if (coll !== "tasks") return ref.set(data);
         return write("task_update", { p_id: id, p_data: data }, function () {
           if (cache.tasks[id]) cache.tasks[id] = Object.assign({}, cache.tasks[id], data);
@@ -3159,6 +3732,7 @@ body.locked { overflow: hidden; }
       };
       ref.delete = function () {
         if (coll === "contacts") return write("contact_delete", { p_id: id }, function () { delete cache.contacts[id]; });
+        if (coll === "meetings") return write("meeting_delete", { p_id: id }, function () { delete cache.meetings[id]; });
         if (coll !== "tasks") return Promise.resolve();
         return write("task_delete", { p_id: id }, function () { delete cache.tasks[id]; });
       };
@@ -3277,6 +3851,10 @@ body.locked { overflow: hidden; }
       state.tasks = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       state.loaded = true;
       render();
+    });
+    db.collection("meetings").onSnapshot(function (snap) {
+      state.meetings = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      renderHero(); renderCal(); renderContacts();
     });
     db.collection("contacts").onSnapshot(function (snap) {
       state.contacts = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
