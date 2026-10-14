@@ -397,6 +397,79 @@ body.locked { overflow: hidden; }
 .session-line { margin: 0; }
 .linkbtn { border: none; background: none; padding: 4px 0; color: var(--muted); font-size: 13px; text-decoration: underline; text-underline-offset: 3px; }
 .linkbtn:hover { color: var(--ink); }
+
+/* ---------- calendar view ---------- */
+.viewswitch { display: inline-flex; background: var(--lane); border-radius: 999px; padding: 4px; gap: 2px; flex: none; }
+.viewswitch button { border: none; background: transparent; border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 14px; color: var(--muted); display: inline-flex; gap: 7px; align-items: center; transition: background .15s, color .15s; }
+.viewswitch button[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.viewswitch .ico { width: 16px; height: 16px; }
+.btn.small { padding: 7px 12px; font-size: 13.5px; display: inline-flex; gap: 6px; align-items: center; }
+.btn.small .ico { width: 15px; height: 15px; }
+.cal { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-sm); }
+.cal-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.cal-head h2 { margin: 0 4px; font-family: var(--font-display); font-weight: 800; font-size: 24px; letter-spacing: -.01em; min-width: 10ch; text-align: center; }
+.cal-head h2::first-letter { text-transform: uppercase; }
+.cal-head .spacer { flex: 1; }
+.navbtn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; padding: 0; color: var(--ink); transition: background .15s, transform .12s; }
+.navbtn:hover { background: var(--lane); }
+.navbtn:active { transform: scale(.92); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.cal-grid.anim { animation: calin .3s cubic-bezier(.2,.8,.2,1); }
+@keyframes calin { from { opacity: 0; transform: translateX(var(--dx, 0)); } to { opacity: 1; transform: none; } }
+.wday { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: var(--muted); padding: 2px 8px 4px; }
+.cell { position: relative; min-height: 108px; min-width: 0; border-radius: 12px; background: var(--bg); border: 1.5px solid transparent; padding: 6px; display: flex; flex-direction: column; gap: 4px; cursor: pointer; transition: border-color .15s, background .15s, box-shadow .15s; }
+.cell:hover { border-color: var(--line-strong); }
+.cell.weekend { background: var(--lane); }
+.cell.out { opacity: .42; }
+.cell.sel { border-color: var(--ink); background: var(--surface); box-shadow: var(--shadow-sm); }
+.cell.drop { border-color: var(--focus); background: var(--focus-ring); transform: scale(1.02); }
+.dnum { font-family: var(--font-mono); font-size: 12.5px; font-weight: 600; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; flex: none; }
+.cell.today .dnum { background: var(--accent); color: var(--accent-ink); }
+.cell.has-late .dnum::after { content: ""; position: absolute; top: 9px; left: 30px; width: 6px; height: 6px; border-radius: 50%; background: var(--late); }
+.ctasks { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.ctask { display: flex; align-items: center; min-width: 0; font-size: 12px; font-weight: 600; line-height: 1.25; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--lane-c, var(--muted)); border-radius: 6px; padding: 3px 6px; cursor: grab; transition: transform .12s, box-shadow .12s; }
+.ctask span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctask:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.ctask.dragging { opacity: .45; }
+.ctask.hi span::before { content: "! "; color: var(--late); }
+.ctask.done { color: var(--muted); text-decoration: line-through; }
+.ctask.late { background: var(--late-soft); color: var(--late); border-color: var(--late-soft); border-left-color: var(--late); }
+.cell.sel .ctask { background: var(--bg); }
+.cmore { font-size: 11.5px; color: var(--muted); font-weight: 700; padding-left: 4px; }
+.cell-add { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 7px; border: none; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; padding: 0; opacity: 0; transition: opacity .15s, transform .12s; }
+.cell-add .ico { width: 14px; height: 14px; stroke-width: 2.6; }
+.cell:hover .cell-add, .cell-add:focus-visible { opacity: 1; }
+.cell-add:active { transform: scale(.88); }
+.agenda { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; scroll-margin-bottom: 90px; }
+.agenda-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.agenda-head h3 { margin: 0; font-family: var(--font-display); font-size: 19px; font-weight: 600; }
+.agenda .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; }
+.cal-note { margin: 0; font-size: 13px; color: var(--muted); }
+.sub-body { display: flex; flex-direction: column; gap: 16px; }
+.sub-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 16px; font-size: 15px; }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
+.steps b { font-weight: 700; }
+@media (max-width: 680px) {
+  .viewswitch { width: 100%; }
+  .viewswitch button { flex: 1; justify-content: center; }
+  .cal { padding: 10px 8px; border-radius: 16px; }
+  .cal-head { gap: 6px; }
+  .cal-head h2 { font-size: 20px; min-width: 0; flex: 1; }
+  .cal-head .spacer { display: none; }
+  .sub-btn { width: 100%; justify-content: center; }
+  .cal-grid { gap: 3px; }
+  .wday { text-align: center; padding: 2px 0; }
+  .cell { min-height: 58px; padding: 4px 2px 6px; align-items: center; border-radius: 10px; }
+  .dnum { width: 26px; height: 26px; font-size: 12px; }
+  .cell.has-late .dnum::after { top: 4px; left: auto; right: 4px; }
+  .ctasks { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; }
+  .ctask { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: var(--lane-c, var(--muted)); pointer-events: none; }
+  .ctask span { display: none; }
+  .ctask.late { background: var(--late); }
+  .ctask.done { opacity: .5; }
+  .cmore, .cell-add { display: none; }
+  .agenda .cards { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -456,16 +529,21 @@ body.locked { overflow: hidden; }
   <div id="whoStrip" class="notice who-strip" hidden></div>
 
   <div class="toolbar">
+    <div class="viewswitch" role="tablist" aria-label="Vista">
+      <button type="button" id="viewBoard" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
+      <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+    </div>
     <div class="search">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       <input id="search" type="search" placeholder="Buscar tareas, clientes o notas" aria-label="Buscar tareas" autocomplete="off">
       <button class="clear" id="searchClear" type="button" aria-label="Borrar búsqueda" hidden><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
     <div class="tabs" id="tabs" role="tablist" aria-label="Columnas"></div>
-    <div class="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
+    <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
   </div>
 
   <main class="board" id="board"></main>
+  <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
 
   <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
@@ -503,7 +581,10 @@ body.locked { overflow: hidden; }
     note: '<path d="M6 3.5h8l4 4v13H6z"/><path d="M14 3.5v4h4M9 12h6M9 16h4"/>',
     move: '<path d="M8 7h11M15 3l4 4-4 4"/><path d="M16 17H5M9 13l-4 4 4 4"/>',
     x: '<path d="M6 6l12 12M18 6L6 18"/>',
-    flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'
+    flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+    chevL: '<path d="M15 5l-7 7 7 7"/>',
+    chevR: '<path d="M9 5l7 7-7 7"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>'
   };
 
   var state = {
@@ -707,6 +788,7 @@ body.locked { overflow: hidden; }
     renderMe();
     renderStats();
     renderBoard();
+    renderCal();
   }
 
   function renderHero() {
@@ -1431,9 +1513,9 @@ body.locked { overflow: hidden; }
     return { el: g, get: function () { return cur; }, onChange: function (fn) { listeners.push(fn); } };
   }
 
-  function openEditor(t) {
+  function openEditor(t, preset) {
     var isNew = !t;
-    t = t || { status: "todo", priority: "normal" };
+    t = t || Object.assign({ status: "todo", priority: "normal" }, preset || {});
     var ro = !state.canWrite;
     openPanel(function (p) {
       p.setAttribute("aria-label", isNew ? "Nueva tarea" : "Editar tarea");
@@ -1744,14 +1826,268 @@ body.locked { overflow: hidden; }
     var n = $("notice"); n.textContent = msg; n.className = "notice" + (warn ? " warn" : ""); n.hidden = false;
   }
 
+  /* ---------- calendar view ---------- */
+  state.view = "board";
+  try { if (localStorage.getItem("tb-view") === "cal") state.view = "cal"; } catch (e) {}
+  state.calMonth = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+  state.calSel = todayStr();
+  var calDir = 0;
+  var HINTS = {
+    board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
+    cal: "Arrastra una tarea a otro día para cambiar su fecha · toca un día para ver sus tareas"
+  };
+  function setView(v) {
+    state.view = v;
+    try { localStorage.setItem("tb-view", v); } catch (e) {}
+    calDir = 0;
+    renderBoard(); renderCal();
+  }
+  function shiftMonth(n) {
+    state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + n, 1);
+    calDir = n;
+    renderCal();
+  }
+  function longDate(s) { var d = parseDay(s); return cap(WD_LONG[d.getDay()]) + " " + d.getDate() + " de " + MONTHS_LONG[d.getMonth()]; }
+  function tasksByDay() {
+    var map = {};
+    byPerson(state.tasks).filter(matchesSearch).forEach(function (t) {
+      if (!parseDay(t.due)) return;
+      (map[t.due] = map[t.due] || []).push(t);
+    });
+    Object.keys(map).forEach(function (k) {
+      map[k].sort(function (a, b) {
+        var da = a.status === "done" ? 1 : 0, dbb = b.status === "done" ? 1 : 0;
+        if (da !== dbb) return da - dbb;
+        return (PRIORITY[a.priority] || PRIORITY.normal).rank - (PRIORITY[b.priority] || PRIORITY.normal).rank;
+      });
+    });
+    return map;
+  }
+  function reschedule(t, newDue) {
+    if (!state.canWrite || !state.db || !t || (t.due || "") === newDue) return;
+    var from = t.due || "";
+    persist(t, { due: newDue, updatedAt: new Date().toISOString() }).then(function () {
+      logEntry({ action: "edit", taskId: t.id, title: t.title || "", from: t.status || "todo", to: t.status || "todo", changes: [{ f: "due", from: from, to: newDue }] });
+      toast("Movida al " + fmtShort(parseDay(newDue)), function () {
+        var cur = findTask(t.id) || t;
+        persist(cur, { due: from, updatedAt: new Date().toISOString() }).then(function () {
+          logEntry({ action: "edit", taskId: t.id, title: t.title || "", from: cur.status || "todo", to: cur.status || "todo", changes: [{ f: "due", from: newDue, to: from }] });
+          toast("Deshecho");
+        }).catch(handleWriteError);
+      });
+    }).catch(handleWriteError);
+  }
+  function isPhone() { try { return window.matchMedia("(max-width: 680px)").matches; } catch (e) { return false; } }
+  function calChip(t) {
+    var done = t.status === "done";
+    var c = el("div", "ctask" + (done ? " done" : "") + (isOverdue(t) ? " late" : "") + (t.priority === "high" && !done ? " hi" : ""));
+    c.dataset.status = t.status || "todo";
+    c.title = (t.title || "Tarea") + " · " + statusLabel(t.status || "todo");
+    c.appendChild(el("span", null, t.title || "Tarea sin título"));
+    c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openEditor(t); });
+    if (state.canWrite) {
+      c.draggable = true;
+      c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", t.id); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging"); });
+      c.addEventListener("dragend", function () { c.classList.remove("dragging"); });
+    }
+    return c;
+  }
+  function renderCal() {
+    var on = state.view === "cal";
+    var box = $("cal");
+    box.hidden = !on;
+    $("board").hidden = on;
+    $("tabs").hidden = on;
+    $("viewBoard").setAttribute("aria-selected", String(!on));
+    $("viewCal").setAttribute("aria-selected", String(on));
+    $("hint").innerHTML = HINTS[on ? "cal" : "board"];
+    if (!on) return;
+    box.textContent = "";
+
+    var m = state.calMonth, y = m.getFullYear(), mo = m.getMonth(), today = todayStr();
+    var head = el("div", "cal-head");
+    var prev = el("button", "navbtn"); prev.type = "button"; prev.setAttribute("aria-label", "Mes anterior"); prev.appendChild(icon("chevL"));
+    prev.onclick = function () { shiftMonth(-1); };
+    var next = el("button", "navbtn"); next.type = "button"; next.setAttribute("aria-label", "Mes siguiente"); next.appendChild(icon("chevR"));
+    next.onclick = function () { shiftMonth(1); };
+    var title = el("h2", null, MONTHS_LONG[mo] + " " + y);
+    title.setAttribute("aria-live", "polite");
+    var todayB = el("button", "btn small", "Hoy"); todayB.type = "button";
+    todayB.onclick = function () {
+      var d = new Date(), target = new Date(d.getFullYear(), d.getMonth(), 1);
+      calDir = target < state.calMonth ? -1 : target > state.calMonth ? 1 : 0;
+      state.calMonth = target; state.calSel = today; renderCal();
+    };
+    head.appendChild(prev); head.appendChild(title); head.appendChild(next); head.appendChild(todayB);
+    head.appendChild(el("span", "spacer"));
+    if (state.db && state.db.calendarToken) {
+      var sub = el("button", "btn small sub-btn"); sub.type = "button";
+      sub.appendChild(icon("cal")); sub.appendChild(document.createTextNode("Suscribirse en tu calendario"));
+      sub.onclick = openSubscribe;
+      head.appendChild(sub);
+    }
+    box.appendChild(head);
+
+    var grid = el("div", "cal-grid" + (calDir && !reduced() ? " anim" : ""));
+    grid.style.setProperty("--dx", (calDir > 0 ? 28 : calDir < 0 ? -28 : 0) + "px");
+    calDir = 0;
+    ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"].forEach(function (n) {
+      var w = el("div", "wday", n.charAt(0) === "M" && n !== "Martes" ? "X" : n.charAt(0));
+      w.title = n; w.setAttribute("aria-hidden", "true");
+      grid.appendChild(w);
+    });
+    var start = addDays(m, -mIdx(m.getDay()));
+    var weeks = Math.ceil((mIdx(m.getDay()) + daysIn(y, mo)) / 7);
+    var map = tasksByDay(), days = [];
+    for (var i = 0; i < weeks * 7; i++) days.push(addDays(start, i));
+    days.forEach(function (d) {
+      var ds = fmt(d), list = map[ds] || [];
+      var late = list.some(isOverdue);
+      var cell = el("div", "cell" + (d.getMonth() !== mo ? " out" : "") + (ds === today ? " today" : "") + (ds === state.calSel ? " sel" : "")
+        + (d.getDay() === 0 || d.getDay() === 6 ? " weekend" : "") + (late ? " has-late" : ""));
+      cell.dataset.date = ds;
+      cell.tabIndex = 0;
+      cell.setAttribute("role", "button");
+      cell.setAttribute("aria-label", longDate(ds) + (list.length ? ", " + plural(list.length, "tarea", "tareas") : ", sin tareas"));
+      cell.appendChild(el("span", "dnum", String(d.getDate())));
+      var ct = el("div", "ctasks");
+      var maxChips = isPhone() ? 4 : 3;
+      list.slice(0, maxChips).forEach(function (t) { ct.appendChild(calChip(t)); });
+      if (list.length > maxChips) ct.appendChild(el("span", "cmore", "+" + (list.length - maxChips) + " más"));
+      cell.appendChild(ct);
+      if (state.canWrite) {
+        var add = el("button", "cell-add"); add.type = "button";
+        add.setAttribute("aria-label", "Agregar tarea el " + longDate(ds));
+        add.appendChild(icon("plus"));
+        add.onclick = function (e) { e.stopPropagation(); openEditor(null, { due: ds }); };
+        cell.appendChild(add);
+        cell.addEventListener("dragover", function (e) { e.preventDefault(); cell.classList.add("drop"); });
+        cell.addEventListener("dragleave", function (e) { if (!cell.contains(e.relatedTarget)) cell.classList.remove("drop"); });
+        cell.addEventListener("drop", function (e) {
+          e.preventDefault(); cell.classList.remove("drop");
+          reschedule(findTask(e.dataTransfer.getData("text/plain")), ds);
+        });
+      }
+      function pick() {
+        state.calSel = ds;
+        if (d.getMonth() !== mo) { calDir = d < m ? -1 : 1; state.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); }
+        renderCal();
+        if (isPhone()) { var ag = $("agenda"); if (ag) ag.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "nearest" }); }
+      }
+      cell.addEventListener("click", pick);
+      cell.addEventListener("keydown", function (e) { if (e.target === cell && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); pick(); } });
+      grid.appendChild(cell);
+    });
+    box.appendChild(grid);
+
+    var sel = state.calSel;
+    var ag = el("div", "agenda"); ag.id = "agenda";
+    var ah = el("div", "agenda-head");
+    ah.appendChild(el("h3", null, (sel === today ? "Hoy · " : "") + longDate(sel)));
+    if (state.canWrite) {
+      var addb = el("button", "btn small"); addb.type = "button";
+      addb.appendChild(icon("plus")); addb.appendChild(document.createTextNode("Agregar tarea este día"));
+      addb.onclick = function () { openEditor(null, { due: sel }); };
+      ah.appendChild(addb);
+    }
+    ag.appendChild(ah);
+    var items = map[sel] || [];
+    if (!items.length) ag.appendChild(el("div", "empty", state.search ? "Ninguna tarea de este día coincide con la búsqueda." : "No hay tareas con entrega este día."));
+    else {
+      var cards = el("div", "cards");
+      items.forEach(function (t) { cards.appendChild(card(t)); });
+      ag.appendChild(cards);
+    }
+    box.appendChild(ag);
+    var noDate = byPerson(state.tasks).filter(function (t) { return t.status !== "done" && !parseDay(t.due); }).length;
+    if (noDate) box.appendChild(el("p", "cal-note", plural(noDate, "tarea abierta no tiene", "tareas abiertas no tienen") + " fecha, así que no aparece" + (noDate === 1 ? "" : "n") + " en el calendario."));
+  }
+
+  function openSubscribe() {
+    openPanel(function (p) {
+      var calName = (state.boardName || "Tablero") + " · Tareas";
+      p.setAttribute("aria-label", "Suscribirse en tu calendario");
+      p.appendChild(el("h2", null, "Suscribirse en tu calendario"));
+      p.appendChild(el("div", "help-line", "Las tareas con fecha aparecen como eventos de todo el día en tu calendario, con el nombre «" + calName + "», y se actualizan solas. Las fechas se cambian aquí en el tablero."));
+      var body = el("div", "sub-body");
+      body.appendChild(el("div", "empty", "Preparando tu enlace…"));
+      p.appendChild(body);
+      var acts = el("div", "panel-actions");
+      var close = el("button", "btn", "Cerrar"); close.type = "button"; close.onclick = closePanel;
+      acts.appendChild(close);
+      p.appendChild(acts);
+
+      function show(tok) {
+        body.textContent = "";
+        var url = SUPABASE_URL + "/functions/v1/calendario?t=" + tok;
+        var gcal = "https://calendar.google.com/calendar/render?cid=" + encodeURIComponent(url.replace(/^https:/, "webcal:"));
+        var a = el("a", "btn primary sub-main");
+        a.href = gcal; a.target = "_blank"; a.rel = "noopener";
+        a.appendChild(icon("cal")); a.appendChild(document.createTextNode("Agregar a Google Calendar"));
+        body.appendChild(a);
+
+        var f = el("div", "field");
+        var l = el("label", "flabel", "Enlace del calendario"); l.htmlFor = "subUrl";
+        var row = el("div", "gate-row");
+        var inp = input("subUrl", url); inp.readOnly = true;
+        inp.addEventListener("focus", function () { inp.select(); });
+        var copy = el("button", "gate-eye", "Copiar"); copy.type = "button";
+        copy.onclick = function () {
+          var done = function () { copy.textContent = "Copiado"; setTimeout(function () { copy.textContent = "Copiar"; }, 1800); };
+          try { navigator.clipboard.writeText(url).then(done, function () { inp.focus(); inp.select(); }); }
+          catch (e) { inp.focus(); inp.select(); }
+        };
+        row.appendChild(inp); row.appendChild(copy);
+        f.appendChild(l); f.appendChild(row);
+        f.appendChild(el("div", "help", "Para otras apps de calendario, copia este enlace."));
+        body.appendChild(f);
+
+        var steps = el("ol", "steps");
+        [["Android y Samsung", "Toca «Agregar a Google Calendar» y confirma con «Agregar». Si el teléfono no te ofrece esa opción, hazlo una vez desde una computadora. Después, en la app de Google Calendar, abre Configuración, toca «" + calName + "» y activa «Sincronizar». Samsung Calendar lo muestra si tu cuenta de Google está sincronizada."],
+         ["iPhone", "Ajustes → Calendario → Cuentas → Agregar cuenta → Otra → Agregar calendario suscrito, y pega el enlace."],
+         ["Outlook", "Agregar calendario → Suscribirse desde la web, y pega el enlace."]].forEach(function (s) {
+          var li = el("li");
+          li.appendChild(el("b", null, s[0] + ": "));
+          li.appendChild(document.createTextNode(s[1]));
+          steps.appendChild(li);
+        });
+        body.appendChild(steps);
+        body.appendChild(el("p", "help", "Google Calendar revisa el enlace cada pocas horas, así que un cambio puede tardar en aparecer. El enlace es privado: quien lo tenga puede ver las tareas con fecha, pero no cambiarlas."));
+
+        if (state.canWrite) {
+          var reset = el("button", "btn danger small", "Crear un enlace nuevo"); reset.type = "button";
+          reset.onclick = function () {
+            if (!reset.classList.contains("armed")) {
+              reset.classList.add("armed"); reset.textContent = "Confirmar: el enlace actual dejará de funcionar";
+              setTimeout(function () { if (reset.isConnected) { reset.classList.remove("armed"); reset.textContent = "Crear un enlace nuevo"; } }, 4000);
+              return;
+            }
+            reset.disabled = true;
+            state.db.calendarTokenReset().then(function (t2) {
+              show(t2);
+              toast("Enlace nuevo listo. Cada uno debe suscribirse otra vez con este.");
+            }).catch(function () { reset.disabled = false; toast("No se pudo crear el enlace. Inténtalo de nuevo."); });
+          };
+          body.appendChild(reset);
+        }
+      }
+      state.db.calendarToken().then(show).catch(function () {
+        body.textContent = "";
+        body.appendChild(el("div", "empty", "No se pudo obtener el enlace. Revisa tu conexión e inténtalo de nuevo."));
+      });
+    });
+  }
+
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
   $("fab").onclick = function () { openEditor(null); };
   $("teamBtn").onclick = openTeam;
   $("logBtn").onclick = openLog;
   $("meBtn").onclick = openMe;
-  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); }
-  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); });
+  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); }
+  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); });
+  $("viewBoard").onclick = function () { setView("board"); };
+  $("viewCal").onclick = function () { setView("cal"); };
   $("searchClear").onclick = function () { setSearch(""); $("search").focus(); };
   document.addEventListener("keydown", function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -1939,7 +2275,9 @@ body.locked { overflow: hidden; }
     return {
       doc: function (path) { return docRef(path); },
       collection: function (c) { return query(c, [], null, null); },
-      reload: load
+      reload: load,
+      calendarToken: function () { return rpc("calendar_token"); },
+      calendarTokenReset: function () { return rpc("calendar_token_reset"); }
     };
   }
 
