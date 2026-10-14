@@ -2842,7 +2842,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
     /* 5. by label */
     var w5 = widget("w-labels", "tag", "Por etiqueta", null, state.canWrite ? { text: state.labels.length ? "Editar" : "Crear", go: function () { openLabels(); } } : null);
-    if (!state.labels.length) w5.body.appendChild(homeEmpty("Crea etiquetas como Mensual, Semanal, Colven o Araya para ver aquí cuánto hay de cada una.", "tag"));
+    if (!state.labels.length) w5.body.appendChild(homeEmpty("Todavía no hay etiquetas.", "tag"));
     else {
       var rows = state.labels.map(function (l) {
         var ts = open.filter(function (t) { return labelIds(t).indexOf(l.id) >= 0; });
