@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#121a41">
 <meta name="robots" content="noindex">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121a41'/%3E%3Cpath d='M18 33l9 9 19-20' fill='none' stroke='%23ffd453' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -4103,6 +4104,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   var SUPABASE_URL = "https://twtenusvpnqntkeiejvk.supabase.co";
   var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3dGVudXN2cG5xbnRrZWllanZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5OTU1NjcsImV4cCI6MjEwNzU3MTU2N30.wXljnWHst2x4TwtjE_K319ffis3jxvuj55FQJ_3MyAM";
   var KEY_STORE = "tb-team-key";
+  /* Open access (for now): the page carries this key, so the board opens without asking for a password.
+     To require the team password again, set OPEN_KEY to "" and empty private.open_keys in Supabase. */
+  var OPEN_KEY = "abierto-5a5b12b57a8082355ffd";
+  var activeKey = "";
   var sb = null;
   try {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } });
@@ -4332,6 +4337,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   }
   function lockOut() {
     forgetKey();
+    if (OPEN_KEY && activeKey && activeKey !== OPEN_KEY) { location.reload(); return; }
     if (!$("gate").hidden) return;
     showGate("La clave del equipo cambió o ya no es válida. Escríbela de nuevo.");
   }
@@ -4368,11 +4374,12 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   $("logoutBtn").onclick = function () { forgetKey(); location.reload(); };
 
   function start(k) {
+    activeKey = k;
     var db = makeDb(k, lockOut);
     state.db = db;
     state.user = null;
     state.canWrite = true;
-    $("logoutBtn").hidden = false;
+    $("logoutBtn").hidden = !!OPEN_KEY;
     try { var storedMe = localStorage.getItem("tb-me"); if (storedMe) state.me.key = storedMe; } catch (e) {}
     render();
     db.doc("board/settings").onSnapshot(function (s) {
@@ -4410,7 +4417,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     render();
     return;
   }
-  var initialKey = storedKey();
+  var initialKey = storedKey() || OPEN_KEY;
   if (initialKey) start(initialKey);
   else showGate("");
 })();

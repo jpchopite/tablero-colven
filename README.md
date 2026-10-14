@@ -12,3 +12,11 @@ Tablero compartido para tres personas: columnas de estado, fechas, tareas que se
 Los archivos de las tarjetas se guardan en el almacenamiento privado `adjuntos` de Supabase (máximo 25 MB por archivo, 30 por tarjeta).
 La función `adjuntos` comprueba la clave del equipo antes de dar enlaces temporales para subir, ver o descargar.
 Al quitar un adjunto, el archivo guardado se borra solo si ninguna tarjeta (ni una en la papelera) lo usa.
+
+## Acceso abierto (temporal)
+
+Por ahora el tablero abre sin pedir clave: la página lleva su propia clave de acceso (`OPEN_KEY` en index.html), registrada en `private.open_keys`.
+La clave del equipo sigue funcionando. Para volver a pedirla:
+
+1. En index.html, deja `OPEN_KEY = ""`.
+2. En Supabase, ejecuta `delete from private.open_keys;`
