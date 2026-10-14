@@ -2498,7 +2498,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var creator = el("div", "lbnew");
     creator.hidden = true;
     var nm = input("f-newlabel", "");
-    nm.placeholder = "Nombre, p. ej. Mensual, Colven, Araya";
+    nm.placeholder = "Nombre de la etiqueta";
     nm.maxLength = 30;
     nm.setAttribute("aria-label", "Nombre de la etiqueta nueva");
     var color = nextLabelColor();
@@ -2565,7 +2565,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     openPanel(function (p) {
       p.setAttribute("aria-label", "Etiquetas");
       p.appendChild(el("h2", null, "Etiquetas"));
-      p.appendChild(el("div", "help-line", "Ustedes eligen el nombre y el color. Se ven pequeñas en cada tarjeta y en el calendario, y sirven para filtrar el tablero: por ejemplo Mensual, Semanal, Trimestral, Colven o Araya."));
+      p.appendChild(el("div", "help-line", "Ustedes eligen el nombre y el color. Se ven pequeñas en cada tarjeta y en el calendario, y sirven para filtrar el tablero."));
       var work = state.labels.map(function (l) { return { id: l.id, name: l.name, color: l.color, orig: l }; });
       var list = el("div", "lbman");
       p.appendChild(list);
