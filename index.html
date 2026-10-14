@@ -444,6 +444,24 @@ body.locked { overflow: hidden; }
 .pacts label { cursor: pointer; }
 .dupwarn { border: 1px solid var(--wait); background: var(--wait-soft); border-radius: 10px; padding: 10px 12px; font-size: 13.5px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 #c-newtag { margin-top: 4px; }
+.ocr { border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; margin-top: -6px; }
+.ocr-msg { font-size: 14px; display: flex; gap: 8px; align-items: flex-start; }
+.ocr-msg .ico { flex: none; margin-top: 1px; }
+.ocr-msg.ok { color: var(--ok); font-weight: 600; }
+.ocr-msg.warn { color: var(--wait); }
+.ocr-bar { height: 6px; border-radius: 999px; background: var(--lane); overflow: hidden; }
+.ocr-bar span { display: block; height: 100%; width: 6%; background: var(--accent); border-radius: inherit; transition: width .35s ease; }
+.ocr-lines { display: flex; flex-direction: column; }
+.ocr-lines summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--muted); padding: 2px 0 6px; }
+.ocr-lines .help { margin-bottom: 4px; }
+.ocr-line { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.ocr-line .txt { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.ocr-line .used { flex: none; font-size: 11px; font-weight: 700; color: var(--accent-text); background: var(--accent-soft); border-radius: 5px; padding: 1px 6px; }
+.ocr-line select { flex: none; border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 5px 6px; font-size: 12.5px; max-width: 9.5em; }
+.read-btn { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+@keyframes filledflash { 0%, 35% { background: var(--accent-soft); border-color: var(--accent); } 100% { } }
+.field input.filled, .field textarea.filled { animation: filledflash 1.8s ease; }
+
 @media (max-width: 680px) {
   .viewswitch button { padding: 7px 8px; font-size: 13.5px; gap: 5px; }
   .chead h2 { font-size: 22px; }
@@ -650,6 +668,7 @@ body.locked { overflow: hidden; }
     upload: '<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
     download: '<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
     card: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/>',
+    scan: '<path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16"/><path d="M7.5 9.5h9M7.5 12h9M7.5 14.5h5"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
@@ -2163,6 +2182,217 @@ body.locked { overflow: hidden; }
     });
   }
 
+  /* ---------- business card reader: turns recognized lines into contact fields ---------- */
+  var CARD = (function () {
+    var ROLE_RX = /(^|[\s,(])(gerente|director|directora|presidente|presidenta|vicepresidente|vicepresidenta|ingenier[oa]|ing\.|arquitect[oa]|arq\.|licenciad[oa]|lic\.|coordinador|coordinadora|jefe|jefa|asesor|asesora|ejecutiv[oa]|ventas|comercial|marketing|mercadeo|ceo|cto|coo|cfo|manager|analista|consultor|consultora|abogad[oa]|contador|contadora|socio|socia|fundador|fundadora|asistente|supervisor|supervisora|administrador|administradora|representante|dise[ñn]ador|dise[ñn]adora|t[ée]cnic[oa]|especialista|propietari[oa]|vendedor|vendedora|operaciones|log[íi]stica|compras|proyectos|recursos humanos|rrhh|sales|director of|head of|partner)(?=$|[\s,.)])/i;
+    var COMPANY_RX = /(\bc\.?\s?a\.?\s*$|\bs\.?\s?a\.?\s*$|\bs\.?\s?r\.?\s?l\.?|\bllc\b|\binc\b\.?|\bcorp\b\.?|\bcorporaci[óo]n\b|\bgrupo\b|\binversiones\b|\bindustrias?\b|\bconsultor[íi]a\b|\bconsultores\b|\bservicios\b|\bconstructora\b|\bdistribuidora\b|\bferreter[íi]a\b|\bestudio\b|\basociados\b|\bcompa[ñn][íi]a\b|\bsoluciones\b|\btecnolog[íi]as?\b|\bimportadora\b|\bcomercializadora\b|\bagencia\b|\bfundaci[óo]n\b|\bbanco\b|\bseguros\b|\bcl[íi]nica\b|\bhotel\b|\brestaurante?\b|\bimprenta\b|\bstudio\b|\bgroup\b|\bcompany\b|\bsolutions\b|\bpetr[óo]leos?\b|\benerg[íi]a\b|\blaboratorios?\b|\bcolegio\b|\buniversidad\b|\binstituto\b|\bministerio\b|&)/i;
+    var ADDR_RX = /(^|\s)(av\.?|avda\.?|avenida|calle|carrera|cra\.?|edif\.?|edificio|piso|ofic\.?|oficina|local|urb\.?|urbanizaci[óo]n|sector|zona industrial|centro|torre|c\.\s?c\.|nro\.?|n[°º]|esquina|qta\.?|quinta|residencias|parroquia|municipio|estado|caracas|valencia|maracaibo|barquisimeto|maracay|puerto la cruz|lecher[íi]a|barcelona|m[ée]rida|san crist[óo]bal|puerto ordaz|ciudad guayana|venezuela)(?=$|[\s,.])/i;
+    var SOCIAL_RX = /(linkedin|instagram|facebook|twitter|tiktok|youtube|\bx\.com\b|\big:|\bin\/|(^|\s)@[a-z0-9_.]{3,})/i;
+    var LABEL_RX = /^(tel[eé]fonos?|telfs?|tlfs?|tel|cel(ular)?|m[óo]vil|whatsapp|wsp|ofic(ina)?|fax|e-?mail|correo|email|web|www|direcci[óo]n|dir)(?![a-záéíóúñ])\s*[.:\-]?\s*/i;
+    var HONOR_RX = /^(ing|arq|lic|dr|dra|abg|econ|prof|msc|mba|tsu|sr|sra)\.?\s+/i;
+    var FREE_MAIL = /^(gmail|hotmail|outlook|yahoo|icloud|live|msn|aol|proton|protonmail|cantv)$/i;
+    var SMALL = { de: 1, del: 1, la: 1, las: 1, los: 1, y: 1, e: 1, da: 1, van: 1, von: 1 };
+
+    function letters(s) { return (s.match(/[a-záéíóúüñ]/gi) || []).length; }
+    function digitsOf(s) { return String(s || "").replace(/\D/g, ""); }
+    function isUpper(s) { return letters(s) >= 3 && s === s.toUpperCase(); }
+    function titleCase(s, keepCodes) {
+      return s.toLowerCase().split(/(\s+)/).map(function (w, i) {
+        if (/^\s+$/.test(w) || !w) return w;
+        if (keepCodes && (/\./.test(w) || /^(llc|inc|srl|ca|sa)$/i.test(w))) return w.toUpperCase();
+        if (i > 0 && SMALL[w]) return w;
+        return w.charAt(0).toUpperCase() + w.slice(1);
+      }).join("");
+    }
+    function squash(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); }
+
+    function clean(raw) {
+      return String(raw || "")
+        .replace(/[|¦]/g, " ")
+        .replace(/\s*\(at\)\s*|\s*\[at\]\s*/gi, "@")
+        .replace(/([a-z0-9._%+\-])\s*@\s*([a-z0-9])/gi, "$1@$2")
+        .replace(/[“”«»]/g, "")
+        .replace(/\s+/g, " ")
+        .replace(/^[\s\-–—•·*,;:.]+|[\s\-–—•·*,;]+$/g, "")
+        .trim();
+    }
+
+    var EMAIL_RX = /[a-z0-9._%+\-]+@[a-z0-9\-]+(\.[a-z0-9\-]+)*\.[a-z]{2,}/i;
+    var WEB_RX = /(https?:\/\/)?(www\.)?[a-z0-9][a-z0-9\-]*(\.[a-z0-9\-]+)*\.(com|net|org|ve|co|info|biz|io|app|dev|store|shop|online|site|tech|gob|edu|us|es|mx|com\.ve|net\.ve|org\.ve|gob\.ve)(\/[^\s]*)?(?=$|[\s,;])/i;
+    var PHONE_RX = /(\+?\(?\d[\d\s().\-]{5,}\d)/g;
+
+    function parse(input) {
+      var lines = (input || []).map(function (l) {
+        var o = typeof l === "string" ? { text: l } : l;
+        return { text: clean(o.text), conf: o.conf == null ? 100 : o.conf, h: o.h || 0 };
+      }).filter(function (l) { return l.text && (letters(l.text) + digitsOf(l.text).length) >= 2 && l.conf >= 35; });
+
+      var out = { name: "", role: "", company: "", phone: "", phone2: "", email: "", web: "", address: "", social: "", lines: [] };
+      var used = lines.map(function () { return ""; });
+      var phones = [];
+
+      lines.forEach(function (l, i) {
+        var t = l.text, low = t.toLowerCase(), hit = false;
+        var em = t.match(EMAIL_RX);
+        if (em) {
+          if (!out.email) out.email = em[0].replace(/[.,;]+$/, "").toLowerCase();
+          t = t.replace(em[0], " "); hit = true; used[i] = "email";
+        }
+        var w = t.match(WEB_RX);
+        if (w && !/@/.test(w[0])) {
+          if (!out.web || /www\./i.test(w[0])) out.web = w[0].replace(/[.,;]+$/, "").toLowerCase();
+          t = t.replace(w[0], " "); hit = true; used[i] = used[i] || "web";
+        }
+        if (SOCIAL_RX.test(t) && letters(t) >= 3) {
+          out.social = out.social ? out.social + " · " + t.replace(LABEL_RX, "").trim() : t.replace(LABEL_RX, "").trim();
+          used[i] = used[i] || "social"; return;
+        }
+        var m, found = false;
+        t.split(/\s*[\/|;,]\s*|\s+(?:y|o)\s+/).forEach(function (seg) {
+        PHONE_RX.lastIndex = 0;
+        while ((m = PHONE_RX.exec(seg))) {
+          var d = digitsOf(m[1]);
+          if (d.length < 7 || d.length > 15) continue;
+          var mobile = /cel|m[óo]vil|whats|wsp/i.test(low) || /^(04|584|\+584)/.test(d) || (d.length === 10 && d.charAt(0) === "4");
+          phones.push({ v: m[1].replace(/\s+/g, " ").trim(), mobile: mobile, office: /tel|telf|ofic|fax|master/i.test(low) && !mobile });
+          found = true;
+        }
+        });
+        if (found) { used[i] = used[i] || "phone"; return; }
+        if (hit) return;
+        if (ADDR_RX.test(" " + t) && (digitsOf(t).length > 0 || /,/.test(t) || ADDR_RX.test(" " + t))) {
+          var a = t.replace(LABEL_RX, "").trim();
+          out.address = out.address ? out.address + ", " + a : a;
+          used[i] = "address";
+        }
+      });
+
+      phones.sort(function (a, b) { return (b.mobile ? 1 : 0) - (a.mobile ? 1 : 0); });
+      var seenP = {};
+      phones = phones.filter(function (p) { var k = digitsOf(p.v).slice(-8); if (seenP[k]) return false; seenP[k] = 1; return true; });
+      if (phones[0]) out.phone = phones[0].v;
+      if (phones[1]) out.phone2 = phones[1].v;
+
+      // what is left: name, role and company
+      var rest = [];
+      lines.forEach(function (l, i) {
+        if (used[i]) return;
+        var t = l.text.replace(LABEL_RX, "").trim();
+        if (letters(t) < 3) return;
+        rest.push({ i: i, t: t, h: l.h });
+      });
+      var domain = "";
+      if (out.email) { var dm = out.email.split("@")[1].split(".")[0]; if (!FREE_MAIL.test(dm)) domain = dm; }
+      else if (out.web) domain = out.web.replace(/^https?:\/\//, "").replace(/^www\./, "").split(".")[0];
+
+      var roleIdx = -1, compIdx = -1, nameIdx = -1;
+      rest.forEach(function (r, k) {
+        if (compIdx < 0 && COMPANY_RX.test(r.t) && !ROLE_RX.test(r.t)) compIdx = k;
+      });
+      if (compIdx < 0 && domain && domain.length >= 3) {
+        rest.forEach(function (r, k) {
+          if (compIdx >= 0) return;
+          var sq = squash(r.t);
+          if (sq.length >= 3 && (sq === squash(domain) || (sq.length >= 4 && (squash(domain).indexOf(sq) >= 0 || sq.indexOf(squash(domain)) >= 0)))) compIdx = k;
+        });
+      }
+      rest.forEach(function (r, k) {
+        if (roleIdx < 0 && k !== compIdx && ROLE_RX.test(" " + r.t.replace(HONOR_RX, ""))) roleIdx = k;
+      });
+      // the name: 2-4 words of letters, no digits; on a card it is usually the biggest text
+      var best = -1, bestScore = -1;
+      rest.forEach(function (r, k) {
+        if (k === compIdx || k === roleIdx) return;
+        var t = r.t.replace(HONOR_RX, "");
+        var words = t.split(/\s+/).filter(Boolean);
+        if (words.length < 2 || words.length > 5 || digitsOf(t).length) return;
+        if (COMPANY_RX.test(t)) return;
+        if (!words.every(function (w) { return /^[A-ZÁÉÍÓÚÑÜ]/.test(w) || SMALL[w.toLowerCase()]; })) return;
+        if (letters(t) < t.replace(/\s/g, "").length * 0.85) return;
+        var score = (r.h || 0) * 10 + (rest.length - k);
+        if (score > bestScore) { bestScore = score; best = k; }
+      });
+      nameIdx = best;
+      if (compIdx < 0) {
+        rest.forEach(function (r, k) {
+          if (compIdx >= 0 || k === nameIdx || k === roleIdx) return;
+          if (isUpper(r.t) && r.t.split(/\s+/).length <= 6 && !digitsOf(r.t).length) compIdx = k;
+        });
+      }
+      if (nameIdx >= 0) {
+        var nm = rest[nameIdx].t.replace(HONOR_RX, "");
+        out.name = isUpper(nm) ? titleCase(nm) : nm;
+        used[rest[nameIdx].i] = "name";
+      }
+      if (roleIdx >= 0) {
+        var rl = rest[roleIdx].t;
+        out.role = isUpper(rl) && rl.split(/\s+/).length > 1 ? titleCase(rl) : rl;
+        used[rest[roleIdx].i] = "role";
+      }
+      if (compIdx >= 0) {
+        var cp = rest[compIdx].t;
+        out.company = isUpper(cp) && cp.split(/\s+/).length > 1 ? titleCase(cp, true) : cp;
+        used[rest[compIdx].i] = "company";
+      }
+      out.lines = lines.map(function (l, i) { return { text: l.text, used: used[i] }; });
+      return out;
+    }
+    return { parse: parse };
+  })();
+
+  /* ---------- reading a card photo (Tesseract, runs on the device, loaded on first use) ---------- */
+  var tessLoad = null, ocrWorkerP = null, ocrLogger = null;
+  function loadTesseract() {
+    if (window.Tesseract) return Promise.resolve(window.Tesseract);
+    if (tessLoad) return tessLoad;
+    tessLoad = new Promise(function (resolve, reject) {
+      var s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.async = true;
+      s.onload = function () { window.Tesseract ? resolve(window.Tesseract) : reject(new Error("lector")); };
+      s.onerror = function () { reject(new Error("lector")); };
+      document.head.appendChild(s);
+    });
+    tessLoad.catch(function () { tessLoad = null; });
+    return tessLoad;
+  }
+  function getOcrWorker() {
+    if (ocrWorkerP) return ocrWorkerP;
+    ocrWorkerP = loadTesseract().then(function (T) {
+      return T.createWorker(["spa", "eng"], 1, { logger: function (m) { if (ocrLogger) ocrLogger(m); } });
+    });
+    ocrWorkerP.catch(function () { ocrWorkerP = null; });
+    return ocrWorkerP;
+  }
+  /* a larger, grey, contrast-stretched copy of the photo reads much better than the stored one */
+  function ocrImage(src) {
+    return new Promise(function (resolve, reject) {
+      var isUrl = typeof src === "string", url = isUrl ? src : URL.createObjectURL(src), img = new Image();
+      img.onload = function () {
+        try {
+          var s = Math.min(2.5, 2000 / Math.max(img.naturalWidth, img.naturalHeight));
+          var w = Math.max(1, Math.round(img.naturalWidth * s)), h = Math.max(1, Math.round(img.naturalHeight * s));
+          var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+          var cx = cv.getContext("2d");
+          cx.drawImage(img, 0, 0, w, h);
+          var id = cx.getImageData(0, 0, w, h), px = id.data, hist = new Array(256).fill(0), n = w * h, i, g;
+          for (i = 0; i < px.length; i += 4) { g = Math.round(px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114); px[i] = g; hist[g]++; }
+          var lo = 0, hi = 255, acc = 0;
+          for (i = 0; i < 256; i++) { acc += hist[i]; if (acc > n * 0.02) { lo = i; break; } }
+          acc = 0;
+          for (i = 255; i >= 0; i--) { acc += hist[i]; if (acc > n * 0.02) { hi = i; break; } }
+          var span = Math.max(1, hi - lo);
+          for (i = 0; i < px.length; i += 4) { g = Math.max(0, Math.min(255, Math.round((px[i] - lo) * 255 / span))); px[i] = px[i + 1] = px[i + 2] = g; }
+          cx.putImageData(id, 0, 0);
+          if (!isUrl) URL.revokeObjectURL(url);
+          resolve(cv);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = function () { if (!isUrl) URL.revokeObjectURL(url); reject(new Error("imagen")); };
+      img.src = url;
+    });
+  }
+
   /* ---------- contacts ---------- */
   state.contacts = [];
   state.contactsLoaded = false;
@@ -2407,7 +2637,7 @@ body.locked { overflow: hidden; }
     var isNew = !c;
     c = c || { receivedBy: meKey() || "", date: todayStr(), tags: [] };
     var ro = !state.canWrite;
-    var newPhoto;
+    var newPhoto, lastFile = null, ocrBusy = false;
     var dupArmed = false;
     openPanel(function (p) {
       p.setAttribute("aria-label", isNew ? "Nuevo contacto" : "Contacto");
@@ -2460,10 +2690,16 @@ body.locked { overflow: hidden; }
           cam.appendChild(icon("camera")); cam.appendChild(document.createTextNode(src ? "Otra foto" : "Tomar foto"));
           var up = el("label", "btn small"); up.htmlFor = "c-up";
           up.appendChild(icon("upload")); up.appendChild(document.createTextNode("Subir imagen"));
+          if (src) {
+            var rd = el("button", "btn small read-btn"); rd.type = "button";
+            rd.appendChild(icon("scan")); rd.appendChild(document.createTextNode("Leer datos de la foto"));
+            rd.onclick = function () { runOcr(lastFile || src); };
+            row.appendChild(rd);
+          }
           row.appendChild(cam); row.appendChild(up);
           if (src) {
             var rm = el("button", "btn small danger", "Quitar foto"); rm.type = "button";
-            rm.onclick = function () { newPhoto = ""; drawPhoto(""); };
+            rm.onclick = function () { newPhoto = ""; lastFile = null; ocrBox.hidden = true; drawPhoto(""); };
             row.appendChild(rm);
           }
           row.appendChild(camIn); row.appendChild(upIn);
@@ -2475,7 +2711,10 @@ body.locked { overflow: hidden; }
         input.value = "";
         if (!f) return;
         drawPhoto(null, "Preparando la foto…");
-        prepPhoto(f).then(function (d) { newPhoto = d; drawPhoto(d); })
+        prepPhoto(f).then(function (d) {
+          newPhoto = d; lastFile = f; drawPhoto(d);
+          if (!nameIn.value.trim() && !phIn.value.trim() && !emIn.value.trim()) runOcr(f);
+        })
           .catch(function () { drawPhoto(newPhoto !== undefined ? newPhoto : (photoCache[c.id] || "")); toast("No se pudo leer esa imagen. Prueba con otra foto."); });
       }
       camIn.addEventListener("change", function () { onFile(camIn); });
@@ -2491,6 +2730,99 @@ body.locked { overflow: hidden; }
         }
       } else drawPhoto("");
       p.appendChild(pbox);
+
+      /* reading the card */
+      var ocrBox = el("div", "ocr"); ocrBox.hidden = true; ocrBox.setAttribute("aria-live", "polite");
+      p.appendChild(ocrBox);
+      var FIELD_LABEL = { name: "nombre", role: "cargo", company: "empresa", phone: "teléfono", phone2: "otro teléfono", email: "correo", web: "sitio web", address: "dirección", social: "redes" };
+      function fieldInputs() { return { name: nameIn, role: roleIn, company: compIn, phone: phIn, phone2: ph2In, email: emIn, web: webIn, address: adIn, social: soIn }; }
+      function flash(inp) { inp.classList.remove("filled"); void inp.offsetWidth; inp.classList.add("filled"); }
+      function runOcr(source) {
+        if (ocrBusy || ro) return;
+        ocrBusy = true;
+        ocrBox.hidden = false; ocrBox.textContent = "";
+        var msg = el("div", "ocr-msg", "Preparando el lector de tarjetas…");
+        var bar = el("div", "ocr-bar"), fill = el("span");
+        bar.appendChild(fill);
+        ocrBox.appendChild(msg); ocrBox.appendChild(bar);
+        ocrLogger = function (m) {
+          if (!ocrBox.isConnected) return;
+          if (m.status === "recognizing text") {
+            msg.textContent = "Leyendo la tarjeta… " + Math.round((m.progress || 0) * 100) + "%";
+            fill.style.width = (40 + (m.progress || 0) * 60) + "%";
+          } else if (/load|initiali/i.test(m.status || "")) {
+            msg.textContent = "Preparando el lector (la primera vez tarda un poco más)…";
+            fill.style.width = Math.max(6, Math.round((m.progress || 0) * 38)) + "%";
+          }
+        };
+        Promise.all([getOcrWorker(), ocrImage(source)]).then(function (r) {
+          return r[0].recognize(r[1]);
+        }).then(function (res) {
+          ocrBusy = false; ocrLogger = null;
+          if (!ocrBox.isConnected) return;
+          var d = (res && res.data) || {};
+          var lines = d.lines && d.lines.length
+            ? d.lines.map(function (l) { return { text: l.text, conf: l.confidence, h: l.bbox ? l.bbox.y1 - l.bbox.y0 : 0 }; })
+            : String(d.text || "").split(/\n/).map(function (t) { return { text: t }; });
+          showParsed(CARD.parse(lines));
+        }).catch(function () {
+          ocrBusy = false; ocrLogger = null;
+          if (!ocrBox.isConnected) return;
+          ocrBox.textContent = "";
+          ocrBox.appendChild(el("div", "ocr-msg warn", "No se pudo usar el lector de tarjetas. Revisa tu conexión a internet e inténtalo otra vez."));
+          var again = el("button", "btn small", "Intentar de nuevo"); again.type = "button";
+          again.onclick = function () { runOcr(source); };
+          ocrBox.appendChild(again);
+        });
+      }
+      function showParsed(r) {
+        var inputs = fieldInputs(), filled = [];
+        Object.keys(inputs).forEach(function (k) {
+          if (!r[k] || inputs[k].value.trim()) return;
+          inputs[k].value = r[k];
+          flash(inputs[k]);
+          filled.push(FIELD_LABEL[k]);
+        });
+        ocrBox.textContent = "";
+        if (!r.lines.length) {
+          ocrBox.appendChild(el("div", "ocr-msg warn", "No encontré texto claro en la foto. Prueba con otra: la tarjeta de frente, bien iluminada, sin reflejos y ocupando casi toda la imagen."));
+          return;
+        }
+        var list = filled.length > 1 ? filled.slice(0, -1).join(", ") + " y " + filled[filled.length - 1] : filled[0];
+        var ok = el("div", "ocr-msg " + (filled.length ? "ok" : ""));
+        ok.appendChild(icon(filled.length ? "check" : "scan"));
+        ok.appendChild(el("span", null, filled.length
+          ? "Listo: llené " + list + ". Revisa que todo esté bien antes de guardar."
+          : "Leí la tarjeta, pero no encontré datos nuevos para los campos vacíos. Abajo está el texto por si quieres usar alguna línea."));
+        ocrBox.appendChild(ok);
+        var det = document.createElement("details");
+        det.className = "ocr-lines";
+        if (filled.length < 3) det.open = true;
+        det.appendChild(el("summary", null, "Texto encontrado en la tarjeta (" + r.lines.length + (r.lines.length === 1 ? " línea)" : " líneas)")));
+        det.appendChild(el("div", "help", "Si algo quedó en el campo equivocado, elige dónde va cada línea."));
+        r.lines.forEach(function (ln, i) {
+          var row = el("div", "ocr-line");
+          row.appendChild(el("span", "txt", ln.text));
+          if (ln.used && FIELD_LABEL[ln.used]) row.appendChild(el("span", "used", FIELD_LABEL[ln.used]));
+          var sel = document.createElement("select");
+          sel.id = "ocr-use-" + i;
+          sel.setAttribute("aria-label", "Usar «" + ln.text + "» como");
+          [["", "Usar como…"], ["name", "Nombre"], ["role", "Cargo"], ["company", "Empresa"], ["phone", "Teléfono"], ["phone2", "Otro teléfono"],
+           ["email", "Correo"], ["web", "Sitio web"], ["address", "Dirección"], ["social", "Redes"], ["notes", "Agregar a notas"]].forEach(function (o) {
+            var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op);
+          });
+          sel.onchange = function () {
+            var k = sel.value; if (!k) return;
+            if (k === "notes") { notesIn.value = notesIn.value ? notesIn.value + "\n" + ln.text : ln.text; flash(notesIn); }
+            else { var inp = fieldInputs()[k]; inp.value = ln.text; flash(inp); }
+            sel.value = "";
+            toast("Línea copiada a " + (k === "notes" ? "notas" : FIELD_LABEL[k]));
+          };
+          row.appendChild(sel);
+          det.appendChild(row);
+        });
+        ocrBox.appendChild(det);
+      }
 
       /* fields */
       var nameIn = input("c-name", c.name); nameIn.className = "title-in" + (isNew ? " autofocus" : ""); nameIn.maxLength = 120;
