@@ -1635,9 +1635,9 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
     $("boardName").textContent = viewTitle();
     var now = new Date();
     var eb = $("today"); eb.textContent = "";
-    var sec = { home: "01 · Inicio", board: "02 · Tablero", cal: "03 · Calendario", contacts: "04 · Contactos" }[state.view] || "";
+    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", contacts: "Contactos" }[state.view] || "";
     eb.appendChild(el("span", "eb-sec", sec));
-    eb.appendChild(el("span", "eb-date", "· " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
+    eb.appendChild(el("span", "eb-date", "| " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
     $("fab").hidden = !state.canWrite;
     $("teamBtn").hidden = !state.canWrite;
