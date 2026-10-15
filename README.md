@@ -20,3 +20,19 @@ La clave del equipo sigue funcionando. Para volver a pedirla:
 
 1. En index.html, deja `OPEN_KEY = ""`.
 2. En Supabase, ejecuta `delete from private.open_keys;`
+
+## App instalable y sin conexión
+
+`manifest.webmanifest` y `sw.js` permiten instalar el tablero como app (ícono de Colven en la pantalla de inicio).
+La página se pide de nuevo cada vez que hay señal; sin señal se muestra la última copia guardada en el dispositivo, solo para consultar.
+
+## Mantener activa la base de datos
+
+El plan gratuito de Supabase pausa un proyecto tras unos 7 días sin actividad.
+`.github/workflows/mantener-activa.yml` llama cada 3 días a `public.ping()`, una función que no lee nada del tablero.
+Se puede ejecutar a mano desde la pestaña Actions de GitHub.
+
+## Archivo y papelera
+
+Las tarjetas archivadas (o terminadas hace más de 30 días) salen del tablero y se ven en «Archivo».
+Las borradas van a la papelera y se eliminan solas a los 30 días.
