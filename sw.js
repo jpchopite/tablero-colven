@@ -1,0 +1,34 @@
+/* Colven board as an installable app.
+   The page itself is fetched fresh whenever there is signal (so updates show right away) and kept for when there is none;
+   icons, the logo, fonts and the libraries are kept after the first visit. Calls to the database are never cached. */
+var CACHE = "colven-v1";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/colven-logo.png", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/favicon-32.png"];
+self.addEventListener("install", function (e) {
+  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
+});
+self.addEventListener("activate", function (e) {
+  e.waitUntil(caches.keys().then(function (keys) {
+    return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+  }).then(function () { return self.clients.claim(); }));
+});
+self.addEventListener("fetch", function (e) {
+  var req = e.request, url = new URL(req.url);
+  if (req.method !== "GET") return;
+  if (/supabase\.co$/.test(url.hostname)) return;
+  if (req.mode === "navigate") {
+    e.respondWith(fetch(req).then(function (res) {
+      var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put("./index.html", copy); });
+      return res;
+    }).catch(function () { return caches.match("./index.html").then(function (r) { return r || caches.match("./"); }); }));
+    return;
+  }
+  var cacheable = url.origin === self.location.origin || /(^|\.)jsdelivr\.net$|fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
+  if (!cacheable) return;
+  e.respondWith(caches.match(req).then(function (hit) {
+    var net = fetch(req).then(function (res) {
+      if (res && (res.ok || res.type === "opaque")) { var copy = res.clone(); caches.open(CACHE).then(function (c) { c.put(req, copy); }); }
+      return res;
+    }).catch(function () { return hit; });
+    return hit || net;
+  }));
+});

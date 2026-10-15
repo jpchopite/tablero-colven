@@ -1,0 +1,27 @@
+# Keeps the Supabase project awake: the free plan pauses a project after about a week without activity.
+# Every 3 days this calls a tiny function (public.ping) that reads nothing from the board.
+name: Mantener activa la base de datos
+on:
+  schedule:
+    - cron: "17 13 */3 * *"
+  workflow_dispatch:
+permissions:
+  actions: write
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar a la base de datos
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "https://twtenusvpnqntkeiejvk.supabase.co/rest/v1/rpc/ping" \
+            -H "apikey: ${SUPABASE_ANON}" -H "Authorization: Bearer ${SUPABASE_ANON}" -H "Content-Type: application/json" -d '{}')
+          echo "Respuesta: $code"
+          test "$code" = "200"
+        env:
+          # the public (anon) key that the page already uses; it only allows the board's key-checked functions
+          SUPABASE_ANON: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3dGVudXN2cG5xbnRrZWllanZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5OTU1NjcsImV4cCI6MjEwNzU3MTU2N30.wXljnWHst2x4TwtjE_K319ffis3jxvuj55FQJ_3MyAM
+      - name: Evitar que GitHub apague esta tarea por falta de cambios en el repositorio
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/mantener-activa.yml/enable"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -9,6 +9,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Colven">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}@media (max-width: 680px) {
   /* the selected day keeps its coloured dots */
   .cal-grid .cell.sel .ctask { background: var(--lane-c, var(--muted)); }
@@ -1185,6 +1189,28 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
   .agv-date b { font-size: 22px; }
   .cal-legend { gap: 4px 12px; font-size: 11.5px; }
 }
+/* ---------- search everything ---------- */
+.finder-scrim { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 16px 16px; animation: fade .15s ease; }
+.finder { width: min(640px, 100%); max-height: 76vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; animation: menuin2 .2s cubic-bezier(.2,.8,.2,1); }
+@keyframes menuin2 { from { opacity: 0; transform: translateY(-8px) scale(.98); } }
+.finder-in { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--muted); }
+.finder-in input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 17px; color: var(--ink); -webkit-appearance: none; appearance: none; }
+.finder-in input::-webkit-search-cancel-button { display: none; }
+.finder-list { overflow-y: auto; padding: 6px; display: flex; flex-direction: column; }
+.finder-g { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 10px 10px 4px; }
+.finder-item { display: flex; align-items: center; gap: 12px; width: 100%; border: none; background: transparent; text-align: left; padding: 8px 10px; border-radius: 10px; color: var(--ink); }
+.finder-item.on { background: var(--lane); }
+.finder-item.muted .fi-tx b { color: var(--muted); }
+.fi-ico { width: 32px; height: 32px; border-radius: 9px; background: var(--lane); display: grid; place-items: center; flex: none; color: var(--ink); }
+.finder-item.on .fi-ico { background: var(--accent); color: var(--accent-ink); }
+.fi-ico .ico { width: 16px; height: 16px; }
+.fi-tx { display: flex; flex-direction: column; min-width: 0; }
+.fi-tx b { font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fi-tx span { font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.finder-empty { padding: 24px; text-align: center; color: var(--muted); }
+.finder-foot { border-top: 1px solid var(--line); padding: 8px 14px; font-size: 12px; color: var(--muted); }
+@media (max-width: 680px) { .finder-scrim { padding-top: 12px; } .finder { max-height: calc(100vh - 100px); } .finder-foot { display: none; } }
+.offline-note { border-color: var(--wait); background: var(--wait-soft); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -1218,6 +1244,8 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
         <p class="greet" id="greet">Cada tarea tiene a alguien asignado. Si no está en el tablero, todavía no es una tarea.</p>
       </div>
       <div class="hero-actions">
+        <button class="hbtn" id="installBtn" type="button" hidden title="Instalar Colven como app en este dispositivo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg><span class="t">Instalar app</span></button>
+        <button class="hbtn" id="finderBtn" type="button" title="Buscar en todo (Ctrl + K)" aria-label="Buscar en todo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="t">Buscar</span><kbd class="t">Ctrl K</kbd></button>
         <button class="hbtn" id="meBtn" type="button" hidden>¿Quién eres?</button>
         <button class="hbtn" id="logBtn" type="button" aria-label="Actividad"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="t">Actividad</span></button>
         <button class="hbtn" id="teamBtn" type="button" aria-label="Equipo y nombre del tablero"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg><span class="t">Equipo</span></button>
@@ -1337,6 +1365,8 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
     pencil: '<path d="M4 20l1-4.5L15.8 4.7a1.8 1.8 0 0 1 2.5 0l1 1a1.8 1.8 0 0 1 0 2.5L8.5 19z"/><path d="M14 6.5l3.5 3.5"/>',
     archive: '<rect x="3.5" y="4" width="17" height="4.5" rx="1"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12.5h4"/>',
     list: '<path d="M9.5 6.5h11M9.5 12h11M9.5 17.5h11"/><path d="M3.5 6.5l1.4 1.4 2.3-2.6M3.5 12l1.4 1.4 2.3-2.6M3.5 17.5l1.4 1.4 2.3-2.6"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+    home: '<path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
@@ -3755,6 +3785,104 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
       onPanelClose(state.db ? state.db.collection("tasks").onSnapshot(function () { if (list.isConnected) draw(); }) : function () {});
       draw();
     });
+  }
+
+  /* ---------- search everything (Ctrl + K) ---------- */
+  function openFinder() {
+    if ($("finder")) return;
+    var prevFocus = document.activeElement;
+    var sc = el("div", "finder-scrim"); sc.id = "finder";
+    var box = el("div", "finder");
+    box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Buscar en todo");
+    var row = el("div", "finder-in");
+    row.appendChild(icon("search"));
+    var q = document.createElement("input");
+    q.type = "search"; q.placeholder = "Buscar tareas, reuniones, contactos, archivos, comentarios…";
+    q.setAttribute("aria-label", "Buscar en todo"); q.autocomplete = "off"; q.spellcheck = false;
+    row.appendChild(q);
+    var esc = el("kbd", null, "Esc"); row.appendChild(esc);
+    box.appendChild(row);
+    var list = el("div", "finder-list"); list.setAttribute("role", "listbox");
+    box.appendChild(list);
+    var foot = el("div", "finder-foot", "↑ ↓ para moverte · Enter para abrir · Esc para cerrar");
+    box.appendChild(foot);
+    sc.appendChild(box);
+    document.body.appendChild(sc);
+    var items = [], active = 0;
+    function close() { sc.remove(); document.removeEventListener("keydown", keys, true); try { if (prevFocus && prevFocus.focus) prevFocus.focus(); } catch (e) {} }
+    function go(it) { close(); it.run(); }
+    sc.addEventListener("mousedown", function (e) { if (e.target === sc) close(); });
+    function score(text, qq) { var n = norm(text); if (!qq) return 1; var i = n.indexOf(qq); if (i < 0) return 0; return i === 0 ? 3 : /\s/.test(n.charAt(i - 1)) ? 2 : 1; }
+    function build() {
+      var qq = norm(q.value), out = [];
+      if (!qq) {
+        [["home", "Ir a Inicio", function () { setView("home"); }], ["move", "Ir al Tablero", function () { setView("board"); }],
+         ["cal", "Ir al Calendario", function () { setView("cal"); }], ["card", "Ir a Contactos", function () { setView("contacts"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
+        if (state.canWrite) {
+          [["plus", "Nueva tarea", function () { openEditor(null); }], ["users", "Nueva reunión", function () { openMeeting(null, { date: todayStr() }); }],
+           ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["card", "Nuevo contacto", function () { openContact(null); }],
+           ["scan", "Modo evento (escanear tarjetas)", function () { setView("contacts"); openEventMode(); }], ["archive", "Archivo y papelera", function () { openArchive(); }]].forEach(function (x) { out.push({ group: "Crear", ic: x[0], title: x[1], run: x[2] }); });
+        }
+        return out;
+      }
+      var add = function (group, ic, title, sub, s, run, extraCls) { if (s > 0) out.push({ group: group, ic: ic, title: title, sub: sub, s: s, run: run, cls: extraCls }); };
+      (state.allTasks || state.tasks).filter(function (t) { return !t.trashed; }).forEach(function (t) {
+        var s = Math.max(score(titleOf(t), qq) * 3, score(t.title, qq) * 3, score([t.client, t.notes, t.waitingOn, labelsOf(t).map(function (l) { return l.name; }).join(" ")].join(" "), qq));
+        var arch = isArchived(t);
+        add("Tareas", "check", titleOf(t) || "Tarea sin título", [arch ? "Archivada" : statusLabel(t.status || "todo"), t.due ? dueLabel(t.due) : "", t.client].filter(Boolean).join(" · "), s, function () { openEditor(t); }, arch ? "muted" : "");
+        checklistOf(t).forEach(function (i) { var ss = score(i.text, qq); if (ss) add("Pasos", "list", i.text, "En «" + (titleOf(t) || "tarea") + "»" + (i.done ? " · listo" : ""), ss, function () { openEditor(t); }); });
+        commentsOf(t).forEach(function (c) { var ss = score(c.text, qq); if (ss) add("Comentarios", "chat", c.text.slice(0, 90), (member(c.by) ? member(c.by).name.split(" ")[0] : "Alguien") + " en «" + (titleOf(t) || "tarea") + "»", ss, function () { openEditor(t); }); });
+        filesOf(t).forEach(function (f) { var ss = score(f.name, qq); if (ss) add("Archivos", "clip", f.name, "En «" + (titleOf(t) || "tarea") + "» · " + fmtSize(f.size), ss, function () { openFile(f, false); }); });
+      });
+      (state.meetings || []).forEach(function (m) {
+        var s = Math.max(score(meetingTitle(m), qq) * 3, score([m.place, m.others, m.agenda, m.minutes, meetingContacts(m).map(contactTitle).join(" ")].join(" "), qq));
+        add(isEvent(m) ? "Eventos" : "Reuniones", isEvent(m) ? "flag" : "users", meetingTitle(m), (isMultiDay(m) ? rangeLabel(m) : longDate(m.date) + (m.start ? " · " + m.start : "")) + (m.place ? " · " + m.place : ""), s, function () { openMeeting(m); });
+      });
+      (state.contacts || []).forEach(function (c) {
+        var s = Math.max(score(contactTitle(c), qq) * 3, score([c.company, c.role, c.email, c.phone, c.met, contactTags(c).join(" ")].join(" "), qq) * 2, (function () { var qd = digits(qq).replace(/^0+/, ""); return qd.length >= 4 && (digits(c.phone) + " " + digits(c.phone2)).indexOf(qd) >= 0 ? 4 : 0; })());
+        add("Contactos", "card", contactTitle(c), [c.role, c.name ? c.company : "", formatPhone(c.phone)].filter(Boolean).join(" · "), s, function () { setView("contacts"); openContact(c); });
+      });
+      var order = ["Tareas", "Reuniones", "Eventos", "Contactos", "Pasos", "Comentarios", "Archivos"];
+      out.sort(function (a, b) { return order.indexOf(a.group) - order.indexOf(b.group) || b.s - a.s; });
+      var per = {}; return out.filter(function (x) { per[x.group] = (per[x.group] || 0) + 1; return per[x.group] <= 6; });
+    }
+    function draw() {
+      items = build(); active = Math.min(active, Math.max(0, items.length - 1));
+      list.textContent = "";
+      if (!items.length) { list.appendChild(el("div", "finder-empty", "Nada coincide con «" + q.value.trim() + "».")); return; }
+      var last = null;
+      items.forEach(function (it, i) {
+        if (it.group !== last) { list.appendChild(el("div", "finder-g", it.group)); last = it.group; }
+        var b = el("button", "finder-item" + (i === active ? " on" : "") + (it.cls ? " " + it.cls : ""));
+        b.type = "button"; b.setAttribute("role", "option"); b.setAttribute("aria-selected", String(i === active));
+        var d = el("span", "fi-ico"); d.appendChild(icon(it.ic)); b.appendChild(d);
+        var tx = el("span", "fi-tx"); tx.appendChild(el("b", null, it.title)); if (it.sub) tx.appendChild(el("span", null, it.sub)); b.appendChild(tx);
+        b.onmousemove = function () { if (active !== i) { active = i; mark(); } };
+        b.onclick = function () { go(it); };
+        list.appendChild(b);
+      });
+    }
+    function mark() {
+      Array.prototype.forEach.call(list.querySelectorAll(".finder-item"), function (b, i) { b.classList.toggle("on", i === active); b.setAttribute("aria-selected", String(i === active)); if (i === active) b.scrollIntoView({ block: "nearest" }); });
+    }
+    function keys(e) {
+      if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(); return; }
+      if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(items.length - 1, active + 1); mark(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); mark(); }
+      else if (e.key === "Enter" && items[active]) { e.preventDefault(); go(items[active]); }
+    }
+    document.addEventListener("keydown", keys, true);
+    q.addEventListener("input", function () { active = 0; draw(); });
+    draw();
+    q.focus();
+  }
+
+  /* ---------- installable app ---------- */
+  var installEvt = null;
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; var b = $("installBtn"); if (b) b.hidden = false; });
+  window.addEventListener("appinstalled", function () { installEvt = null; var b = $("installBtn"); if (b) b.hidden = true; toast("Listo: Colven quedó instalada como app."); });
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   }
 
   function openEditor(t, preset) {
@@ -6217,6 +6345,15 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
   $("viewCal").onclick = function () { setView("cal"); };
   Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v]"), function (b) { b.onclick = function () { setView(b.dataset.v); }; });
   $("labelsBtn").onclick = function () { openLabels(); };
+  $("finderBtn").onclick = openFinder;
+  $("installBtn").onclick = function () {
+    if (!installEvt) return;
+    installEvt.prompt();
+    installEvt.userChoice.then(function () { installEvt = null; $("installBtn").hidden = true; }).catch(function () {});
+  };
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "k" || e.key === "K")) { e.preventDefault(); openFinder(); }
+  });
   $("archiveBtn").onclick = function () { openArchive(); };
   function closeAddMenu() { var m = $("addMenu"), s = $("addScrim"); if (m) m.remove(); if (s) s.remove(); }
   /* the + button: straight to the form when there is only one sensible thing to add, a short menu otherwise */
@@ -6366,9 +6503,28 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
         cache.settings = d && d.settings || null;
         cache.log = (d && d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
         cache.loaded = true;
+        try { localStorage.setItem("tb-offline", JSON.stringify({ at: new Date().toISOString(), d: d })); } catch (e) {}
+        var on = $("notice"); if (on && on.classList.contains("offline-note")) { on.hidden = true; on.classList.remove("offline-note"); }
         emit();
       }).catch(function (e) {
-        if (e.code !== "locked") showNotice("No se pudo actualizar el tablero. Revisa tu conexión; se reintenta solo.", true);
+        if (e.code === "locked") return;
+        var saved = null;
+        if (!cache.loaded) { try { saved = JSON.parse(localStorage.getItem("tb-offline") || "null"); } catch (er) { saved = null; } }
+        if (saved && saved.d) {
+          var d = saved.d, t = {}, cs = {}, ms = {};
+          (d.tasks || []).forEach(function (x) { t[x.id] = x.data; });
+          (d.contacts || []).forEach(function (x) { cs[x.id] = x.data; });
+          (d.meetings || []).forEach(function (x) { ms[x.id] = x.data; });
+          cache.tasks = t; cache.contacts = cs; cache.meetings = ms; cache.settings = d.settings || null;
+          cache.log = (d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
+          cache.loaded = true;
+          emit();
+          var when = new Date(saved.at);
+          showNotice("Sin conexión: estás viendo lo que había el " + when.getDate() + " " + MONTHS[when.getMonth()] + " a las " + pad(when.getHours()) + ":" + pad(when.getMinutes()) + ". Los cambios se podrán guardar cuando vuelva la señal.", true);
+          $("notice").classList.add("offline-note");
+          return;
+        }
+        if (!(cache.loaded && $("notice").classList.contains("offline-note"))) showNotice("No se pudo actualizar el tablero. Revisa tu conexión; se reintenta solo.", true);
       }).then(function () {
         loading = null;
         if (again) { again = false; setTimeout(load, 150); }

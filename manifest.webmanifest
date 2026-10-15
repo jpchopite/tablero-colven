@@ -1,0 +1,22 @@
+{
+  "name": "Colven · Tablero del equipo",
+  "short_name": "Colven",
+  "description": "Tareas, calendario y contactos del equipo de Colven.",
+  "lang": "es",
+  "start_url": "./#inicio",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#121a41",
+  "theme_color": "#121a41",
+  "icons": [
+    { "src": "assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Tablero", "url": "./#tablero", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Calendario", "url": "./#calendario", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Contactos", "url": "./#contactos", "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }] }
+  ]
+}
