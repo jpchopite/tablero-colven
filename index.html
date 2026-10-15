@@ -1803,6 +1803,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 .after-box .inline { flex-wrap: wrap; }
 .after-box select#f-anchor { flex: 1; min-width: 0; max-width: 100%; }
 .after-box input[type=number] { width: 72px; }
+
+.md-box { display: flex; flex-direction: column; gap: 8px; }
+.md-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; max-width: 340px; }
+.md { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; height: 34px; padding: 0; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); transition: background .12s, border-color .12s, transform .12s; }
+.md:hover { border-color: var(--line-strong); }
+.md:active { transform: scale(.92); }
+.md[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.md.last { grid-column: span 4; font-size: 12.5px; }
 </style>
 </head>
 <body>
@@ -2104,6 +2112,18 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var day = 1 + ((wd - first.getDay() + 7) % 7) + (nth - 1) * 7;
     return day > daysIn(y, m) ? null : new Date(y, m, day);
   }
+  /* "the 15th and the 30th": every chosen day of the month; a day the month does not have becomes its last day */
+  function monthDaysOf(r) {
+    var l = (Array.isArray(r.monthDays) ? r.monthDays : []).map(Number).filter(function (d) { return d === -1 || (d >= 1 && d <= 31); });
+    return l.length ? l : [1];
+  }
+  function datesInMonth(r, y, m) {
+    if (r.monthMode !== "days") { var one = dateInMonth(r, y, m); return one ? [one] : []; }
+    var first = new Date(y, m, 1); y = first.getFullYear(); m = first.getMonth();
+    var n = daysIn(y, m), seen = {}, out = [];
+    monthDaysOf(r).forEach(function (d) { var day = d === -1 ? n : Math.min(d, n); if (!seen[day]) { seen[day] = 1; out.push(new Date(y, m, day)); } });
+    return out.sort(function (a, b) { return a - b; });
+  }
   function dateInMonth(r, y, m) {
     var first = new Date(y, m, 1); y = first.getFullYear(); m = first.getMonth();
     if (r.monthMode === "nth") return nthWeekday(y, m, Number(r.nth), Number(r.weekday));
@@ -2129,11 +2149,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       for (i = 0; i < 1200; i++) {
         var abs = from.getFullYear() * 12 + from.getMonth() + i;
         if (((abs - sm) % n + n) % n !== 0) continue;
-        c = dateInMonth(r, from.getFullYear(), from.getMonth() + i); if (ok(c)) return c;
+        var cs = datesInMonth(r, from.getFullYear(), from.getMonth() + i);
+        for (var q = 0; q < cs.length; q++) if (ok(cs[q])) return cs[q];
       }
       return null;
     }
-    if (r.freq === "month") { for (i = 0; i < 1200; i += n) { c = dateInMonth(r, from.getFullYear(), from.getMonth() + i); if (ok(c)) return c; } return null; }
+    if (r.freq === "month") {
+      for (i = 0; i < 1200; i += n) { var cm = datesInMonth(r, from.getFullYear(), from.getMonth() + i); for (var q2 = 0; q2 < cm.length; q2++) if (ok(cm[q2])) return cm[q2]; }
+      return null;
+    }
     if (r.freq === "year") { for (i = 0; i < 200; i += n) { c = dateInMonth(r, from.getFullYear() + i, Number(r.month) || 0); if (ok(c)) return c; } return null; }
     return null;
   }
@@ -2165,6 +2189,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       return base + ": " + w.map(function (x) { return WD_SHORT[x]; }).join(", ");
     }
     var nth = r.monthMode === "nth" ? "el " + ordinal(Number(r.nth)) + " " + WD_LONG[r.weekday] : null;
+    if (r.freq === "month" && r.monthMode === "days") {
+      var ds = monthDaysOf(r).slice().sort(function (a, b) { return (a === -1 ? 99 : a) - (b === -1 ? 99 : b); });
+      var names = ds.map(function (d) { return d === -1 ? "el último" : String(d); });
+      var txt = names.length === 1 ? (ds[0] === -1 ? "el último día" : "el día " + names[0]) : "los días " + names.slice(0, -1).join(", ") + " y " + names[names.length - 1];
+      return base + ", " + txt + (ds.some(function (d) { return d > 28; }) ? " (o el último día, si el mes es más corto)" : "");
+    }
     if (r.freq === "month") return base + ", " + (nth || (Number(r.monthDay) === -1 ? "el último día" : "el día " + r.monthDay));
     var mo = Number(r.month) || 0;
     if (nth) return base + ", " + nth + " de " + MONTHS_LONG[mo];
@@ -6787,7 +6817,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       box.appendChild(wdRow);
 
       var monRow = el("div", "inline");
-      var modeSel = select("f-mmode", [{ value: "date", label: "El día" }, { value: "nth", label: "El" }], work.monthMode === "nth" ? "nth" : "date");
+      var modeSel = select("f-mmode", [{ value: "date", label: "El día" }, { value: "days", label: "Varios días" }, { value: "nth", label: "El" }], work.monthMode === "nth" || work.monthMode === "days" ? work.monthMode : "date");
       modeSel.setAttribute("aria-label", "Patrón mensual");
       var dayOpts = []; for (var di2 = 1; di2 <= 31; di2++) dayOpts.push({ value: String(di2), label: String(di2) });
       dayOpts.push({ value: "-1", label: "último día" });
@@ -6802,6 +6832,30 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       monSel.setAttribute("aria-label", "Mes");
       [modeSel, daySel, nthSel, wdSel, ofLabel, monSel].forEach(function (n) { monRow.appendChild(n); });
       box.appendChild(monRow);
+
+      /* several days of each month (e.g. the 15th and the 30th) */
+      var mdRow = el("div", "md-box");
+      var mdGrid = el("div", "md-grid"); mdGrid.setAttribute("role", "group"); mdGrid.setAttribute("aria-label", "Días del mes");
+      var mdSel = (Array.isArray(work.monthDays) && work.monthDays.length ? work.monthDays : [Number(work.monthDay) || refDate().getDate()]).map(Number);
+      var mdBtns = [];
+      for (var md = 1; md <= 31; md++) mdBtns.push(md);
+      mdBtns.push(-1);
+      mdBtns = mdBtns.map(function (d) {
+        var b = el("button", "md" + (d === -1 ? " last" : ""), d === -1 ? "Último" : String(d));
+        b.type = "button"; b.dataset.d = d;
+        b.setAttribute("aria-label", d === -1 ? "Último día del mes" : "Día " + d);
+        b.setAttribute("aria-pressed", String(mdSel.indexOf(d) >= 0));
+        b.onclick = function () {
+          var on = b.getAttribute("aria-pressed") === "true";
+          if (on && mdBtns.filter(function (x) { return x.getAttribute("aria-pressed") === "true"; }).length === 1) return; /* keep at least one */
+          b.setAttribute("aria-pressed", String(!on)); update();
+        };
+        mdGrid.appendChild(b);
+        return b;
+      });
+      mdRow.appendChild(mdGrid);
+      mdRow.appendChild(el("div", "help", "Toca los días en que toca entregar. Si un mes no tiene ese día (por ejemplo, el 30 en febrero), se usa el último día de ese mes."));
+      box.appendChild(mdRow);
 
       /* quarterly: which three-month cycle (the month of each quarter it falls in) */
       var qRow = el("div", "inline");
@@ -6864,8 +6918,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         if (quarter) r.startMonth = Number(qSel.value);
         if (f === "week") r.weekdays = wdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.wd); });
         if (f === "month" || f === "year") {
-          r.monthMode = modeSel.value;
+          r.monthMode = f === "year" && modeSel.value === "days" ? "date" : modeSel.value;
           if (r.monthMode === "nth") { r.nth = Number(nthSel.value); r.weekday = Number(wdSel.value); }
+          else if (r.monthMode === "days") r.monthDays = mdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.d); }).sort(function (a, b) { return (a === -1 ? 99 : a) - (b === -1 ? 99 : b); });
           else r.monthDay = Number(daySel.value);
           if (f === "year") r.month = Number(monSel.value);
         }
@@ -6882,7 +6937,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         aRow.hidden = !aft;
         aWdSel.hidden = aModeSel.value !== "weekday"; aDaysIn.hidden = aDaysLbl.hidden = aModeSel.value !== "days";
         if (aft) {
-          intRow.hidden = true; qRow.hidden = true; wdRow.hidden = true; monRow.hidden = true;
+          intRow.hidden = true; qRow.hidden = true; wdRow.hidden = true; monRow.hidden = true; mdRow.hidden = true;
           var ra = buildRule();
           preview.textContent = "";
           if (!ra) { preview.appendChild(el("div", null, "Elige después de qué tarjeta va.")); return; }
@@ -6901,8 +6956,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         unit.textContent = { day: ["día", "días"], week: ["semana", "semanas"], month: ["mes", "meses"], year: ["año", "años"] }[f][n === 1 ? 0 : 1];
         wdRow.hidden = f !== "week";
         monRow.hidden = !(f === "month" || f === "year");
-        var nthMode = modeSel.value === "nth";
-        daySel.hidden = nthMode; nthSel.hidden = !nthMode; wdSel.hidden = !nthMode;
+        if (f === "year" && modeSel.value === "days") modeSel.value = "date";
+        modeSel.querySelector('option[value="days"]').hidden = f === "year";
+        var nthMode = modeSel.value === "nth", daysMode = modeSel.value === "days";
+        daySel.hidden = nthMode || daysMode; nthSel.hidden = !nthMode; wdSel.hidden = !nthMode;
+        mdRow.hidden = !daysMode || !(f === "month");
         ofLabel.hidden = monSel.hidden = f !== "year";
 
         var r = buildRule();
@@ -6917,7 +6975,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var m = firstOnOrAfter(r, start);
           if (!m || fmt(m) !== due.value) preview.appendChild(el("div", "warn", "La fecha de entrega no cae en este patrón. Se usa una vez y luego sigue el patrón."));
         }
-        if (f !== "day" && f !== "week" && !nthMode && Number(daySel.value) > 28) preview.appendChild(el("div", null, "Los meses que no tienen ese día usan su último día."));
+        if (f !== "day" && f !== "week" && !nthMode && !daysMode && Number(daySel.value) > 28) preview.appendChild(el("div", null, "Los meses que no tienen ese día usan su último día."));
         var tv = title.value.trim(), cur0 = parseDay(due.value) || dates[0];
         if (tv && cur0) {
           var nd = parseDay(nextDueAfterDone(r, fmt(cur0)));
