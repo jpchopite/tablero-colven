@@ -45,3 +45,6 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 - Funciones: `doc_set` (crear, renombrar, mover), `doc_delete_many` (a la papelera), `doc_restore_many` y `doc_purge_many` (eliminar para siempre). Todas exigen la clave del equipo.
 - Lo borrado queda 30 días en la papelera de documentos; una carpeta se restaura con todo lo que tenía. Pasado ese plazo, la página elimina el archivo guardado la próxima vez que alguien la abre (`board_load` sigue enviando lo borrado hasta 45 días para eso).
 - El plan gratuito de Supabase da 1 GB de almacenamiento en total, compartido entre documentos y adjuntos de tarjetas.
+- Accesos directos: filas `type: "link"` con `target` (el id del original). Si el original se borra, el acceso directo queda «roto» y ofrece restaurarlo o borrarse.
+- Acceso rápido: carpetas o archivos con `pinnedAt`; lo ven todos.
+- Copiar crea filas nuevas que apuntan al mismo archivo guardado; el archivo solo se elimina cuando ya nadie lo usa (`attachment_in_use`).

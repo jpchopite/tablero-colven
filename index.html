@@ -1481,6 +1481,228 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   @keyframes menuin3 { from { opacity: 0; transform: translateY(10px) scale(.96); } }
   .toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 }
+/* ================= Documentos, explorer layer: side pane, shortcuts, selection, motion ================= */
+.dlayout { display: block; }
+.dmain { position: relative; display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 52vh; padding-bottom: 24px; }
+.dnav { display: none; }
+@media (min-width: 1100px) {
+  .dlayout { display: grid; grid-template-columns: 252px minmax(0, 1fr); gap: 18px; align-items: start; }
+  .dnav { display: flex; flex-direction: column; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; overscroll-behavior: contain; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-sm); padding: 8px; scrollbar-width: thin; }
+  .dquick, .dtrash-btn, .narrow-only { display: none !important; }
+}
+.dnav-sec { display: flex; flex-direction: column; gap: 1px; padding: 6px 2px 8px; }
+.dnav-sec + .dnav-sec { border-top: 1px solid var(--line); padding-top: 10px; }
+.dnav-h { display: flex; align-items: center; gap: 7px; padding: 4px 8px 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); border-radius: 8px; }
+.dnav-h .ico { width: 14px; height: 14px; }
+.dnav-quick { border-radius: 12px; transition: background .15s, box-shadow .15s; }
+.dnav-quick.drop-on { background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent); outline: none !important; }
+.dnav-empty { margin: 2px 6px 4px; padding: 10px; border: 1.5px dashed var(--line); border-radius: 10px; font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+.dnav-row, .dt-main { display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; border: none; background: transparent; padding: 6px 8px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--ink); text-align: left; position: relative; transition: background .12s, transform .12s; }
+.dnav-row:hover, .dt-main:hover { background: var(--lane); }
+.dnav-row:active, .dt-main:active { transform: scale(.98); }
+.dnav-row .fart, .dt-main .fart { width: 24px; height: 20px; }
+.dnav-row .part { width: 17px; height: 21px; margin: 0 3px; }
+.dnav-row .part b { display: none; }
+.dnav-row > .ico, .dt-main > .ico { width: 18px; height: 18px; color: var(--muted); margin: 0 3px; }
+.dn-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dn-n { font-size: 11.5px; font-weight: 700; color: var(--muted); background: var(--lane); border-radius: 999px; padding: 0 7px; line-height: 18px; }
+.dnav-row.cur, .dt-r.cur > .dt-main { background: var(--accent-soft); font-weight: 700; }
+.dnav-row.cur::before, .dt-r.cur > .dt-main::before { content: ""; position: absolute; left: -2px; top: 7px; bottom: 7px; width: 3px; border-radius: 3px; background: var(--accent); }
+.dnav-row.pop { animation: dpopin .45s cubic-bezier(.3,1.5,.5,1); }
+.dt-r { display: flex; align-items: center; gap: 0; padding-left: calc(var(--depth, 0) * 14px); border-radius: 9px; position: relative; }
+.dt-chev, .dt-sp { flex: none; width: 22px; height: 26px; }
+.dt-chev { border: none; background: transparent; border-radius: 7px; display: grid; place-items: center; color: var(--muted); padding: 0; }
+.dt-chev:hover { background: var(--lane); color: var(--ink); }
+.dt-chev .ico { width: 14px; height: 14px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+.dt-chev.open .ico { transform: rotate(90deg); }
+.dt-kids { display: flex; flex-direction: column; gap: 1px; }
+.dt-kids .dt-kids { animation: dtin .2s ease; }
+@keyframes dtin { from { opacity: 0; transform: translateY(-4px); } }
+.dt-r.drop-on, .dnav-row.drop-on { outline-offset: -1px !important; }
+.dt-r.drop-on .fart .ff, .dnav-row.drop-on .fart .ff { transform: skewX(-10deg) scaleY(.86); }
+.dnav-foot { margin-top: auto; border-top: 1px solid var(--line); padding: 8px 2px 4px; display: flex; flex-direction: column; gap: 8px; }
+.dmeter { padding: 4px 8px 2px; }
+.dm-t { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.dm-t b { color: var(--ink); font-weight: 700; white-space: nowrap; }
+.dm-bar { height: 6px; border-radius: 6px; background: var(--lane); overflow: hidden; }
+.dm-bar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), var(--gold, #c8992a)); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.dmeter.high .dm-bar i { background: var(--wait); }
+.dmeter.full .dm-bar i { background: var(--late); }
+
+/* quick access chips (when the side pane is hidden) */
+.dquick { display: flex; flex-direction: column; gap: 8px; }
+.dquick-row { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; scrollbar-width: thin; }
+.dq { flex: none; display: inline-flex; align-items: center; gap: 9px; max-width: 220px; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 8px 12px 8px 9px; font-weight: 700; font-size: 14px; color: var(--ink); box-shadow: var(--shadow-sm); position: relative; transition: transform .15s cubic-bezier(.2,.8,.2,1), border-color .15s; }
+.dq:hover { transform: translateY(-1px); border-color: var(--line-strong); }
+.dq .fart { width: 26px; height: 22px; }
+.dq .part { width: 19px; height: 24px; }
+.dq .part b { display: none; }
+.dq.pop { animation: dpopin .45s cubic-bezier(.3,1.5,.5,1); }
+.dsec-t > .ico { width: 14px; height: 14px; color: var(--muted); }
+
+/* shortcuts */
+.dlinks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr)); gap: 10px; }
+.dlink { position: relative; display: flex; align-items: center; gap: 13px; padding: 12px 44px 12px 14px; background: var(--surface); border: 1px dashed var(--line-strong); border-radius: 15px; cursor: pointer; min-width: 0; outline-offset: 2px; transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .18s, border-color .18s, background .18s; }
+.dlink:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-style: solid; }
+.dlink > .dmore { top: 50%; transform: translateY(-50%); }
+.dlink.broken .dname { color: var(--muted); }
+.dlink.broken .dmeta { color: var(--late); }
+.dlink-to { display: flex; align-items: center; gap: 5px; }
+.dlink-to .ico { width: 13px; height: 13px; flex: none; color: var(--focus); }
+.lart { position: relative; display: inline-grid; place-items: center; flex: none; }
+.dlink > .lart .fart { width: 46px; height: 38px; }
+.dlink > .lart .part { width: 32px; height: 40px; margin: 0 7px; }
+.lnk { position: absolute; left: -4px; bottom: -4px; width: 19px; height: 19px; border-radius: 6px; background: var(--surface); color: var(--ink); display: grid; place-items: center; box-shadow: 0 1px 3px rgba(18,26,65,.3), 0 0 0 1px var(--line); }
+.lnk .ico { width: 12px; height: 12px; stroke-width: 2.6; }
+.lnk.broken { background: var(--late-soft); color: var(--late); }
+.lart.broken .fart, .lart.broken .part { filter: grayscale(1); opacity: .5; }
+.lart.big .lnk { width: 24px; height: 24px; left: -6px; bottom: -6px; border-radius: 8px; }
+.lart.big .lnk .ico { width: 15px; height: 15px; }
+.drow-ic .lnk, .dnav-row .lnk, .mv-row .lnk, .dt-row .lnk { width: 14px; height: 14px; left: -3px; bottom: -3px; border-radius: 4px; }
+.drow-ic .lnk .ico, .mv-row .lnk .ico { width: 9px; height: 9px; }
+.dpin { position: absolute; top: 8px; right: 42px; width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: var(--accent-text); background: var(--accent-soft); }
+.dpin .ico { width: 13px; height: 13px; }
+.dfold > .dpin { top: 8px; right: 8px; }
+.dfile > .dpin { top: 8px; right: auto; left: 38px; }
+
+/* selection */
+.docs [data-id] { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.dck { position: absolute; top: 8px; left: 8px; z-index: 2; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line-strong); background: var(--surface); display: grid; place-items: center; color: transparent; opacity: 0; transform: scale(.7); transition: opacity .15s, transform .22s cubic-bezier(.3,1.6,.5,1), background .15s, border-color .15s; cursor: pointer; }
+.dck .ico { width: 14px; height: 14px; stroke-width: 3; }
+.dfold > .dck, .dlink > .dck { top: 6px; left: 6px; width: 20px; height: 20px; }
+.drow { padding-left: 40px; }
+.drow > .dck { top: 50%; left: 10px; margin-top: -10px; width: 20px; height: 20px; }
+@media (hover: hover) { [data-id]:hover > .dck { opacity: 1; transform: scale(1); } }
+.docs.selecting [data-id] > .dck, [data-id].sel > .dck { opacity: 1; transform: scale(1); }
+[data-id].sel > .dck { background: var(--focus); border-color: var(--focus); color: #ffffff; animation: dck .3s cubic-bezier(.3,1.6,.5,1); }
+@keyframes dck { 0% { transform: scale(.6); } 60% { transform: scale(1.15); } 100% { transform: scale(1); } }
+.dfold.sel, .dfile.sel, .dlink.sel { border-color: var(--focus); border-style: solid; background: color-mix(in srgb, var(--focus) 8%, var(--surface)); box-shadow: 0 0 0 3px var(--focus-ring), var(--shadow-sm); }
+.dfile.sel .dprev { filter: saturate(1.1); }
+.drow.sel { background: color-mix(in srgb, var(--focus) 11%, var(--surface)); box-shadow: inset 3px 0 0 var(--focus); }
+.drow.sel:hover { background: color-mix(in srgb, var(--focus) 15%, var(--surface)); }
+.docs [data-id]:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.docs [data-id].cut { opacity: .5; border-style: dashed; }
+.docs [data-id].cut .dprev, .docs [data-id].cut .fart, .docs [data-id].cut .part { filter: grayscale(.5); }
+.dmarquee { position: fixed; z-index: 45; border: 1.5px solid var(--focus); background: color-mix(in srgb, var(--focus) 12%, transparent); border-radius: 5px; pointer-events: none; }
+.dmarquee.out { transition: opacity .12s; opacity: 0; }
+body.marqueeing, body.marqueeing * { cursor: crosshair !important; -webkit-user-select: none; user-select: none; }
+
+/* selection bar */
+.dselbar { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 32; display: flex; align-items: center; gap: 2px; padding: 6px; max-width: calc(100vw - 24px); background: var(--hero); color: var(--hero-ink); border: 1px solid var(--hero-line); border-radius: 18px; box-shadow: var(--shadow-lg); animation: sbin .32s cubic-bezier(.3,1.35,.5,1); }
+.dselbar.out { animation: sbout .18s ease forwards; }
+@keyframes sbin { from { opacity: 0; transform: translate(-50%, 24px) scale(.94); } }
+@keyframes sbout { to { opacity: 0; transform: translate(-50%, 16px) scale(.96); } }
+.sb-x { width: 36px; height: 36px; border: none; border-radius: 12px; background: rgba(255,255,255,.08); color: var(--hero-ink); display: grid; place-items: center; padding: 0; flex: none; }
+.sb-x:hover { background: rgba(255,255,255,.16); }
+.sb-x .ico { width: 16px; height: 16px; }
+.sb-n { padding: 0 12px 0 8px; font-size: 14px; white-space: nowrap; color: var(--hero-muted); }
+.sb-n b { color: var(--accent); font-size: 16px; }
+.sb-b { display: inline-flex; align-items: center; gap: 7px; border: none; background: transparent; color: var(--hero-ink); padding: 9px 12px; border-radius: 12px; font-weight: 700; font-size: 13.5px; white-space: nowrap; transition: background .12s, transform .12s; }
+.sb-b:hover { background: rgba(255,255,255,.1); }
+.sb-b:active { transform: scale(.95); }
+.sb-b .ico { width: 17px; height: 17px; }
+.sb-b.danger { color: var(--hero-late); }
+body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+
+/* drag, drop and flight */
+.docs .dragging { opacity: .35; transform: scale(.97); }
+.dfold.drop-on .fart .ff, .dlink.drop-on .fart .ff, .drow.drop-on .fart .ff, .dq.drop-on .fart .ff { transform: skewX(-10deg) scaleY(.86); }
+.dfold.drop-on .fart .fp, .dlink.drop-on .fart .fp, .drow.drop-on .fart .fp { transform: translateY(-5px); }
+.dfold.drop-on, .dlink.drop-on, .dq.drop-on { transform: translateY(-3px) scale(1.02); box-shadow: var(--shadow-md); }
+.dfold[data-hint].drop-on::after, .dlink[data-hint].drop-on::after, .drow[data-hint].drop-on::after, .dcrumb[data-hint].drop-on::after, .dq[data-hint].drop-on::after, .dnav-quick[data-hint].drop-on::after {
+  content: attr(data-hint); position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%); z-index: 6; background: var(--ink); color: var(--surface); font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 8px; white-space: nowrap; pointer-events: none; box-shadow: var(--shadow-md); animation: fade .12s ease; }
+.dnav-quick[data-hint].drop-on { position: relative; }
+.dnav-quick[data-hint].drop-on::after { bottom: auto; top: 6px; }
+.dcrumb, .dq, .drow { position: relative; }
+.drow[data-hint].drop-on::after { bottom: auto; top: 50%; left: auto; right: 48px; transform: translateY(-50%); }
+.dghost { position: fixed; top: -1000px; left: -1000px; z-index: -1; display: flex; align-items: center; gap: 10px; padding: 8px 16px 8px 10px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-md); font-size: 14px; }
+.dg-art { display: grid; place-items: center; width: 34px; height: 34px; }
+.dg-art.d1, .dg-art.d2 { margin-left: -30px; }
+.dg-art.d1 { transform: rotate(-8deg) translateY(-2px); }
+.dg-art.d2 { transform: rotate(8deg) translateY(-3px); }
+.dg-art .fart { width: 32px; height: 27px; }
+.dg-art .part { width: 24px; height: 30px; }
+.dg-n { position: absolute; top: -8px; left: 30px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--focus); color: #ffffff; font-style: normal; font-weight: 800; font-size: 12px; display: grid; place-items: center; }
+.dfly { position: fixed; z-index: 70; width: 56px; height: 56px; display: grid; place-items: center; pointer-events: none; filter: drop-shadow(0 8px 14px rgba(18,26,65,.28)); will-change: transform; }
+.dfly .fart { width: 50px; height: 42px; }
+.dfly .part { width: 36px; height: 45px; }
+.dfly .lart .lnk { display: none; }
+.docs .leaving { transition: transform .17s ease, opacity .17s ease; transform: scale(.88); opacity: 0; }
+.gulp { animation: gulp .5s cubic-bezier(.3,1.5,.5,1); }
+@keyframes gulp { 0% { transform: scale(1); } 35% { transform: scale(1.07); } 65% { transform: scale(.97); } 100% { transform: scale(1); } }
+.gulp .fart .ff { animation: flap .5s ease; transform-origin: bottom; }
+@keyframes flap { 30% { transform: skewX(-12deg) scaleY(.82); } 100% { transform: none; } }
+
+/* arriving in a folder */
+.dbody.stagger [data-id], .dbody.stagger .dsec-t, .dbody.stagger .dempty, .dbody.stagger .drecent-sec { animation-duration: .34s; animation-timing-function: cubic-bezier(.2,.8,.2,1); animation-fill-mode: both; animation-delay: calc(var(--i, 0) * 16ms); }
+.dbody.nav-fwd [data-id], .dbody.nav-fwd .dsec-t, .dbody.nav-fwd .dempty, .dbody.nav-fwd .drecent-sec { animation-name: dinR; }
+.dbody.nav-back [data-id], .dbody.nav-back .dsec-t, .dbody.nav-back .dempty, .dbody.nav-back .drecent-sec { animation-name: dinL; }
+.dbody.nav-fade [data-id], .dbody.nav-fade .dsec-t, .dbody.nav-fade .dempty, .dbody.nav-fade .drecent-sec { animation-name: dinU; }
+@keyframes dinR { from { opacity: 0; transform: translateX(22px) scale(.98); } }
+@keyframes dinL { from { opacity: 0; transform: translateX(-22px) scale(.98); } }
+@keyframes dinU { from { opacity: 0; transform: translateY(8px); } }
+.docs [data-id].flash { animation: dpopin .5s cubic-bezier(.3,1.5,.5,1), dflash 1.8s ease; }
+@keyframes dpopin { 0% { transform: scale(.86); opacity: .3; } 60% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); } }
+
+/* menus and dialogs */
+.pop-menu { transform-origin: top left; }
+.pop-menu .pm-l { flex: 1; }
+.pop-menu kbd { margin-left: 18px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); background: var(--lane); border-radius: 5px; padding: 1px 6px; }
+.pop-menu .strong { font-weight: 800; }
+.pop-menu .on .ico { color: var(--focus); }
+.pop-menu .pm-title { cursor: default; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pop-menu .pm-title:hover { background: transparent; }
+.pop-menu .pm-title .ico { color: var(--focus); }
+.dlg-scrim.out { animation: fadeout .14s ease forwards; }
+.dlg-scrim.out .dlg { transition: transform .14s ease; transform: scale(.97); }
+@keyframes fadeout { to { opacity: 0; } }
+.dlg.shake { animation: shake .3s ease; }
+.fart.hop { animation: hop .35s cubic-bezier(.3,1.6,.5,1); }
+@keyframes hop { 40% { transform: translateY(-4px) scale(1.08); } }
+.dlg-head .lart .fart { width: 44px; height: 37px; }
+.dlg-head .lart .part, .dlg-head > .part { width: 30px; height: 37px; }
+.dlg-props { width: min(470px, 100%); }
+.props { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 10px 14px; margin: 0; padding: 14px; background: var(--lane); border-radius: 12px; }
+.props dt { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 2px; }
+.props dd { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.props .linkbtn { color: var(--ink); font-size: 14px; padding: 0; text-align: left; }
+.pick-list { max-height: 42vh; }
+.pick-row { align-items: center; }
+.pick-row .fart { width: 28px; height: 24px; }
+.pick-row .part { width: 21px; height: 26px; margin: 0 3px; }
+.pick-row .part b { font-size: 5px; bottom: 3px; }
+.pick-tx { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.pick-tx b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-tx small { font-size: 12px; color: var(--muted); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-empty { padding: 18px; text-align: center; color: var(--muted); font-size: 14px; }
+.dnewf > .ico:last-child { width: 13px; height: 13px; margin-left: -2px; opacity: .7; }
+.drec { border: 1px solid var(--line); text-align: left; color: var(--ink); font: inherit; }
+.dtray.out { animation: sbout2 .2s ease forwards; }
+@keyframes sbout2 { to { opacity: 0; transform: translateY(12px); } }
+.dtray .pop { animation: dck .35s cubic-bezier(.3,1.6,.5,1); }
+.dtray.done .dt-bar i { background: var(--ok); }
+.dt-row.go { cursor: pointer; }
+.dt-row.go:hover { background: var(--lane); }
+.dtray.min .dt-x .ico { transform: rotate(90deg); }
+
+@media (max-width: 680px) {
+  .dselbar { left: 10px; right: 10px; transform: none; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); justify-content: space-between; padding: 6px; }
+  @keyframes sbin { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+  .dselbar.out { animation: sbout3 .18s ease forwards; }
+  @keyframes sbout3 { to { opacity: 0; transform: translateY(16px); } }
+  .sb-n { padding: 0 4px; font-size: 0; }
+  .sb-n b { font-size: 17px; }
+  .sb-b { flex-direction: column; gap: 3px; padding: 6px 6px; font-size: 10.5px; font-weight: 700; }
+  .sb-b .ico { width: 19px; height: 19px; }
+  body.has-selbar .bnav-add { display: none !important; }
+  body.has-selbar .toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+  .dck { width: 24px; height: 24px; }
+  .dlink { padding: 12px 42px 12px 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .docs *, .dselbar, .dfly, .dtray, .dlg, .dlg-scrim { animation: none !important; transition: none !important; }
+}
+.arch-row.leaving { transition: transform .17s ease, opacity .17s ease; transform: scale(.96); opacity: 0; }
 </style>
 </head>
 <body>
@@ -1648,6 +1870,13 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     rows: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
     trash: '<path d="M4.5 7h15M9.5 7V4.8h5V7M6.5 7l1 12.4a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12.4"/><path d="M10 11v5.5M14 11v5.5"/>',
     eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+    shortcut: '<path d="M8 16.5V13a4.5 4.5 0 0 1 4.5-4.5H17"/><path d="M14 5.5l3 3-3 3"/>',
+    pin: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5"/>',
+    pinoff: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5M4 4l16 16"/>',
+    scissors: '<circle cx="6.5" cy="7" r="2.5"/><circle cx="6.5" cy="17" r="2.5"/><path d="M8.6 8.4 19.5 18M8.6 15.6 19.5 6"/>',
+    paste: '<rect x="5" y="4.5" width="14" height="16" rx="2"/><path d="M9 4.5V3.5h6v1M9 11h6M9 15h4"/>',
+    info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.2"/>',
+    chevD: '<path d="M6 9.5l6 6 6-6"/>',
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>'
   };
 
@@ -2627,7 +2856,8 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     attach: "adjuntó un archivo a", detach: "quitó un adjunto de",
     meeting_create: "agendó la reunión", meeting_edit: "editó la reunión", meeting_delete: "borró la reunión", meeting_restore: "restauró la reunión",
     doc_upload: "subió", doc_folder: "creó la carpeta", doc_rename: "cambió el nombre de", doc_move: "movió", doc_delete: "borró", doc_restore: "restauró",
-    doc_purge: "eliminó para siempre", doc_color: "cambió el color de la carpeta" };
+    doc_purge: "eliminó para siempre", doc_color: "cambió el color de la carpeta",
+    doc_copy: "copió", doc_link: "creó un acceso directo a", doc_pin: "ancló en Acceso rápido", doc_unpin: "quitó de Acceso rápido" };
   function drawEntries(box, entries, opts) {
     box.textContent = "";
     var list = entries.filter(function (e) { return e.at && !isNaN(Date.parse(e.at)); });
@@ -3673,7 +3903,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     /* 8. recent files */
     var files = [];
     state.tasks.forEach(function (t) { filesOf(t).forEach(function (f) { files.push({ f: f, t: t }); }); });
-    state.dIdx.alive.forEach(function (d) { if (!isFolder(d)) files.push({ f: asFile(d), d: d }); });
+    state.dIdx.alive.forEach(function (d) { if (isFileDoc(d)) files.push({ f: asFile(d), d: d }); });
     files.sort(function (a, b) { return String(b.f.at || "").localeCompare(String(a.f.at || "")); });
     var w8 = widget("w-files", "folder", "Archivos recientes", files.length || null, { text: "Documentos", go: function () { setView("docs"); } });
     files.slice(0, 5).forEach(function (x) {
@@ -4148,8 +4378,9 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         add("Contactos", "card", contactTitle(c), [c.role, c.name ? c.company : "", formatPhone(c.phone)].filter(Boolean).join(" · "), s, function () { setView("contacts"); openContact(c); });
       });
       state.dIdx.alive.forEach(function (d) {
-        var s = Math.max(score(d.name, qq) * 3, isFolder(d) ? 0 : score(fileExt(d.name), qq));
+        var s = Math.max(score(d.name, qq) * 3, isFileDoc(d) ? score(fileExt(d.name), qq) : 0);
         if (isFolder(d)) add("Documentos", "folder", d.name, "Carpeta · en " + pathText(d._p), s, function () { openFolder(d.id); });
+        else if (isLink(d)) add("Documentos", "shortcut", d.name, "Acceso directo · en " + pathText(d._p), s, function () { openDoc(d); });
         else add("Documentos", "note", d.name, kindInfo(dKind(d)).label + " · " + fmtSize(d.size) + " · en " + pathText(d._p), s, function () { openFile(asFile(d), false); });
       });
       var order = ["Tareas", "Reuniones", "Eventos", "Contactos", "Documentos", "Pasos", "Comentarios", "Archivos"];
@@ -4196,10 +4427,11 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   }
 
   /* ---------- documents ("Documentos") ---------- */
-  /* Folders and files the team keeps outside the cards. Each folder or file is one row in the docs table
-     (type, name, parent folder); the file itself lives in private storage under docs/. Deleting sends to a
-     30-day trash; anything deleted together (a folder and what was inside) is restored together. */
-  var DOC_MAX = 50 * 1024 * 1024, DOC_TRASH_DAYS = 30;
+  /* Folders, files and shortcuts the team keeps outside the cards, organised like a file explorer.
+     Each one is a row in the docs table (type folder | file | link, name, parent folder); a file's bytes live
+     in private storage under docs/, and a shortcut ("link") only points at another folder or file by id.
+     Deleting sends to a 30-day trash; anything deleted together is restored together. */
+  var DOC_MAX = 50 * 1024 * 1024, DOC_TRASH_DAYS = 30, STORAGE_QUOTA = 1024 * 1024 * 1024;
   var FOLDER_COLORS = ["amarillo", "azul", "verde", "naranja", "rojo", "rosa", "morado", "turquesa", "cafe", "gris"];
   var DKINDS = [
     { k: "pdf", label: "PDF", long: "Archivos PDF" },
@@ -4210,30 +4442,54 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     { k: "other", label: "Otros", long: "Otros archivos" }
   ];
   state.docs = []; state.docsLoaded = false;
-  state.dIdx = { byId: {}, kids: {}, alive: [] };
+  state.dIdx = { byId: {}, kids: {}, alive: [], linksTo: {} };
   state.dfolder = ""; state.dtype = ""; state.dflash = {};
   state.dview = "grid"; state.dsort = "name";
+  state.dsel = {}; state.danchor = null; state.dfocus = null; state.dclip = null; state.dexp = {};
   try {
     var dv0 = localStorage.getItem("tb-dview"); if (dv0 === "list") state.dview = "list";
     var ds0 = localStorage.getItem("tb-dsort"); if (["name", "recent", "type", "size"].indexOf(ds0) >= 0) state.dsort = ds0;
-  } catch (e) {}
+    state.dexp = JSON.parse(localStorage.getItem("tb-dexp") || "{}") || {};
+  } catch (e) { state.dexp = {}; }
   (function () { var h = String(location.hash || "").replace(/^#/, "").split("/"); if (h[0] === "documentos" && h[1]) state.dfolder = h[1]; })();
-  var docUploads = [], docSig = "", dirAnim = false;
+  var docUploads = [], docSig = "", dirAnim = false, docOrder = [], lastPtr = "mouse", touchSel = false;
+  document.addEventListener("pointerdown", function (e) { lastPtr = e.pointerType || "mouse"; }, true);
+  function touchy() { return lastPtr === "touch" || lastPtr === "pen" || isPhone(); }
+  function buzz(ms) { try { if (lastPtr === "touch" && navigator.vibrate) navigator.vibrate(ms || 10); } catch (e) {} }
 
   function isFolder(d) { return !!d && d.type === "folder"; }
-  function dKind(d) { var k = fileKind({ name: d.name, type: d.mime }); return /^(pdf|doc|sheet|slide|img)$/.test(k) ? k : "other"; }
+  function isLink(d) { return !!d && d.type === "link"; }
+  function isFileDoc(d) { return !!d && d.type === "file"; }
+  /* where a shortcut leads (null when the original is gone) */
+  function resolve(d) {
+    var cur = d, n = 0;
+    while (isLink(cur) && n < 6) { cur = state.dIdx.byId[cur.target]; n++; }
+    return cur && !isLink(cur) ? cur : null;
+  }
+  function dKind(d) {
+    if (isLink(d)) { var t = resolve(d); return t && !isFolder(t) ? dKind(t) : "other"; }
+    var k = fileKind({ name: d.name, type: d.mime }); return /^(pdf|doc|sheet|slide|img)$/.test(k) ? k : "other";
+  }
   function kindInfo(k) { return DKINDS.filter(function (x) { return x.k === k; })[0] || DKINDS[5]; }
+  function typeLabel(d) {
+    if (isFolder(d)) return "Carpeta";
+    if (isLink(d)) { var t = resolve(d); return t ? "Acceso directo a " + (isFolder(t) ? "carpeta" : typeLabel(t)) : "Acceso directo roto"; }
+    if (/^(TXT|MD)$/.test(fileExt(d.name))) return "Texto";
+    var k = dKind(d); return kindInfo(k).label === "Imágenes" ? "Imagen" : k === "other" ? (fileExt(d.name) ? "Archivo " + fileExt(d.name) : "Archivo") : kindInfo(k).label;
+  }
   function fcolor(c) { return FOLDER_COLORS.indexOf(c) >= 0 ? c : "amarillo"; }
   function colorName(c) { var x = LABEL_COLORS.filter(function (l) { return l.key === c; })[0]; return x ? x.name : c; }
-  function asFile(d) { return { id: d.id, path: d.path, name: d.name, size: d.size, type: d.mime || "", by: d.createdBy, at: d.createdAt }; }
+  function asFile(d) { var t = isLink(d) ? resolve(d) : d; return t ? { id: t.id, path: t.path, name: t.name, size: t.size, type: t.mime || "", by: t.createdBy, at: t.createdAt } : null; }
   function buildDocIndex() {
-    var byId = {}, kids = {}, alive = [];
+    var byId = {}, kids = {}, alive = [], linksTo = {};
     state.docs.forEach(function (d) { if (!d._deleted) { byId[d.id] = d; alive.push(d); } });
     alive.forEach(function (d) {
       var p = d.parent && byId[d.parent] && isFolder(byId[d.parent]) && d.parent !== d.id ? d.parent : "";
       d._p = p; (kids[p] = kids[p] || []).push(d);
+      if (isLink(d)) (linksTo[d.target] = linksTo[d.target] || []).push(d);
     });
-    state.dIdx = { byId: byId, kids: kids, alive: alive };
+    state.dIdx = { byId: byId, kids: kids, alive: alive, linksTo: linksTo };
+    Object.keys(state.dsel).forEach(function (id) { if (!byId[id]) delete state.dsel[id]; });
   }
   function docFolder(id) { var d = id && state.dIdx.byId[id]; return isFolder(d) ? d : null; }
   /* the folders from the top down to `id` (inclusive) */
@@ -4251,24 +4507,33 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     }
     return out;
   }
+  function isInside(id, folderId) { var cur = docFolder(id), n = 0; while (cur && n < 50) { if (cur.id === folderId) return true; cur = docFolder(cur._p); n++; } return false; }
   function folderStats(id, memo) {
     if (memo[id]) return memo[id];
-    var s = { files: 0, folders: 0, size: 0, last: "", kinds: {} };
+    var s = { files: 0, folders: 0, links: 0, size: 0, last: "", kinds: {} };
     memo[id] = s;
     (state.dIdx.kids[id] || []).forEach(function (c) {
       if (isFolder(c)) {
         s.folders++;
         var cs = folderStats(c.id, memo);
-        s.files += cs.files; s.folders += cs.folders; s.size += cs.size;
+        s.files += cs.files; s.folders += cs.folders; s.links += cs.links; s.size += cs.size;
         if (cs.last > s.last) s.last = cs.last;
         Object.keys(cs.kinds).forEach(function (k) { s.kinds[k] = (s.kinds[k] || 0) + cs.kinds[k]; });
-      } else {
+      } else if (isLink(c)) s.links++;
+      else {
         s.files++; s.size += Number(c.size) || 0;
         var k = dKind(c); s.kinds[k] = (s.kinds[k] || 0) + 1;
         var u = c.updatedAt || c.createdAt || ""; if (u > s.last) s.last = u;
       }
     });
     return s;
+  }
+  function statsText(st) {
+    var mm = [];
+    if (st.files) mm.push(plural(st.files, "archivo", "archivos"));
+    if (st.folders) mm.push(plural(st.folders, "carpeta", "carpetas"));
+    if (st.links && !st.files && !st.folders) mm.push(plural(st.links, "acceso directo", "accesos directos"));
+    return mm.join(" · ") || "Vacía";
   }
   function splitExt(name) { var i = String(name).lastIndexOf("."); return i > 0 && i >= name.length - 6 ? [name.slice(0, i), name.slice(i)] : [name, ""]; }
   /* "Informe.pdf" -> "Informe (2).pdf" when the folder already has one with that name */
@@ -4283,6 +4548,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   function rawDoc(d) { var o = Object.assign({}, d); delete o.id; delete o._p; delete o._deleted; delete o._deletedAt; return o; }
   function docSave(d, patch) {
     var data = Object.assign(rawDoc(d), patch, { updatedAt: new Date().toISOString(), updatedBy: meKey() || "" });
+    Object.keys(patch).forEach(function (k) { if (patch[k] === null) delete data[k]; });
     return state.db.doc("docs/" + d.id).set(data);
   }
   function docErr(e) {
@@ -4290,20 +4556,43 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     else toast("No se guardó. Revisa tu conexión e inténtalo de nuevo.");
   }
   function flash(id) { state.dflash[id] = Date.now(); setTimeout(function () { delete state.dflash[id]; }, 2500); }
+  function nameOf(id) { return id ? ((docFolder(id) || {}).name || "Documentos") : "Documentos"; }
+  function many(n) { return plural(n, "elemento", "elementos"); }
+  function longStamp(iso) {
+    var d = new Date(iso); if (!iso || isNaN(d)) return "";
+    return d.getDate() + " de " + MONTHS_LONG[d.getMonth()] + " de " + d.getFullYear() + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
 
   /* ---------- navigation ---------- */
   function docsHash() { return "documentos" + (state.dfolder ? "/" + state.dfolder : ""); }
   function openFolder(id, opts) {
-    state.dfolder = docFolder(id) ? id : "";
+    opts = opts || {};
+    var to = docFolder(id) ? id : "", from = state.dfolder;
+    dirAnim = to === from ? "fade" : (!from || isInside(to, from)) && to ? "fwd" : (!to || isInside(from, to)) ? "back" : "fade";
+    state.dfolder = to;
     state.dtype = "";
+    state.dsel = {}; state.danchor = null; state.dfocus = null; touchSel = false;
+    if (opts.select) { state.dsel[opts.select] = 1; state.danchor = state.dfocus = opts.select; flash(opts.select); }
     if (state.search) { state.search = ""; $("search").value = ""; $("searchClear").hidden = true; }
-    dirAnim = true;
+    if (to) docPath(to).forEach(function (f) { state.dexp[f.id] = 1; });
+    if (opts.select) setTimeout(function () { focusItem(opts.select, true); }, 80);
     if (state.view !== "docs") { setView("docs"); return; }
-    try { if (location.hash.replace(/^#/, "") !== docsHash()) history[opts && opts.replace ? "replaceState" : "pushState"](null, "", "#" + docsHash()); } catch (e) {}
+    try { if (location.hash.replace(/^#/, "") !== docsHash()) history[opts.replace ? "replaceState" : "pushState"](null, "", "#" + docsHash()); } catch (e) {}
     renderDocs();
-    if (window.scrollY > 260) window.scrollTo({ top: 0, behavior: "auto" });
+    var main = document.querySelector("#docs .dmain");
+    if (main && main.getBoundingClientRect().top < 0) main.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
   }
-  function openDoc(d) { if (isFolder(d)) openFolder(d.id); else openFile(asFile(d), false); }
+  function upOne() { var p = docPath(state.dfolder); if (p.length) openFolder(p.length > 1 ? p[p.length - 2].id : "", { select: state.dfolder }); }
+  function openDoc(d) {
+    if (isLink(d)) { var t = resolve(d); if (!t) { brokenLink(d); return; } d = t; }
+    if (isFolder(d)) openFolder(d.id); else openFile(asFile(d), false);
+  }
+  /* go to the folder that holds `d` (the original, for a shortcut) and point at it */
+  function showInFolder(d) {
+    var t = isLink(d) ? resolve(d) : d;
+    if (!t) { brokenLink(d); return; }
+    openFolder(t._p || "", { select: t.id });
+  }
 
   /* ---------- small pieces of art ---------- */
   function folderArt(color) {
@@ -4324,9 +4613,25 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     w.appendChild(el("b", null, (fileExt(d.name) || "ARCH").slice(0, 4)));
     return w;
   }
+  /* the little curved arrow Windows puts on a shortcut */
+  function linkBadge(broken) {
+    var b = el("span", "lnk" + (broken ? " broken" : ""));
+    b.appendChild(icon(broken ? "x" : "shortcut"));
+    return b;
+  }
+  function itemArt(d, big) {
+    if (isFolder(d)) return folderArt(d.color);
+    if (!isLink(d)) return pageArt(d, big);
+    var t = resolve(d);
+    var w = el("span", "lart" + (big ? " big" : "") + (t ? "" : " broken"));
+    w.appendChild(t ? (isFolder(t) ? folderArt(t.color) : pageArt(t, big)) : pageArt({ name: d.name }, big));
+    w.appendChild(linkBadge(!t));
+    return w;
+  }
   function docThumb(d) {
-    if (dKind(d) !== "img") return null;
-    var u = urlFor(asFile(d)); if (!u) return null;
+    var f = asFile(d);
+    if (!f || !isFileDoc(isLink(d) ? resolve(d) : d) || dKind(d) !== "img") return null;
+    var u = urlFor(f); if (!u) return null;
     var im = document.createElement("img");
     im.alt = ""; im.loading = "lazy"; im.decoding = "async"; im.src = u.view;
     im.onerror = function () { im.remove(); };
@@ -4334,52 +4639,92 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   }
 
   /* ---------- menus and dialogs ---------- */
+  /* items: [icon, label, fn, cls, keyHint] or "-" */
   function popMenu(items, at) {
     closeAddMenu();
+    items = items.filter(Boolean);
+    while (items[0] === "-") items.shift();
+    while (items[items.length - 1] === "-") items.pop();
     if (isPhone()) {
-      showMenu(items.filter(function (it) { return it !== "-"; }));
+      var plain = items.filter(function (it) { return it !== "-"; });
+      showMenu(plain);
       var m0 = $("addMenu");
-      if (m0) { m0.classList.add("sheet"); items.forEach(function (it, i) { if (it[3] === "danger") { var bb = m0.querySelectorAll("button")[items.slice(0, i).filter(function (x) { return x !== "-"; }).length]; if (bb) bb.classList.add("danger"); } }); }
+      if (m0) { m0.classList.add("sheet"); Array.prototype.forEach.call(m0.querySelectorAll("button"), function (b, i) { if (plain[i] && plain[i][3]) b.className = plain[i][3]; }); }
       return;
     }
     var sc = el("div", "pop-scrim"); sc.id = "addScrim"; sc.onclick = closeAddMenu;
     sc.addEventListener("contextmenu", function (e) { e.preventDefault(); closeAddMenu(); });
     var m = el("div", "pop-menu"); m.id = "addMenu"; m.setAttribute("role", "menu");
-    items.forEach(function (it) {
-      if (it === "-") { m.appendChild(el("div", "pm-sep")); return; }
+    items.forEach(function (it, i) {
+      if (it === "-") { if (items[i - 1] !== "-") m.appendChild(el("div", "pm-sep")); return; }
       var b = el("button", it[3] || ""); b.type = "button"; b.setAttribute("role", "menuitem");
-      b.appendChild(icon(it[0])); b.appendChild(el("span", null, it[1]));
+      b.appendChild(icon(it[0])); b.appendChild(el("span", "pm-l", it[1]));
+      if (it[4]) b.appendChild(el("kbd", null, it[4]));
       b.onclick = function () { closeAddMenu(); it[2](); };
       m.appendChild(b);
     });
     document.body.appendChild(sc); document.body.appendChild(m);
-    var x, y;
-    if (at && at.getBoundingClientRect) { var r = at.getBoundingClientRect(); x = r.right - m.offsetWidth; y = r.bottom + 6; if (x < 8) x = r.left; }
+    var x, y, r = at && at.getBoundingClientRect ? at.getBoundingClientRect() : null;
+    if (r) { x = r.right - m.offsetWidth; y = r.bottom + 6; if (x < 8) x = r.left; }
     else { x = at.x; y = at.y; }
     x = Math.max(8, Math.min(x, window.innerWidth - m.offsetWidth - 8));
-    if (y + m.offsetHeight > window.innerHeight - 8) y = Math.max(8, (at && at.getBoundingClientRect ? at.getBoundingClientRect().top - 6 : y) - m.offsetHeight);
+    if (y + m.offsetHeight > window.innerHeight - 8) y = Math.max(8, (r ? r.top - 6 : y) - m.offsetHeight);
     m.style.left = x + "px"; m.style.top = y + "px";
+    m.style.transformOrigin = (r ? "top right" : "top left");
     var first = m.querySelector("button"); if (first) first.focus();
     var keys = function (e) {
       if (!m.isConnected) { document.removeEventListener("keydown", keys, true); return; }
       var bs = Array.prototype.slice.call(m.querySelectorAll("button")), i = bs.indexOf(document.activeElement);
       if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeAddMenu(); document.removeEventListener("keydown", keys, true); if (at && at.focus) at.focus(); }
-      else if (e.key === "ArrowDown") { e.preventDefault(); bs[(i + 1) % bs.length].focus(); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); bs[(i - 1 + bs.length) % bs.length].focus(); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); e.stopPropagation(); bs[(i + 1) % bs.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); e.stopPropagation(); bs[(i - 1 + bs.length) % bs.length].focus(); }
     };
     document.addEventListener("keydown", keys, true);
   }
-  /* a small centered box for a name (and, for folders, a color) */
+  function anyOverlay() { return !!($("panelRoot").firstChild || document.querySelector(".dlg-scrim") || $("addMenu") || $("finder")); }
+  /* a centered box: head art, title, body, buttons; returns { box, close } */
+  function dialog(o) {
+    var prev = document.activeElement;
+    var sc = el("div", "dlg-scrim");
+    var bx = el(o.form ? "form" : "div", "dlg" + (o.cls ? " " + o.cls : ""));
+    bx.setAttribute("role", o.alert ? "alertdialog" : "dialog"); bx.setAttribute("aria-modal", "true"); bx.setAttribute("aria-label", o.title);
+    var hd = el("div", "dlg-head");
+    if (o.art) hd.appendChild(o.art);
+    hd.appendChild(el("h3", null, o.title));
+    bx.appendChild(hd);
+    sc.appendChild(bx);
+    document.body.appendChild(sc);
+    var closed = false;
+    function close(v) {
+      if (closed) return; closed = true;
+      document.removeEventListener("keydown", esc, true);
+      sc.classList.add("out");
+      setTimeout(function () { sc.remove(); }, reduced() ? 0 : 140);
+      try { if (prev && prev.focus && prev.isConnected) prev.focus({ preventScroll: true }); } catch (e) {}
+      if (o.onClose) o.onClose(v);
+    }
+    function esc(e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(null); } }
+    document.addEventListener("keydown", esc, true);
+    sc.addEventListener("mousedown", function (e) { if (e.target === sc) close(null); });
+    return { box: bx, head: hd, close: close };
+  }
+  function dlgActs(box, buttons) {
+    var acts = el("div", "dlg-acts");
+    buttons.forEach(function (b) { if (b) acts.appendChild(b); });
+    box.appendChild(acts);
+    return acts;
+  }
+  function btn(text, cls, ic) {
+    var b = el("button", "btn" + (cls ? " " + cls : "")); b.type = "button";
+    if (ic) b.appendChild(icon(ic));
+    b.appendChild(document.createTextNode(text));
+    return b;
+  }
+  /* a name (and, for folders, a color) */
   function askName(o) {
-    return new Promise(function (resolve) {
-      var prev = document.activeElement;
-      var sc = el("div", "dlg-scrim");
-      var bx = el("form", "dlg");
-      bx.setAttribute("role", "dialog"); bx.setAttribute("aria-modal", "true"); bx.setAttribute("aria-label", o.title);
-      var hd = el("div", "dlg-head");
-      if (o.art) hd.appendChild(o.art);
-      hd.appendChild(el("h3", null, o.title));
-      bx.appendChild(hd);
+    return new Promise(function (resolveP) {
+      var dg = dialog({ title: o.title, art: o.art, form: true, onClose: function (v) { resolveP(v || null); } });
+      var bx = dg.box;
       var inp = document.createElement("input");
       inp.type = "text"; inp.value = o.value || ""; inp.placeholder = o.placeholder || ""; inp.maxLength = 150;
       inp.className = "dlg-in"; inp.setAttribute("aria-label", o.label || o.title); inp.autocomplete = "off"; inp.spellcheck = false;
@@ -4394,7 +4739,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
           b.onclick = function () {
             color = c;
             Array.prototype.forEach.call(sw.children, function (x) { x.setAttribute("aria-pressed", String(x === b)); });
-            if (o.art) o.art.setAttribute("class", "fart fc-" + c);
+            if (o.art) { o.art.setAttribute("class", "fart fc-" + c); o.art.classList.remove("hop"); void o.art.getBoundingClientRect(); o.art.classList.add("hop"); }
           };
           sw.appendChild(b);
         });
@@ -4402,24 +4747,15 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       }
       var err = el("div", "dlg-err"); err.hidden = true; err.setAttribute("role", "alert");
       bx.appendChild(err);
-      var acts = el("div", "dlg-acts");
-      var cancel = el("button", "btn", "Cancelar"); cancel.type = "button";
-      var ok = el("button", "btn primary", o.ok || "Guardar"); ok.type = "submit";
-      acts.appendChild(cancel); acts.appendChild(ok);
-      bx.appendChild(acts);
-      sc.appendChild(bx);
-      document.body.appendChild(sc);
-      function done(v) { sc.remove(); document.removeEventListener("keydown", esc, true); try { if (prev && prev.focus) prev.focus(); } catch (e) {} resolve(v); }
-      function esc(e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); done(null); } }
-      document.addEventListener("keydown", esc, true);
-      cancel.onclick = function () { done(null); };
-      sc.addEventListener("mousedown", function (e) { if (e.target === sc) done(null); });
+      var cancel = btn("Cancelar"), ok = btn(o.ok || "Guardar", "primary"); ok.type = "submit";
+      dlgActs(bx, [cancel, ok]);
+      cancel.onclick = function () { dg.close(null); };
       bx.addEventListener("submit", function (e) {
         e.preventDefault();
         var v = inp.value.trim().replace(/\s+/g, " ");
         var msg = !v ? "Escribe un nombre." : /[\\/]/.test(v) ? "El nombre no puede llevar / ni \\." : (o.validate && o.validate(v)) || "";
-        if (msg) { err.textContent = msg; err.hidden = false; inp.focus(); return; }
-        done({ name: v, color: color });
+        if (msg) { err.textContent = msg; err.hidden = false; inp.focus(); bx.classList.remove("shake"); void bx.offsetWidth; bx.classList.add("shake"); return; }
+        dg.close({ name: v, color: color });
       });
       inp.addEventListener("input", function () { err.hidden = true; });
       setTimeout(function () {
@@ -4429,39 +4765,33 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       }, 30);
     });
   }
-  function moveDialog(d) {
-    var block = {}; block[d.id] = 1;
-    if (isFolder(d)) descendants(d.id).forEach(function (c) { block[c.id] = 1; });
-    var prev = document.activeElement;
-    var sc = el("div", "dlg-scrim");
-    var bx = el("div", "dlg dlg-move");
-    bx.setAttribute("role", "dialog"); bx.setAttribute("aria-modal", "true"); bx.setAttribute("aria-label", "Mover");
-    var hd = el("div", "dlg-head");
-    hd.appendChild(el("h3", null, "Mover «" + d.name + "»"));
-    bx.appendChild(hd);
-    bx.appendChild(el("p", "dlg-help", "Elige la carpeta de destino."));
+  /* choose a folder from the tree (move to…, create shortcut in…) */
+  function folderPicker(o) {
+    var block = o.block || {};
+    var dg = dialog({ title: o.title, cls: "dlg-move", art: o.art });
+    var bx = dg.box;
+    if (o.help) bx.appendChild(el("p", "dlg-help", o.help));
     var list = el("div", "mv-list"); list.setAttribute("role", "listbox");
     bx.appendChild(list);
     var target = null;
-    var acts = el("div", "dlg-acts");
-    var cancel = el("button", "btn", "Cancelar"); cancel.type = "button";
-    var ok = el("button", "btn primary", "Mover aquí"); ok.type = "button"; ok.disabled = true;
-    acts.appendChild(cancel); acts.appendChild(ok);
-    bx.appendChild(acts);
+    var cancel = btn("Cancelar"), ok = btn(o.ok || "Aceptar", "primary"); ok.disabled = true;
+    dlgActs(bx, [cancel, ok]);
     function row(id, name, depth, color) {
-      var cur = (d._p || "") === id;
+      var cur = o.current !== undefined && o.current === id;
       var b = el("button", "mv-row" + (cur ? " cur" : "")); b.type = "button"; b.setAttribute("role", "option");
       b.style.paddingLeft = (12 + depth * 22) + "px";
       if (id) b.appendChild(folderArt(color)); else b.appendChild(icon("home"));
       b.appendChild(el("span", null, name));
-      if (cur) b.appendChild(el("em", null, "aquí está ahora"));
-      b.disabled = cur;
+      if (cur && o.curText) b.appendChild(el("em", null, o.curText));
+      b.disabled = !!(cur && o.curDisabled);
       b.onclick = function () {
         target = id;
         Array.prototype.forEach.call(list.children, function (x) { x.setAttribute("aria-selected", String(x === b)); });
         ok.disabled = false;
       };
+      b.ondblclick = function () { if (!b.disabled) { target = id; dg.close(); o.onPick(target); } };
       list.appendChild(b);
+      return b;
     }
     row("", "Documentos (inicio)", 0);
     (function walk(pid, depth) {
@@ -4471,18 +4801,139 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         if (depth < 12) walk(f.id, depth + 1);
       });
     })("", 1);
-    sc.appendChild(bx); document.body.appendChild(sc);
-    function done() { sc.remove(); document.removeEventListener("keydown", esc, true); try { if (prev && prev.focus) prev.focus(); } catch (e) {} }
-    function esc(e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); done(); } }
-    document.addEventListener("keydown", esc, true);
-    cancel.onclick = done;
-    sc.addEventListener("mousedown", function (e) { if (e.target === sc) done(); });
-    ok.onclick = function () { if (target === null) return; done(); moveDoc(d, target); };
-    var f0 = list.querySelector(".mv-row:not([disabled])"); if (f0) f0.focus();
+    cancel.onclick = function () { dg.close(); };
+    ok.onclick = function () { if (target === null) return; dg.close(); o.onPick(target); };
+    var f0 = list.querySelector(".mv-row:not([disabled])");
+    if (f0) f0.focus();
+  }
+  /* pick any folder or file to point a new shortcut at */
+  function targetPicker(onPick) {
+    var dg = dialog({ title: "Nuevo acceso directo", cls: "dlg-move", art: (function () { var a = el("span", "lart"); a.appendChild(folderArt("azul")); a.appendChild(linkBadge()); return a; })() });
+    var bx = dg.box;
+    bx.appendChild(el("p", "dlg-help", "¿A qué carpeta o archivo quieres llegar rápido? El acceso directo se crea en «" + nameOf(state.dtype || state.search ? "" : state.dfolder) + "»."));
+    var q = document.createElement("input"); q.type = "search"; q.className = "dlg-in"; q.placeholder = "Buscar por nombre…"; q.setAttribute("aria-label", "Buscar carpeta o archivo"); q.autocomplete = "off";
+    bx.appendChild(q);
+    var list = el("div", "mv-list pick-list"); list.setAttribute("role", "listbox");
+    bx.appendChild(list);
+    var target = null;
+    var cancel = btn("Cancelar"), ok = btn("Crear acceso directo", "primary"); ok.disabled = true;
+    dlgActs(bx, [cancel, ok]);
+    function draw() {
+      var qq = norm(q.value);
+      list.textContent = "";
+      var all = state.dIdx.alive.filter(function (d) { return !isLink(d) && (!qq || norm(d.name).indexOf(qq) >= 0); });
+      all.sort(function (a, b) { return (isFolder(a) ? 0 : 1) - (isFolder(b) ? 0 : 1) || byName(a, b); });
+      if (!all.length) { list.appendChild(el("div", "pick-empty", qq ? "Nada coincide con «" + q.value.trim() + "»." : "Todavía no hay carpetas ni archivos.")); return; }
+      all.slice(0, 80).forEach(function (d) {
+        var b = el("button", "mv-row pick-row"); b.type = "button"; b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", String(target === d.id));
+        b.appendChild(itemArt(d));
+        var tx = el("span", "pick-tx"); tx.appendChild(el("b", null, d.name)); tx.appendChild(el("small", null, "En " + pathText(d._p))); b.appendChild(tx);
+        b.onclick = function () { target = d.id; Array.prototype.forEach.call(list.children, function (x) { x.setAttribute("aria-selected", String(x === b)); }); ok.disabled = false; };
+        b.ondblclick = function () { target = d.id; dg.close(); onPick(target); };
+        list.appendChild(b);
+      });
+    }
+    q.addEventListener("input", draw);
+    q.addEventListener("keydown", function (e) { if (e.key === "ArrowDown") { e.preventDefault(); var f = list.querySelector("button"); if (f) f.focus(); } });
+    cancel.onclick = function () { dg.close(); };
+    ok.onclick = function () { if (!target) return; dg.close(); onPick(target); };
+    draw();
+    setTimeout(function () { q.focus(); }, 30);
+  }
+  function brokenLink(d) {
+    var orig = state.docs.filter(function (x) { return x.id === d.target; })[0];
+    var inTrash = orig && orig._deleted && !orig._purged;
+    var dg = dialog({ title: "Este acceso directo ya no lleva a ningún lado", art: itemArt(d), alert: true });
+    dg.box.appendChild(el("p", "dlg-help", inTrash ? "«" + orig.name + "» está en la papelera. Puedes restaurarlo o borrar el acceso directo." : "El original se borró o se eliminó para siempre. Puedes borrar este acceso directo."));
+    var cancel = btn("Cerrar"), del = btn("Borrar acceso directo", "danger"), rest = inTrash ? btn("Restaurar original", "primary") : null;
+    dlgActs(dg.box, [cancel, del, rest]);
+    cancel.onclick = function () { dg.close(); };
+    del.onclick = function () { dg.close(); deleteDocs([d.id]); };
+    if (rest) rest.onclick = function () { dg.close(); restoreDoc(orig).catch(docErr); };
+    (rest || cancel).focus();
+  }
+  function propsDialog(d) {
+    var memo = {};
+    var dg = dialog({ title: d.name, art: itemArt(d), cls: "dlg-props" });
+    var bx = dg.box;
+    var dl = el("dl", "props");
+    function rowp(k, v, go) {
+      if (!v) return;
+      dl.appendChild(el("dt", null, k));
+      var dd = el("dd");
+      if (go) { var b = el("button", "linkbtn", v); b.type = "button"; b.onclick = function () { dg.close(); go(); }; dd.appendChild(b); }
+      else dd.textContent = v;
+      dl.appendChild(dd);
+    }
+    rowp("Tipo", typeLabel(d));
+    rowp("Ubicación", pathText(d._p), function () { openFolder(d._p || "", { select: d.id }); });
+    if (isLink(d)) {
+      var t = resolve(d);
+      rowp("Destino", t ? (pathText(t._p) === "Documentos" ? "Documentos › " : pathText(t._p) + " › ") + t.name : "El original ya no existe", t ? function () { showInFolder(d); } : null);
+    }
+    if (isFolder(d)) {
+      var st = folderStats(d.id, memo);
+      rowp("Contiene", statsText(st));
+      rowp("Tamaño", fmtSize(st.size));
+    } else if (isFileDoc(d)) rowp("Tamaño", fmtSize(d.size));
+    var cm = member(d.createdBy), um = member(d.updatedBy);
+    rowp("Creado", longStamp(d.createdAt) + (cm ? " · " + cm.name : ""));
+    if (d.updatedAt && d.updatedAt !== d.createdAt) rowp("Modificado", longStamp(d.updatedAt) + (um ? " · " + um.name : ""));
+    var lk = state.dIdx.linksTo[d.id] || [];
+    if (lk.length) rowp("Accesos directos", plural(lk.length, "acceso directo lleva", "accesos directos llevan") + " aquí");
+    if (d.pinnedAt) rowp("Acceso rápido", "Anclado");
+    bx.appendChild(dl);
+    var close = btn("Cerrar"), open = btn(isFolder(d) || (isLink(d) && isFolder(resolve(d))) ? "Abrir carpeta" : "Abrir", "primary");
+    dlgActs(bx, [close, open]);
+    close.onclick = function () { dg.close(); };
+    open.onclick = function () { dg.close(); openDoc(d); };
+    open.focus();
+  }
+
+  /* ---------- motion helpers ---------- */
+  function nodeFor(id) { return document.querySelector('#docs .dmain [data-id="' + id + '"]'); }
+  /* where a folder can be seen right now: its tile, its tree row, its breadcrumb, its quick-access row */
+  function folderSpot(id) {
+    var sels = id ? ['#docs .dmain [data-id="' + id + '"]', '#docs .dtree [data-tid="' + id + '"]', '#docs .dcrumbs [data-tid="' + id + '"]', '#docs .dquick [data-tid="' + id + '"]']
+      : ['#docs .dtree [data-tid="root"]', '#docs .dcrumbs [data-tid="root"]'];
+    for (var i = 0; i < sels.length; i++) { var n = document.querySelector(sels[i]); if (n && n.getClientRects().length) return n; }
+    return null;
+  }
+  /* items fly in an arc into `to`, which then gives a small "gulp" */
+  function fly(fromEls, to, done, keep) {
+    fromEls = fromEls.filter(function (n) { return n && n.isConnected; });
+    if (reduced() || !to || !to.isConnected || !fromEls.length || !document.body.animate) { if (done) done(); return; }
+    var tr = to.getBoundingClientRect(), tx = tr.left + Math.min(tr.width, 60) / 2, ty = tr.top + tr.height / 2;
+    fromEls.slice(0, 6).forEach(function (n, i) {
+      var r = n.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + Math.min(r.height, 120) / 2;
+      var art = n.querySelector(".fart, .part, .lart");
+      var g = el("div", "dfly");
+      if (art) g.appendChild(art.cloneNode(true));
+      g.style.left = (cx - 28) + "px"; g.style.top = (cy - 28) + "px";
+      document.body.appendChild(g);
+      var dx = tx - cx, dy = ty - cy, lift = Math.min(120, 40 + Math.abs(dx) * .15);
+      g.animate([
+        { transform: "translate(0,0) scale(1) rotate(0deg)", opacity: 1 },
+        { transform: "translate(" + dx * .5 + "px," + (dy * .5 - lift) + "px) scale(.85) rotate(-8deg)", opacity: 1, offset: .5 },
+        { transform: "translate(" + dx + "px," + dy + "px) scale(.25) rotate(0deg)", opacity: .1 }
+      ], { duration: 520 + i * 40, easing: "cubic-bezier(.35,.6,.35,1)", fill: "forwards" });
+      setTimeout(function () { g.remove(); }, 600 + i * 40);
+      if (!keep) n.classList.add("leaving");
+    });
+    setTimeout(function () { gulp(to); if (done) done(); }, 470);
+  }
+  function gulp(n) { if (!n || reduced()) return; n.classList.remove("gulp"); void n.getBoundingClientRect(); n.classList.add("gulp"); setTimeout(function () { n.classList.remove("gulp"); }, 600); }
+  function leave(ids, done) {
+    var ns = ids.map(nodeFor).filter(Boolean);
+    if (!ns.length || reduced()) { done(); return; }
+    ns.forEach(function (n) { n.classList.add("leaving"); });
+    setTimeout(done, 170);
   }
 
   /* ---------- actions ---------- */
   function byName(a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "es", { numeric: true, sensitivity: "base" }); }
+  function hereFolder() { return state.dtype || state.search ? "" : state.dfolder; }
   function newFolder(parent) {
     if (!state.canWrite || !state.db) return;
     parent = docFolder(parent) ? parent : "";
@@ -4492,7 +4943,10 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       validate: function (v) { return uniqueName(parent, v, "folder") !== v ? "Ya hay una carpeta con ese nombre aquí." : ""; } })
       .then(function (r) {
         if (!r) return;
-        createFolder(parent, r.name, r.color).then(function (id) { toast("Carpeta «" + r.name + "» creada", function () { openFolder(id); }, "Abrir"); }).catch(docErr);
+        createFolder(parent, r.name, r.color).then(function (id) {
+          if (parent !== state.dfolder || state.dtype || state.search) toast("Carpeta «" + r.name + "» creada en «" + nameOf(parent) + "»", function () { openFolder(id); }, "Abrir");
+          else { state.dsel = {}; state.dsel[id] = 1; state.danchor = state.dfocus = id; renderDocs(); }
+        }).catch(docErr);
       });
   }
   function createFolder(parent, name, color, quiet) {
@@ -4500,113 +4954,373 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     var data = { type: "folder", name: uniqueName(parent, name.slice(0, 150), "folder"), parent: parent || "", color: fcolor(color), createdAt: now, createdBy: meKey() || "", updatedAt: now };
     flash(id);
     return state.db.doc("docs/" + id).set(data).then(function () {
-      if (!quiet) logEntry({ action: "doc_folder", docId: id, title: data.name, changes: [{ f: "doc_in", to: parent ? (docFolder(parent) || {}).name : "" }] });
+      if (!quiet) logEntry({ action: "doc_folder", docId: id, title: data.name, changes: [{ f: "doc_in", to: parent ? nameOf(parent) : "" }] });
       return id;
     });
   }
   function renameDoc(d) {
-    var file = !isFolder(d);
-    var art = file ? pageArt(d) : folderArt(d.color);
-    askName({ title: file ? "Cambiar nombre del archivo" : "Cambiar nombre de la carpeta", value: d.name, ok: "Guardar", keepExt: file, art: art, label: "Nombre",
-      colors: !file, color: d.color,
+    if (!state.canWrite) return;
+    var file = isFileDoc(d);
+    var art = itemArt(d);
+    askName({ title: isFolder(d) ? "Nombre y color de la carpeta" : isLink(d) ? "Cambiar nombre del acceso directo" : "Cambiar nombre del archivo", value: d.name, ok: "Guardar", keepExt: file, art: art, label: "Nombre",
+      colors: isFolder(d), color: d.color,
       validate: function (v) {
         var nv = fixExt(v);
-        return uniqueName(d._p, nv, d.type, d.id) !== nv ? (file ? "Ya hay un archivo con ese nombre aquí." : "Ya hay una carpeta con ese nombre aquí.") : "";
+        return uniqueName(d._p, nv, d.type, d.id) !== nv ? "Ya hay " + (isFolder(d) ? "una carpeta" : isLink(d) ? "un acceso directo" : "un archivo") + " con ese nombre aquí." : "";
       } })
       .then(function (r) {
         if (!r) return;
         var nv = fixExt(r.name), patch = {};
         if (nv !== d.name) patch.name = nv;
-        if (!file && fcolor(r.color) !== fcolor(d.color)) patch.color = fcolor(r.color);
+        if (isFolder(d) && fcolor(r.color) !== fcolor(d.color)) patch.color = fcolor(r.color);
         if (!Object.keys(patch).length) return;
         var old = d.name;
+        flash(d.id);
         docSave(d, patch).then(function () {
           if (patch.name) logEntry({ action: "doc_rename", docId: d.id, title: nv, changes: [{ f: "doc_rename", from: old }] });
           else logEntry({ action: "doc_color", docId: d.id, title: d.name });
-          toast(patch.name ? "Nombre cambiado" : "Color cambiado");
         }).catch(docErr);
       });
     /* a file keeps its extension even if it was erased while renaming */
     function fixExt(v) { if (!file) return v; var e0 = splitExt(d.name)[1]; return e0 && splitExt(v)[1].toLowerCase() !== e0.toLowerCase() ? v + e0 : v; }
   }
-  function moveDoc(d, target) {
+  /* which of `ids` can go into `target` (not into themselves, not where they already are) */
+  function movable(ids, target) {
+    return ids.map(function (id) { return state.dIdx.byId[id]; }).filter(function (d) {
+      return d && (d._p || "") !== (target || "") && d.id !== target && !(isFolder(d) && target && isInside(target, d.id));
+    });
+  }
+  function moveDocs(ids, target, opts) {
+    if (!state.canWrite) return Promise.resolve();
+    opts = opts || {};
     target = target || "";
-    if ((d._p || "") === target) return;
-    if (d.id === target || (isFolder(d) && descendants(d.id).some(function (c) { return c.id === target; }))) { toast("No se puede mover una carpeta dentro de sí misma."); return; }
-    var from = d._p || "";
-    var name = uniqueName(target, d.name, d.type, d.id);
-    var patch = { parent: target }; if (name !== d.name) patch.name = name;
-    var tname = target ? docFolder(target).name : "Documentos";
-    flash(d.id);
-    docSave(d, patch).then(function () {
-      logEntry({ action: "doc_move", docId: d.id, title: name, changes: [{ f: "doc_move", to: target ? tname : "" }] });
-      toast("Movido a «" + tname + "»", function () {
-        var cur = state.dIdx.byId[d.id]; if (!cur) return;
-        docSave(cur, { parent: from, name: uniqueName(from, d.name, d.type, d.id) }).then(function () { toast("Deshecho"); }).catch(docErr);
+    var list = movable(ids, target);
+    if (!list.length) {
+      if (ids.some(function (id) { return id === target || (isFolder(state.dIdx.byId[id]) && target && isInside(target, id)); })) toast("Una carpeta no puede ir dentro de sí misma.");
+      return Promise.resolve();
+    }
+    var back = list.map(function (d) { return { d: d, from: d._p || "", name: d.name }; });
+    var run = function () {
+      var p = Promise.resolve();
+      list.forEach(function (d) {
+        p = p.then(function () {
+          var cur = state.dIdx.byId[d.id] || d;
+          var name = uniqueName(target, cur.name, cur.type, cur.id), patch = { parent: target };
+          if (name !== cur.name) patch.name = name;
+          return docSave(cur, patch);
+        });
+      });
+      return p.then(function () {
+        buzz(12);
+        logEntry(list.length === 1 ? { action: "doc_move", docId: list[0].id, title: list[0].name, changes: [{ f: "doc_move", to: target ? nameOf(target) : "" }] }
+          : { action: "doc_move", docFolder: target, title: many(list.length), changes: [{ f: "doc_move", to: target ? nameOf(target) : "" }] });
+        toast((list.length === 1 ? "«" + list[0].name + "» movido" : many(list.length) + " movidos") + " a «" + nameOf(target) + "»", function () {
+          var q = Promise.resolve();
+          back.forEach(function (b) { q = q.then(function () { var cur = state.dIdx.byId[b.d.id]; return cur ? docSave(cur, { parent: b.from, name: uniqueName(b.from, b.name, cur.type, cur.id) }) : null; }); });
+          q.then(function () { toast("Deshecho"); }).catch(docErr);
+        });
+      }).catch(docErr);
+    };
+    state.dsel = {};
+    var spot = opts.spot || folderSpot(target);
+    var from = list.map(function (d) { return nodeFor(d.id); }).filter(Boolean);
+    return new Promise(function (res) {
+      if (from.length && spot) fly(from, spot, function () { run().then(res); });
+      else leave(list.map(function (d) { return d.id; }), function () { run().then(res); });
+    });
+  }
+  function copyName(d) { if (!isFileDoc(d)) return d.name + " - copia"; var se = splitExt(d.name); return se[0] + " - copia" + se[1]; }
+  /* copies point at the same stored file: nothing is uploaded twice, and the file stays while any copy uses it */
+  function copyDocs(ids, target) {
+    if (!state.canWrite) return Promise.resolve();
+    target = target || "";
+    var src = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(function (d) { return d && !(isFolder(d) && (d.id === target || (target && isInside(target, d.id)))); });
+    if (!src.length) { toast("Una carpeta no puede copiarse dentro de sí misma."); return Promise.resolve(); }
+    var made = [];
+    function one(d, parent, top) {
+      var kids = isFolder(d) ? (state.dIdx.kids[d.id] || []).slice() : [];
+      var id = newId(), now = new Date().toISOString();
+      var data = rawDoc(d);
+      delete data.pinnedAt; delete data.updatedBy;
+      data.parent = parent; data.createdAt = now; data.createdBy = meKey() || ""; data.updatedAt = now;
+      data.name = uniqueName(parent, top && parent === (d._p || "") ? copyName(d) : d.name, d.type);
+      made.push(id); if (top) flash(id);
+      var p = state.db.doc("docs/" + id).set(data);
+      kids.forEach(function (c) { p = p.then(function () { return one(c, id, false); }); });
+      return p;
+    }
+    var p = Promise.resolve();
+    src.forEach(function (d) { p = p.then(function () { return one(d, target, true); }); });
+    return p.then(function () {
+      buzz(12);
+      gulp(folderSpot(target));
+      logEntry({ action: "doc_copy", docId: src.length === 1 ? made[0] : "", docFolder: src.length === 1 ? undefined : target, title: src.length === 1 ? src[0].name : many(src.length), changes: [{ f: "doc_in", to: target ? nameOf(target) : "" }] });
+      toast((src.length === 1 ? "«" + src[0].name + "» copiado" : many(src.length) + " copiados") + " en «" + nameOf(target) + "»", function () {
+        state.db.docDelete(made).then(function () { return state.db.docPurge(made); }).then(function () { toast("Deshecho"); }).catch(docErr);
       });
     }).catch(docErr);
   }
-  function deleteDoc(d) {
-    var inner = isFolder(d) ? descendants(d.id) : [];
-    var ids = [d.id].concat(inner.map(function (c) { return c.id; }));
-    var nFiles = inner.filter(function (c) { return !isFolder(c); }).length;
-    state.db.docDelete(ids).then(function () {
-      logEntry({ action: "doc_delete", docId: d.id, title: d.name, changes: inner.length ? [{ f: "doc_items", n: inner.length }] : [] });
-      toast((isFolder(d) ? "Carpeta «" + d.name + "»" + (nFiles ? " y " + plural(nFiles, "archivo", "archivos") : "") : "«" + d.name + "»") + " a la papelera", function () {
-        state.db.docRestore(ids).then(function () {
-          logEntry({ action: "doc_restore", docId: d.id, title: d.name });
-          toast("Restaurado");
-        }).catch(docErr);
+  function makeShortcuts(ids, target, quiet) {
+    if (!state.canWrite) return Promise.resolve([]);
+    target = target || "";
+    var seen = {}, made = [];
+    var ts = ids.map(function (id) { return resolve(state.dIdx.byId[id]); }).filter(function (t) { if (!t || seen[t.id]) return false; seen[t.id] = 1; return true; });
+    var p = Promise.resolve();
+    ts.forEach(function (t) {
+      p = p.then(function () {
+        var id = newId(), now = new Date().toISOString();
+        made.push(id); flash(id);
+        return state.db.doc("docs/" + id).set({ type: "link", name: uniqueName(target, t.name, "link"), parent: target, target: t.id, createdAt: now, createdBy: meKey() || "", updatedAt: now });
       });
-    }).catch(docErr);
+    });
+    return p.then(function () {
+      if (!made.length) return made;
+      buzz(12);
+      gulp(folderSpot(target));
+      logEntry({ action: "doc_link", docId: made.length === 1 ? ts[0].id : "", docFolder: made.length === 1 ? undefined : target, title: made.length === 1 ? ts[0].name : many(made.length), changes: [{ f: "doc_in", to: target ? nameOf(target) : "" }] });
+      if (!quiet) {
+        var here = target === hereFolder() && state.dfolder === target && !state.dtype && !state.search;
+        toast((made.length === 1 ? "Acceso directo" : plural(made.length, "acceso directo", "accesos directos")) + " creado" + (made.length === 1 ? "" : "s") + " en «" + nameOf(target) + "»",
+          here ? function () { state.db.docDelete(made).then(function () { return state.db.docPurge(made); }).catch(docErr); } : function () { openFolder(target, { select: made[0] }); }, here ? "Deshacer" : "Ver");
+      }
+      return made;
+    }).catch(function (e) { docErr(e); return []; });
   }
-  function confirmDelete(d) {
-    if (!isFolder(d)) { deleteDoc(d); return; }
-    var st = folderStats(d.id, {});
-    if (!st.files && !st.folders) { deleteDoc(d); return; }
+  function shortcutDialog(ids) {
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    if (!ds.length) return;
+    var a = el("span", "lart"); a.appendChild(itemArt(resolve(ds[0]) || ds[0])); a.appendChild(linkBadge());
+    folderPicker({ title: ds.length === 1 ? "Acceso directo a «" + ds[0].name + "»" : plural(ds.length, "acceso directo", "accesos directos"),
+      help: "¿En qué carpeta quieres " + (ds.length === 1 ? "el acceso directo" : "los accesos directos") + "? El original se queda donde está.",
+      ok: "Crear aquí", art: a, onPick: function (t) { makeShortcuts(ids, t); } });
+  }
+  function pinDocs(ids, on) {
+    var seen = {}, list = ids.map(function (id) { return resolve(state.dIdx.byId[id]); }).filter(function (t) { if (!t || seen[t.id] || !!t.pinnedAt === on) return false; seen[t.id] = 1; return true; });
+    if (!list.length) return;
+    var now = new Date().toISOString();
+    var from = on ? list.map(function (d) { return nodeFor(d.id); }).filter(Boolean) : [];
+    var spot = document.querySelector("#docs .dnav-quick .dnav-h, #docs .dquick");
+    var run = function () {
+      var p = Promise.resolve();
+      list.forEach(function (d) { p = p.then(function () { flash("q" + d.id); return docSave(state.dIdx.byId[d.id] || d, { pinnedAt: on ? now : null }); }); });
+      p.then(function () {
+        buzz(10);
+        logEntry({ action: on ? "doc_pin" : "doc_unpin", docId: list.length === 1 ? list[0].id : "", title: list.length === 1 ? list[0].name : many(list.length) });
+        toast(on ? (list.length === 1 ? "«" + list[0].name + "» está en Acceso rápido" : many(list.length) + " en Acceso rápido") : "Quitado de Acceso rápido", function () { pinDocs(list.map(function (d) { return d.id; }), !on); });
+      }).catch(docErr);
+    };
+    if (from.length && spot && spot.getClientRects().length && !reduced()) fly(from, spot, run, true);
+    else run();
+  }
+  function deleteDocs(ids) {
+    if (!state.canWrite) return;
+    var top = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    top = top.filter(function (d) { return !top.some(function (o) { return o !== d && isFolder(o) && isInside(d._p, o.id); }); });
+    if (!top.length) return;
+    var all = [], seen = {};
+    top.forEach(function (d) { [d].concat(isFolder(d) ? descendants(d.id) : []).forEach(function (x) { if (!seen[x.id]) { seen[x.id] = 1; all.push(x.id); } }); });
+    var nFiles = all.filter(function (id) { return isFileDoc(state.dIdx.byId[id]); }).length;
+    state.dsel = {};
+    leave(top.map(function (d) { return d.id; }), function () {
+      state.db.docDelete(all).then(function () {
+        buzz(14);
+        logEntry(top.length === 1 ? { action: "doc_delete", docId: top[0].id, title: top[0].name, changes: all.length > 1 ? [{ f: "doc_items", n: all.length - 1 }] : [] }
+          : { action: "doc_delete", title: many(top.length), changes: [] });
+        var what = top.length === 1 ? (isFolder(top[0]) ? "Carpeta «" + top[0].name + "»" + (nFiles ? " y " + plural(nFiles, "archivo", "archivos") : "") : isLink(top[0]) ? "Acceso directo «" + top[0].name + "»" : "«" + top[0].name + "»") : many(top.length);
+        toast(what + " a la papelera", function () {
+          state.db.docRestore(all).then(function () {
+            top.forEach(function (d) { flash(d.id); });
+            logEntry({ action: "doc_restore", docId: top.length === 1 ? top[0].id : "", title: top.length === 1 ? top[0].name : many(top.length) });
+            toast("Restaurado");
+          }).catch(docErr);
+        });
+      }).catch(docErr);
+    });
+  }
+  function confirmDelete(ids) {
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    if (!ds.length || !state.canWrite) return;
+    var memo = {}, files = 0, folders = 0;
+    ds.forEach(function (d) { if (isFolder(d)) { var st = folderStats(d.id, memo); files += st.files; folders += st.folders; } });
+    if (!files && !folders && ds.length < 4) { deleteDocs(ids); return; }
     var parts = [];
-    if (st.files) parts.push(plural(st.files, "archivo", "archivos"));
-    if (st.folders) parts.push(plural(st.folders, "carpeta", "carpetas"));
-    var prev = document.activeElement;
-    var sc = el("div", "dlg-scrim");
-    var bx = el("div", "dlg");
-    bx.setAttribute("role", "alertdialog"); bx.setAttribute("aria-modal", "true"); bx.setAttribute("aria-label", "Borrar carpeta");
-    var hd = el("div", "dlg-head"); hd.appendChild(folderArt(d.color)); hd.appendChild(el("h3", null, "¿Borrar «" + d.name + "»?"));
-    bx.appendChild(hd);
-    bx.appendChild(el("p", "dlg-help", "Tiene " + parts.join(" y ") + ". Todo se va a la papelera y se puede restaurar durante " + DOC_TRASH_DAYS + " días."));
-    var acts = el("div", "dlg-acts");
-    var cancel = el("button", "btn", "Cancelar"); cancel.type = "button";
-    var ok = el("button", "btn danger armed", "Borrar carpeta"); ok.type = "button";
-    acts.appendChild(cancel); acts.appendChild(ok); bx.appendChild(acts);
-    sc.appendChild(bx); document.body.appendChild(sc);
-    function done() { sc.remove(); document.removeEventListener("keydown", esc, true); try { if (prev && prev.focus) prev.focus(); } catch (e) {} }
-    function esc(e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); done(); } }
-    document.addEventListener("keydown", esc, true);
-    cancel.onclick = done;
-    sc.addEventListener("mousedown", function (e) { if (e.target === sc) done(); });
-    ok.onclick = function () { done(); deleteDoc(d); };
+    if (files) parts.push(plural(files, "archivo", "archivos"));
+    if (folders) parts.push(plural(folders, "carpeta", "carpetas"));
+    var single = ds.length === 1;
+    var dg = dialog({ title: single ? "¿Borrar «" + ds[0].name + "»?" : "¿Borrar " + many(ds.length) + "?", art: single ? itemArt(ds[0]) : folderArt("gris"), alert: true });
+    dg.box.appendChild(el("p", "dlg-help", (parts.length ? (single ? "Tiene " : "Entre todos tienen ") + parts.join(" y ") + ". " : "") + "Todo se va a la papelera y se puede restaurar durante " + DOC_TRASH_DAYS + " días."));
+    var cancel = btn("Cancelar"), ok = btn(single && isFolder(ds[0]) ? "Borrar carpeta" : "Borrar", "danger armed");
+    dlgActs(dg.box, [cancel, ok]);
+    cancel.onclick = function () { dg.close(); };
+    ok.onclick = function () { dg.close(); deleteDocs(ids); };
     cancel.focus();
   }
+
+  /* ---------- clipboard: cut, copy, paste, paste shortcut ---------- */
+  function clipSet(mode, ids) {
+    ids = ids.filter(function (id) { return state.dIdx.byId[id]; });
+    if (!ids.length) return;
+    state.dclip = { mode: mode, ids: ids };
+    paintSel();
+    toast((ids.length === 1 ? "«" + state.dIdx.byId[ids[0]].name + "»" : many(ids.length)) + (mode === "cut" ? " listo para mover" : " copiado") + " · abre otra carpeta y pega" + (isPhone() ? "" : " con Ctrl+V"));
+  }
+  function clipIds() { return state.dclip ? state.dclip.ids.filter(function (id) { return state.dIdx.byId[id]; }) : []; }
+  function paste(asShortcut) {
+    var ids = clipIds(), target = hereFolder();
+    if (!ids.length || !state.canWrite) return;
+    if (asShortcut) { makeShortcuts(ids, target); return; }
+    if (state.dclip.mode === "cut") { state.dclip = null; moveDocs(ids, target, { spot: null }); }
+    else copyDocs(ids, target);
+  }
+
+  /* ---------- selection ---------- */
+  function selIds() { return docOrder.filter(function (id) { return state.dsel[id]; }).concat(Object.keys(state.dsel).filter(function (id) { return docOrder.indexOf(id) < 0 && state.dIdx.byId[id]; })); }
+  function setSel(ids, anchor) { state.dsel = {}; ids.forEach(function (id) { state.dsel[id] = 1; }); if (anchor !== undefined) state.danchor = anchor; paintSel(); }
+  function toggleSel(id) { if (state.dsel[id]) delete state.dsel[id]; else state.dsel[id] = 1; state.danchor = id; if (!Object.keys(state.dsel).length) touchSel = false; paintSel(); }
+  function rangeSel(a, b, add) {
+    var i = docOrder.indexOf(a), j = docOrder.indexOf(b);
+    if (i < 0 || j < 0) { setSel([b], b); return; }
+    var ids = docOrder.slice(Math.min(i, j), Math.max(i, j) + 1);
+    if (!add) state.dsel = {};
+    ids.forEach(function (id) { state.dsel[id] = 1; });
+    paintSel();
+  }
+  function clearSel() { if (!Object.keys(state.dsel).length && !touchSel) return; state.dsel = {}; touchSel = false; paintSel(); }
+  function paintSel() {
+    var box = $("docs"); if (!box) return;
+    var cut = state.dclip && state.dclip.mode === "cut" ? state.dclip.ids : [];
+    Array.prototype.forEach.call(box.querySelectorAll(".dmain [data-id]"), function (n) {
+      var on = !!state.dsel[n.dataset.id];
+      if (n.classList.contains("sel") !== on) n.classList.toggle("sel", on);
+      n.setAttribute("aria-selected", String(on));
+      n.classList.toggle("cut", cut.indexOf(n.dataset.id) >= 0);
+    });
+    box.classList.toggle("selecting", touchSel || Object.keys(state.dsel).length > 0);
+    drawSelBar();
+  }
+  function focusItem(id, scroll) {
+    var n = nodeFor(id); if (!n) return;
+    state.dfocus = id;
+    try { n.focus({ preventScroll: !scroll }); } catch (e) { n.focus(); }
+    if (scroll) n.scrollIntoView({ block: "nearest", behavior: reduced() ? "auto" : "smooth" });
+  }
+  function drawSelBar() {
+    var ids = selIds(), bar = $("dselbar");
+    var show = state.view === "docs" && ids.length > 0 && !$("panelRoot").firstChild;
+    document.body.classList.toggle("has-selbar", show);
+    if (!show) { if (bar) { bar.classList.add("out"); setTimeout(function () { if (bar.classList.contains("out")) bar.remove(); }, 180); } return; }
+    if (!bar) { bar = el("div", "dselbar"); bar.id = "dselbar"; bar.setAttribute("role", "toolbar"); bar.setAttribute("aria-label", "Acciones de la selección"); document.body.appendChild(bar); }
+    bar.classList.remove("out");
+    bar.textContent = "";
+    var x = el("button", "sb-x"); x.type = "button"; x.title = "Quitar selección (Esc)"; x.setAttribute("aria-label", "Quitar selección"); x.appendChild(icon("x"));
+    x.onclick = clearSel;
+    bar.appendChild(x);
+    var cnt = el("span", "sb-n"); cnt.appendChild(el("b", null, String(ids.length))); cnt.appendChild(document.createTextNode(ids.length === 1 ? " seleccionado" : " seleccionados"));
+    bar.appendChild(cnt);
+    var one = ids.length === 1 ? state.dIdx.byId[ids[0]] : null;
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    var allPinned = ds.length && ds.every(function (d) { var t = resolve(d); return t && t.pinnedAt; });
+    var acts = [];
+    if (one) acts.push(["eye", "Abrir", function () { openDoc(one); }]);
+    if (one && isFileDoc(resolve(one))) acts.push(["download", "Descargar", function () { openFile(asFile(one), true); }]);
+    if (state.canWrite) {
+      acts.push(["move", "Mover", function () { moveDialog(ids); }]);
+      acts.push(["shortcut", "Acceso directo", function () { shortcutDialog(ids); }]);
+      acts.push([allPinned ? "pinoff" : "pin", allPinned ? "Desanclar" : "Anclar", function () { pinDocs(ids, !allPinned); }]);
+      acts.push(["trash", "Borrar", function () { confirmDelete(ids); }, "danger"]);
+    }
+    acts.forEach(function (a) {
+      var b = el("button", "sb-b" + (a[3] ? " " + a[3] : "")); b.type = "button"; b.title = a[1];
+      b.appendChild(icon(a[0])); b.appendChild(el("span", null, a[1]));
+      b.onclick = a[2];
+      bar.appendChild(b);
+    });
+  }
+  function moveDialog(ids) {
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    if (!ds.length) return;
+    var block = {};
+    ds.forEach(function (d) { if (isFolder(d)) { block[d.id] = 1; descendants(d.id).forEach(function (c) { block[c.id] = 1; }); } });
+    var cur = ds.every(function (d) { return (d._p || "") === (ds[0]._p || ""); }) ? (ds[0]._p || "") : undefined;
+    folderPicker({ title: ds.length === 1 ? "Mover «" + ds[0].name + "»" : "Mover " + many(ds.length), help: "Elige la carpeta de destino.", ok: "Mover aquí",
+      art: ds.length === 1 ? itemArt(ds[0]) : null, block: block, current: cur, curText: "aquí está ahora", curDisabled: true,
+      onPick: function (t) { moveDocs(ids, t); } });
+  }
   function docMenu(d, at) {
+    var ids = state.dsel[d.id] && selIds().length > 1 ? selIds() : [d.id];
+    if (!state.dsel[d.id]) { setSel([d.id], d.id); }
+    if (ids.length > 1) { multiMenu(ids, at); return; }
+    var t = resolve(d), w = state.canWrite, away = !!(state.dtype || state.search) || d._p !== state.dfolder;
     var items = [];
-    if (isFolder(d)) items.push(["folder", "Abrir", function () { openFolder(d.id); }]);
+    if (isLink(d)) {
+      items.push([t && isFolder(t) ? "folder" : "eye", t && isFolder(t) ? "Abrir carpeta" : "Abrir", function () { openDoc(d); }, "strong", "Enter"]);
+      items.push(["search", "Abrir ubicación del original", function () { showInFolder(d); }]);
+    } else if (isFolder(d)) items.push(["folder", "Abrir", function () { openFolder(d.id); }, "strong", "Enter"]);
     else {
-      items.push(["eye", "Abrir", function () { openFile(asFile(d), false); }]);
+      items.push(["eye", "Abrir", function () { openDoc(d); }, "strong", "Enter"]);
       items.push(["download", "Descargar", function () { openFile(asFile(d), true); }]);
     }
-    if (state.canWrite) {
+    if (away && !isLink(d)) items.push(["search", "Mostrar en su carpeta", function () { showInFolder(d); }]);
+    if (w) {
       items.push("-");
-      items.push(["pencil", isFolder(d) ? "Nombre y color" : "Cambiar nombre", function () { renameDoc(d); }]);
-      items.push(["move", "Mover a…", function () { moveDialog(d); }]);
+      items.push(["scissors", "Cortar", function () { clipSet("cut", [d.id]); }, "", "Ctrl+X"]);
+      items.push(["copy", "Copiar", function () { clipSet("copy", [d.id]); }, "", "Ctrl+C"]);
+      if (t) items.push(["shortcut", "Crear acceso directo…", function () { shortcutDialog([d.id]); }]);
+      if (t) items.push([t.pinnedAt ? "pinoff" : "pin", t.pinnedAt ? "Quitar de Acceso rápido" : "Anclar a Acceso rápido", function () { pinDocs([d.id], !t.pinnedAt); }]);
+      items.push("-");
+      items.push(["pencil", isFolder(d) ? "Nombre y color" : "Cambiar nombre", function () { renameDoc(d); }, "", "F2"]);
+      items.push(["move", "Mover a…", function () { moveDialog([d.id]); }]);
       if (isFolder(d)) {
         items.push(["upload", "Subir archivos aquí", function () { pickFiles(d.id); }]);
         items.push(["folderplus", "Nueva carpeta dentro", function () { newFolder(d.id); }]);
+        if (clipIds().length) items.push(["paste", "Pegar dentro", function () { var ids2 = clipIds(); if (state.dclip.mode === "cut") { state.dclip = null; moveDocs(ids2, d.id); } else copyDocs(ids2, d.id); }]);
       }
+    }
+    items.push("-");
+    items.push(["info", "Propiedades", function () { propsDialog(d); }, "", "Alt+Enter"]);
+    if (w) { items.push("-"); items.push(["trash", isLink(d) ? "Borrar acceso directo" : "Borrar", function () { confirmDelete([d.id]); }, "danger", "Supr"]); }
+    popMenu(items, at);
+  }
+  function multiMenu(ids, at) {
+    var w = state.canWrite, items = [];
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    var allPinned = ds.every(function (d) { var t = resolve(d); return t && t.pinnedAt; });
+    items.push(["check", many(ids.length) + " seleccionados", function () {}, "pm-title"]);
+    if (w) {
       items.push("-");
-      items.push(["trash", "Borrar", function () { confirmDelete(d); }, "danger"]);
+      items.push(["scissors", "Cortar", function () { clipSet("cut", ids); }, "", "Ctrl+X"]);
+      items.push(["copy", "Copiar", function () { clipSet("copy", ids); }, "", "Ctrl+C"]);
+      items.push(["shortcut", "Crear accesos directos…", function () { shortcutDialog(ids); }]);
+      items.push([allPinned ? "pinoff" : "pin", allPinned ? "Quitar de Acceso rápido" : "Anclar a Acceso rápido", function () { pinDocs(ids, !allPinned); }]);
+      items.push(["move", "Mover a…", function () { moveDialog(ids); }]);
+      items.push("-");
+      items.push(["trash", "Borrar", function () { confirmDelete(ids); }, "danger", "Supr"]);
     }
     popMenu(items, at);
   }
+  function bgMenu(at) {
+    var here = hereFolder(), w = state.canWrite, items = [];
+    var clip = clipIds();
+    if (w && clip.length) {
+      items.push(["paste", state.dclip.mode === "cut" ? "Pegar (mover aquí)" : "Pegar", function () { paste(false); }, "", "Ctrl+V"]);
+      items.push(["shortcut", "Pegar acceso directo", function () { paste(true); }]);
+      items.push("-");
+    }
+    if (w) {
+      items.push(["folderplus", "Nueva carpeta", function () { newFolder(here); }, "", "N"]);
+      items.push(["shortcut", "Nuevo acceso directo…", function () { targetPicker(function (id) { makeShortcuts([id], here); }); }]);
+      items.push(["upload", "Subir archivos", function () { pickFiles(here); }, "", "U"]);
+      items.push(["folderup", "Subir una carpeta", function () { pickDir(here); }]);
+      items.push("-");
+    }
+    items.push([state.dview === "grid" ? "check" : "grid", "Ver como cuadrícula", function () { setDview("grid"); }, state.dview === "grid" ? "on" : ""]);
+    items.push([state.dview === "list" ? "check" : "rows", "Ver como lista", function () { setDview("list"); }, state.dview === "list" ? "on" : ""]);
+    items.push("-");
+    if (docOrder.length) items.push(["check", "Seleccionar todo", function () { setSel(docOrder.slice()); }, "", "Ctrl+A"]);
+    if (here && docFolder(here)) items.push(["info", "Propiedades de la carpeta", function () { propsDialog(docFolder(here)); }]);
+    popMenu(items, at);
+  }
+  function setDview(v) { state.dview = v; try { localStorage.setItem("tb-dview", v); } catch (e) {} dirAnim = "fade"; renderDocs(); }
 
   /* ---------- uploads ---------- */
   var docPick = document.createElement("input");
@@ -4698,12 +5412,10 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     }
     return Promise.all([next(), next(), next()]).then(function () {
       var ok = jobs.filter(function (j) { return j.status === "ok"; }), bad = jobs.filter(function (j) { return j.status === "err"; });
-      var topRel = {};
-      ok.forEach(function (j) { if (j.rel) topRel[j.rel.split("/")[0]] = 1; });
       if (ok.length) {
-        var where = parent ? docFolder(parent) && docFolder(parent).name : "";
+        buzz(16);
         logEntry({ action: "doc_upload", docId: ok.length === 1 ? ok[0].docId : "", docFolder: ok.length === 1 ? "" : parent,
-          title: ok.length === 1 ? ok[0].name : plural(ok.length, "archivo", "archivos"), changes: [{ f: "doc_in", to: where || "" }] });
+          title: ok.length === 1 ? ok[0].name : plural(ok.length, "archivo", "archivos"), changes: [{ f: "doc_in", to: parent ? nameOf(parent) : "" }] });
       }
       if (bad.length) {
         var why = function (e) { var c = e && e.code; return c === "too_big" ? "pesa más de 50 MB" : c === "locked" ? "la clave del equipo no es válida" : c === "quota_exceeded" ? "se llegó al máximo de documentos" : "no se pudo subir; revisa tu conexión"; };
@@ -4718,21 +5430,24 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   }
   function drawTray() {
     var tr = $("dtray");
-    if (!docUploads.length) { if (tr) tr.remove(); return; }
+    if (!docUploads.length) { if (tr) { tr.classList.add("out"); setTimeout(function () { if (!docUploads.length && tr.isConnected) tr.remove(); }, 200); } return; }
     if (!tr) { tr = el("div", "dtray"); tr.id = "dtray"; tr.setAttribute("role", "status"); document.body.appendChild(tr); }
+    tr.classList.remove("out");
+    var wasMin = tr.classList.contains("min");
     tr.textContent = "";
     var going = docUploads.filter(function (j) { return j.status === "up" || j.status === "wait"; }).length;
     var okN = docUploads.filter(function (j) { return j.status === "ok"; }).length;
+    tr.classList.toggle("done", !going);
     var head = el("div", "dt-head");
     if (going) head.appendChild(el("span", "fspin"));
-    else { var ck = el("span", "dt-ok"); ck.appendChild(icon("check")); head.appendChild(ck); }
+    else { var ck = el("span", "dt-ok pop"); ck.appendChild(icon("check")); head.appendChild(ck); }
     var total = docUploads.length, finished = total - going;
     head.appendChild(el("b", null, going ? "Subiendo " + Math.min(finished + 1, total) + " de " + total + "…" : okN ? plural(okN, "archivo subido", "archivos subidos") : "No se pudo subir"));
-    var x = el("button", "dt-x"); x.type = "button"; x.setAttribute("aria-label", "Ocultar"); x.appendChild(icon("x"));
-    x.onclick = function () { tr.classList.add("min"); };
+    var x = el("button", "dt-x"); x.type = "button"; x.setAttribute("aria-label", wasMin ? "Mostrar" : "Ocultar"); x.appendChild(icon(wasMin ? "chevL" : "x"));
+    x.onclick = function () { tr.classList.toggle("min"); };
     head.appendChild(x);
     tr.appendChild(head);
-    var bar = el("div", "dt-bar"); var fill = el("i"); fill.style.width = Math.round((docUploads.length - going) / docUploads.length * 100) + "%"; bar.appendChild(fill);
+    var bar = el("div", "dt-bar"); var fill = el("i"); fill.style.width = Math.round(finished / total * 100) + "%"; bar.appendChild(fill);
     tr.appendChild(bar);
     var list = el("div", "dt-list");
     docUploads.slice(-40).forEach(function (j) {
@@ -4743,54 +5458,98 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       tx.appendChild(el("span", "dt-meta", j.status === "err" ? (j.err && j.err.code === "too_big" ? "Pesa más de 50 MB" : "No se pudo subir") : j.status === "ok" ? "Listo · " + fmtSize(j.size) : j.status === "up" ? "Subiendo · " + fmtSize(j.size) : "En espera · " + fmtSize(j.size)));
       r.appendChild(tx);
       if (j.status === "up") r.appendChild(el("span", "fspin"));
-      else if (j.status === "ok") { var c = el("span", "dt-ok"); c.appendChild(icon("check")); r.appendChild(c); }
+      else if (j.status === "ok") { var c = el("span", "dt-ok pop"); c.appendChild(icon("check")); r.appendChild(c); }
+      if (j.status === "ok" && j.docId) { r.classList.add("go"); r.title = "Ver en su carpeta"; r.onclick = function () { var d = state.dIdx.byId[j.docId]; if (d) showInFolder(d); }; }
       list.appendChild(r);
     });
     tr.appendChild(list);
+    if (wasMin) tr.classList.add("min");
   }
 
-  /* ---------- drag and drop inside the page ---------- */
+  /* ---------- drag and drop ---------- */
   var DOC_DRAG = "application/x-colven-doc";
   function isDocDrag(e) { var t = e.dataTransfer && e.dataTransfer.types; return !!t && Array.prototype.indexOf.call(t, DOC_DRAG) >= 0; }
-  var dragId = null;
+  var dragIds = null;
+  function dragGhost(ids) {
+    var g = el("div", "dghost");
+    var first = state.dIdx.byId[ids[0]];
+    ids.slice(0, 3).forEach(function (id, i) { var d = state.dIdx.byId[id]; if (!d) return; var s = el("span", "dg-art d" + i); s.appendChild(itemArt(d)); g.appendChild(s); });
+    var tx = el("span", "dg-tx"); tx.appendChild(el("b", null, ids.length === 1 && first ? first.name : many(ids.length))); g.appendChild(tx);
+    if (ids.length > 1) g.appendChild(el("i", "dg-n", String(ids.length)));
+    document.body.appendChild(g);
+    setTimeout(function () { g.remove(); }, 50);
+    return g;
+  }
   function makeDraggable(node, d) {
     if (!state.canWrite || isPhone()) return;
     node.draggable = true;
     node.addEventListener("dragstart", function (e) {
-      dragId = d.id;
-      try { e.dataTransfer.setData(DOC_DRAG, d.id); e.dataTransfer.setData("text/plain", d.name); e.dataTransfer.effectAllowed = "move"; } catch (er) {}
-      setTimeout(function () { node.classList.add("dragging"); }, 0);
+      var ids = state.dsel[d.id] ? selIds() : [d.id];
+      if (!state.dsel[d.id]) setSel([d.id], d.id);
+      dragIds = ids;
+      try {
+        e.dataTransfer.setData(DOC_DRAG, ids.join(","));
+        e.dataTransfer.setData("text/plain", ids.map(function (id) { return (state.dIdx.byId[id] || {}).name; }).join(", "));
+        e.dataTransfer.effectAllowed = "all";
+        var g = dragGhost(ids); e.dataTransfer.setDragImage(g, 26, 26);
+      } catch (er) {}
+      setTimeout(function () { ids.forEach(function (id) { var n = nodeFor(id); if (n) n.classList.add("dragging"); }); }, 0);
       document.body.classList.add("doc-dragging");
     });
-    node.addEventListener("dragend", function () { dragId = null; node.classList.remove("dragging"); document.body.classList.remove("doc-dragging"); });
+    node.addEventListener("dragend", function () {
+      dragIds = null; document.body.classList.remove("doc-dragging");
+      Array.prototype.forEach.call(document.querySelectorAll("#docs .dragging"), function (n) { n.classList.remove("dragging"); });
+    });
   }
-  /* a folder tile or a breadcrumb that takes dropped items (moves) and dropped files (uploads into it) */
+  function dropVerb(e, pid) {
+    if (e.altKey) return { eff: "link", text: "Crear acceso directo en «" + nameOf(pid) + "»" };
+    if (e.ctrlKey || e.metaKey) return { eff: "copy", text: "Copiar a «" + nameOf(pid) + "»" };
+    return { eff: "move", text: "Mover a «" + nameOf(pid) + "»" };
+  }
+  /* a folder tile, tree row or breadcrumb that takes dropped items (moves; Alt = shortcut, Ctrl = copy) and files (uploads) */
   function makeDropTarget(node, pid) {
     if (!state.canWrite) return;
-    var depth = 0;
-    node.addEventListener("dragenter", function (e) {
-      if (isDocDrag(e) ? dragId === pid : !isFileDrag(e)) return;
-      e.preventDefault(); e.stopPropagation(); depth++; node.classList.add("drop-on");
-    });
+    function ok(e) {
+      if (isDocDrag(e)) return !!dragIds && (dropVerb(e, pid).eff !== "move" || movable(dragIds, pid).length > 0);
+      return isFileDrag(e);
+    }
+    node.addEventListener("dragenter", function (e) { if (!ok(e)) return; e.preventDefault(); e.stopPropagation(); node.classList.add("drop-on"); });
     node.addEventListener("dragover", function (e) {
-      if (isDocDrag(e) ? dragId === pid : !isFileDrag(e)) return;
+      if (!ok(e)) return;
       e.preventDefault(); e.stopPropagation();
-      e.dataTransfer.dropEffect = isDocDrag(e) ? "move" : "copy";
+      var v = isDocDrag(e) ? dropVerb(e, pid) : { eff: "copy", text: "Subir a «" + nameOf(pid) + "»" };
+      e.dataTransfer.dropEffect = v.eff;
       node.classList.add("drop-on");
+      if (node.dataset.hint !== v.text) node.dataset.hint = v.text;
     });
-    node.addEventListener("dragleave", function (e) { if (!node.contains(e.relatedTarget)) { depth = 0; node.classList.remove("drop-on"); } });
+    node.addEventListener("dragleave", function (e) { if (!node.contains(e.relatedTarget)) node.classList.remove("drop-on"); });
     node.addEventListener("drop", function (e) {
-      node.classList.remove("drop-on"); depth = 0;
+      node.classList.remove("drop-on");
       var box = $("docs"); if (box) box.classList.remove("dropping");
       if (isDocDrag(e)) {
         e.preventDefault(); e.stopPropagation();
-        var id = e.dataTransfer.getData(DOC_DRAG), d = state.dIdx.byId[id];
-        if (d) moveDoc(d, pid);
+        var ids = String(e.dataTransfer.getData(DOC_DRAG) || "").split(",").filter(Boolean);
+        var v = dropVerb(e, pid).eff;
+        if (v === "link") makeShortcuts(ids, pid);
+        else if (v === "copy") copyDocs(ids, pid);
+        else moveDocs(ids, pid, { spot: node });
         return;
       }
       if (!isFileDrag(e)) return;
       e.preventDefault(); e.stopPropagation();
+      gulp(node);
       dropItems(e.dataTransfer).then(function (its) { uploadDocs(its, pid); });
+    });
+  }
+  /* dropping on Acceso rápido pins */
+  function makePinTarget(node) {
+    if (!state.canWrite) return;
+    node.addEventListener("dragover", function (e) { if (!isDocDrag(e)) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "link"; node.classList.add("drop-on"); node.dataset.hint = "Anclar a Acceso rápido"; });
+    node.addEventListener("dragleave", function (e) { if (!node.contains(e.relatedTarget)) node.classList.remove("drop-on"); });
+    node.addEventListener("drop", function (e) {
+      if (!isDocDrag(e)) return;
+      e.preventDefault(); e.stopPropagation(); node.classList.remove("drop-on");
+      pinDocs(String(e.dataTransfer.getData(DOC_DRAG) || "").split(",").filter(Boolean), true);
     });
   }
   (function () {
@@ -4803,8 +5562,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       depth = 0; box.classList.remove("dropping");
       if (!isFileDrag(e) || isDocDrag(e) || !state.canWrite) return;
       e.preventDefault();
-      var pid = state.dtype || state.search ? "" : state.dfolder;
-      dropItems(e.dataTransfer).then(function (its) { uploadDocs(its, pid); });
+      dropItems(e.dataTransfer).then(function (its) { uploadDocs(its, hereFolder()); });
     });
   })();
 
@@ -4812,8 +5570,8 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   function trashedDocs() { return state.docs.filter(function (d) { return d._deleted && !d._purged && d._deletedAt && Date.parse(d._deletedAt) > Date.now() - DOC_TRASH_DAYS * 86400000; }); }
   function deletedWith(d) {
     /* what was deleted in the same action as `d`, inside it */
-    var all = {}, kids = {};
-    state.docs.forEach(function (x) { all[x.id] = x; (kids[x.parent || ""] = kids[x.parent || ""] || []).push(x); });
+    var kids = {};
+    state.docs.forEach(function (x) { (kids[x.parent || ""] = kids[x.parent || ""] || []).push(x); });
     var out = [], stack = [d.id], seen = {};
     while (stack.length) {
       (kids[stack.pop()] || []).forEach(function (c) {
@@ -4837,7 +5595,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     return state.db.doc("docs/" + d.id).set(data).then(function () { return ids.length ? state.db.docRestore(ids) : null; }).then(function () {
       flash(d.id);
       logEntry({ action: "doc_restore", docId: d.id, title: name });
-      toast("Restaurado en «" + (home ? docFolder(home).name : "Documentos") + "»", function () { closePanel(); openFolder(home); }, "Ver");
+      toast("Restaurado en «" + nameOf(home) + "»", function () { closePanel(); openFolder(home, { select: d.id }); }, "Ver");
     });
   }
   function purgeDocs(list) {
@@ -4845,6 +5603,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     list.forEach(function (d) { [d].concat(deletedWith(d)).forEach(function (x) { if (ids.indexOf(x.id) < 0) { ids.push(x.id); if (x.type === "file" && x.path) files.push(x.path); } }); });
     if (!ids.length) return Promise.resolve();
     return state.db.docPurge(ids).then(function () {
+      /* the stored file is erased only when no other copy, card or trashed item still uses it (checked on the server) */
       files.forEach(function (p) { state.db.fileCall({ action: "remove", path: p }).catch(function () {}); });
     });
   }
@@ -4857,6 +5616,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     if (old.length) purgeDocs(old).catch(function () {});
   }
   function openDocTrash() {
+    clearSel();
     openPanel(function (p) {
       p.setAttribute("aria-label", "Papelera de documentos");
       p.appendChild(el("h2", null, "Papelera de documentos"));
@@ -4876,23 +5636,24 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         if (!l.length) { var em = el("div", "empty cempty"); em.appendChild(icon("trash")); em.appendChild(el("b", null, "La papelera está vacía")); list.appendChild(em); return; }
         l.forEach(function (d) {
           var r = el("div", "arch-row dtrash-row");
-          r.appendChild(isFolder(d) ? folderArt(d.color) : pageArt(d));
+          r.appendChild(itemArt(d));
           var main = el("div", "arch-main");
           main.appendChild(el("span", "arch-title", d.name));
           var inner = deletedWith(d), meta = [];
-          if (isFolder(d)) meta.push(inner.length ? "con " + plural(inner.filter(function (c) { return !isFolder(c); }).length, "archivo", "archivos") : "vacía");
+          if (isFolder(d)) meta.push(inner.length ? "con " + plural(inner.filter(isFileDoc).length, "archivo", "archivos") : "vacía");
+          else if (isLink(d)) meta.push("acceso directo");
           else meta.push(fmtSize(d.size));
           meta.push("borrado " + relTime(d._deletedAt), "se elimina en " + plural(daysLeft(d._deletedAt, DOC_TRASH_DAYS), "día", "días"));
           main.appendChild(el("span", "arch-meta", meta.join(" · ")));
           r.appendChild(main);
           if (state.canWrite) {
             var rb = el("button", "btn small", "Restaurar"); rb.type = "button";
-            rb.onclick = function () { rb.disabled = true; restoreDoc(d).catch(function (e) { rb.disabled = false; docErr(e); }); };
+            rb.onclick = function () { rb.disabled = true; r.classList.add("leaving"); restoreDoc(d).catch(function (e) { rb.disabled = false; r.classList.remove("leaving"); docErr(e); }); };
             r.appendChild(rb);
             var db = el("button", "btn small danger", "Eliminar"); db.type = "button"; db.title = "Eliminar para siempre";
             db.onclick = function () {
               if (!db.classList.contains("armed")) { db.classList.add("armed"); db.textContent = "¿Seguro?"; setTimeout(function () { if (db.isConnected) { db.classList.remove("armed"); db.textContent = "Eliminar"; } }, 3500); return; }
-              db.disabled = true;
+              db.disabled = true; r.classList.add("leaving");
               purgeDocs([d]).then(function () { logEntry({ action: "doc_purge", title: d.name }); toast("Eliminado para siempre"); }).catch(docErr);
             };
             r.appendChild(db);
@@ -4912,13 +5673,13 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
 
   /* ---------- the Documentos view ---------- */
   function sortDocs(list) {
-    var s = state.dsort;
+    var s = state.dsort, rank = function (d) { return isFolder(d) ? 0 : isLink(d) ? 1 : 2; };
     return list.slice().sort(function (a, b) {
-      var fa = isFolder(a) ? 0 : 1, fb = isFolder(b) ? 0 : 1;
+      var fa = rank(a), fb = rank(b);
       if (fa !== fb) return fa - fb;
       if (s === "recent") return String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")) || byName(a, b);
-      if (s === "size" && !fa) return (Number(b.size) || 0) - (Number(a.size) || 0) || byName(a, b);
-      if (s === "type" && fa) { var ka = DKINDS.indexOf(kindInfo(dKind(a))), kb = DKINDS.indexOf(kindInfo(dKind(b))); return ka - kb || byName(a, b); }
+      if (s === "size" && fa === 2) return (Number(b.size) || 0) - (Number(a.size) || 0) || byName(a, b);
+      if (s === "type" && fa === 2) { var ka = DKINDS.indexOf(kindInfo(dKind(a))), kb = DKINDS.indexOf(kindInfo(dKind(b))); return ka - kb || byName(a, b); }
       return byName(a, b);
     });
   }
@@ -4935,19 +5696,37 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     b.onclick = function (e) { e.stopPropagation(); docMenu(d, b); };
     return b;
   }
+  function checkMark() { var c = el("span", "dck"); c.setAttribute("aria-hidden", "true"); c.appendChild(icon("check")); return c; }
+  var staggerI = 0;
   function wireItem(node, d) {
+    node.dataset.id = d.id;
     node.tabIndex = 0;
-    node.setAttribute("role", "button");
-    node.addEventListener("click", function (e) { if (e.target.closest(".dmore")) return; openDoc(d); });
-    node.addEventListener("keydown", function (e) {
-      if (e.target !== node) return;
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDoc(d); }
-      else if (e.key === "F2" && state.canWrite) { e.preventDefault(); renameDoc(d); }
-      else if ((e.key === "Delete" || e.key === "Backspace") && state.canWrite) { e.preventDefault(); confirmDelete(d); }
-      else if (e.key === "ContextMenu" || (e.shiftKey && e.key === "F10")) { e.preventDefault(); docMenu(d, node); }
+    node.setAttribute("role", "option");
+    node.setAttribute("aria-selected", String(!!state.dsel[d.id]));
+    node.appendChild(checkMark());
+    node.style.setProperty("--i", Math.min(staggerI++, 16));
+    node.addEventListener("click", function (e) {
+      if (e.target.closest(".dmore")) return;
+      if (e.target.closest(".dck")) { e.stopPropagation(); if (touchy()) touchSel = true; toggleSel(d.id); if (touchy() && Object.keys(state.dsel).length) touchSel = true; paintSel(); buzz(8); return; }
+      if (touchy()) {
+        if (touchSel || Object.keys(state.dsel).length) { toggleSel(d.id); buzz(8); }
+        else openDoc(d);
+        return;
+      }
+      if (e.ctrlKey || e.metaKey) { toggleSel(d.id); state.dfocus = d.id; return; }
+      if (e.shiftKey && state.danchor) { rangeSel(state.danchor, d.id, false); state.dfocus = d.id; return; }
+      setSel([d.id], d.id); state.dfocus = d.id;
     });
-    node.addEventListener("contextmenu", function (e) { e.preventDefault(); docMenu(d, { x: e.clientX, y: e.clientY }); });
+    node.addEventListener("dblclick", function (e) { if (e.target.closest(".dmore, .dck") || touchy()) return; openDoc(d); });
+    node.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+      if (lastPtr === "touch") { if (!state.dsel[d.id]) { state.dsel[d.id] = 1; state.danchor = d.id; } touchSel = true; buzz(15); paintSel(); return; }
+      docMenu(d, { x: e.clientX, y: e.clientY });
+    });
+    node.addEventListener("focus", function () { state.dfocus = d.id; });
     if (state.dflash[d.id]) node.classList.add("flash");
+    if (state.dsel[d.id]) node.classList.add("sel");
+    if (state.dclip && state.dclip.mode === "cut" && state.dclip.ids.indexOf(d.id) >= 0) node.classList.add("cut");
     makeDraggable(node, d);
   }
   function folderTile(f, memo, showWhere) {
@@ -4957,10 +5736,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     t.appendChild(folderArt(f.color));
     var tx = el("div", "dfold-tx");
     tx.appendChild(el("b", "dname", f.name));
-    var meta = [];
-    if (st.files) meta.push(plural(st.files, "archivo", "archivos"));
-    if (st.folders) meta.push(plural(st.folders, "carpeta", "carpetas"));
-    tx.appendChild(el("span", "dmeta", showWhere ? "En " + pathText(f._p) : meta.length ? meta.join(" · ") : "Vacía"));
+    tx.appendChild(el("span", "dmeta", showWhere ? "En " + pathText(f._p) : statsText(st)));
     var kinds = DKINDS.filter(function (k) { return st.kinds[k.k]; });
     if (kinds.length && !showWhere) {
       var kr = el("span", "dkinds");
@@ -4968,10 +5744,29 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       tx.appendChild(kr);
     }
     t.appendChild(tx);
+    if (f.pinnedAt) t.appendChild(pinMark());
     t.appendChild(moreBtn(f));
     wireItem(t, f);
     makeDropTarget(t, f.id);
     return t;
+  }
+  function pinMark() { var p = el("span", "dpin"); p.title = "En Acceso rápido"; p.appendChild(icon("pin")); return p; }
+  function linkTile(d) {
+    var t = resolve(d);
+    var c = el("div", "dlink" + (t ? "" : " broken"));
+    c.setAttribute("aria-label", "Acceso directo " + d.name);
+    c.appendChild(itemArt(d));
+    var tx = el("div", "dfold-tx");
+    tx.appendChild(el("b", "dname", d.name));
+    var sub = el("span", "dmeta dlink-to");
+    if (t) { sub.appendChild(icon("shortcut")); sub.appendChild(document.createTextNode((t._p ? pathText(t._p) + " › " : "") + t.name)); }
+    else sub.textContent = "El original ya no existe";
+    tx.appendChild(sub);
+    c.appendChild(tx);
+    c.appendChild(moreBtn(d));
+    wireItem(c, d);
+    if (t && isFolder(t)) makeDropTarget(c, t.id);
+    return c;
   }
   function fileCard(d, showWhere) {
     var k = dKind(d);
@@ -4985,77 +5780,299 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     tx.appendChild(el("b", "dname", d.name));
     tx.appendChild(el("span", "dmeta", showWhere ? "En " + pathText(d._p) : fmtSize(d.size) + (whoWhen(d) ? " · " + whoWhen(d) : "")));
     c.appendChild(tx);
+    if (d.pinnedAt) c.appendChild(pinMark());
     c.appendChild(moreBtn(d));
     wireItem(c, d);
     return c;
   }
   function docRow(d, memo, showWhere) {
-    var r = el("div", "drow" + (isFolder(d) ? " is-folder" : ""));
-    r.setAttribute("aria-label", (isFolder(d) ? "Carpeta " : "") + d.name);
+    var r = el("div", "drow" + (isFolder(d) ? " is-folder" : "") + (isLink(d) ? " is-link" : ""));
+    r.setAttribute("aria-label", typeLabel(d) + " " + d.name);
     var ic = el("span", "drow-ic");
-    ic.appendChild(isFolder(d) ? folderArt(d.color) : pageArt(d));
+    ic.appendChild(itemArt(d));
     r.appendChild(ic);
     var nm = el("span", "drow-name");
     nm.appendChild(el("b", "dname", d.name));
     var sub = showWhere ? "En " + pathText(d._p) : "";
-    if (isFolder(d)) { var st = folderStats(d.id, memo); var mm = []; if (st.files) mm.push(plural(st.files, "archivo", "archivos")); if (st.folders) mm.push(plural(st.folders, "carpeta", "carpetas")); sub = sub || (mm.join(" · ") || "Vacía"); }
+    if (isFolder(d)) sub = sub || statsText(folderStats(d.id, memo));
+    if (isLink(d) && !showWhere) { var t = resolve(d); sub = t ? "→ " + (t._p ? pathText(t._p) + " › " : "") + t.name : "El original ya no existe"; }
     if (sub) nm.appendChild(el("span", "dmeta", sub));
     r.appendChild(nm);
-    r.appendChild(el("span", "drow-kind", isFolder(d) ? "Carpeta" : /^(TXT|MD)$/.test(fileExt(d.name)) ? "Texto" : kindInfo(dKind(d)).label + (fileExt(d.name) && dKind(d) === "other" ? " · " + fileExt(d.name) : "")));
-    r.appendChild(el("span", "drow-size", isFolder(d) ? (folderStats(d.id, memo).size ? fmtSize(folderStats(d.id, memo).size) : "—") : fmtSize(d.size)));
+    var kd = el("span", "drow-kind", typeLabel(d)); kd.title = typeLabel(d); r.appendChild(kd);
+    r.appendChild(el("span", "drow-size", isFolder(d) ? (folderStats(d.id, memo).size ? fmtSize(folderStats(d.id, memo).size) : "—") : isLink(d) ? "—" : fmtSize(d.size)));
     r.appendChild(el("span", "drow-when", whoWhen(d)));
     r.appendChild(moreBtn(d));
     wireItem(r, d);
     if (isFolder(d)) makeDropTarget(r, d.id);
+    else if (isLink(d) && isFolder(resolve(d))) makeDropTarget(r, resolve(d).id);
     return r;
   }
   function crumbs(box, mode) {
     var bar = el("nav", "dcrumbs"); bar.setAttribute("aria-label", "Ubicación");
     var path = mode === "folder" ? docPath(state.dfolder) : [];
     if (path.length) {
-      var back = el("button", "dback"); back.type = "button"; back.setAttribute("aria-label", "Subir un nivel"); back.title = "Volver a la carpeta anterior";
+      var back = el("button", "dback"); back.type = "button"; back.setAttribute("aria-label", "Subir un nivel"); back.title = "Subir un nivel (Retroceso)";
       back.appendChild(icon("chevL"));
-      back.onclick = function () { openFolder(path.length > 1 ? path[path.length - 2].id : ""); };
+      back.onclick = upOne;
       bar.appendChild(back);
     }
-    var rootB = el(mode === "folder" && !path.length ? "span" : "button", "dcrumb root" + (mode === "folder" && !path.length ? " cur" : ""));
-    if (rootB.tagName === "BUTTON") { rootB.type = "button"; rootB.onclick = function () { openFolder(""); }; makeDropTarget(rootB, ""); }
+    var atRoot = mode === "folder" && !path.length;
+    var rootB = el(atRoot ? "span" : "button", "dcrumb root" + (atRoot ? " cur" : ""));
+    rootB.dataset.tid = "root";
+    if (!atRoot) { rootB.type = "button"; rootB.onclick = function () { openFolder(""); }; makeDropTarget(rootB, ""); }
     rootB.appendChild(icon("home")); rootB.appendChild(el("span", null, "Documentos"));
     bar.appendChild(rootB);
     path.forEach(function (f, i) {
       bar.appendChild(el("span", "dsep", "›"));
       var last = i === path.length - 1;
       var b = el(last ? "span" : "button", "dcrumb" + (last ? " cur" : ""));
+      b.dataset.tid = f.id;
       if (!last) { b.type = "button"; b.onclick = function () { openFolder(f.id); }; makeDropTarget(b, f.id); }
-      var dot = el("i", "dcdot fc-" + fcolor(f.color)); b.appendChild(dot);
+      b.appendChild(el("i", "dcdot fc-" + fcolor(f.color)));
       b.appendChild(el("span", null, f.name));
-      if (last && state.canWrite) {
-        var mb = moreBtn(f); mb.classList.add("in-crumb"); b.appendChild(mb);
-      }
+      if (last) { var mb = el("button", "dmore in-crumb"); mb.type = "button"; mb.setAttribute("aria-label", "Opciones de la carpeta"); mb.appendChild(icon("more")); mb.onclick = function (e) { e.stopPropagation(); navMenu(f, mb); }; b.appendChild(mb); }
       bar.appendChild(b);
     });
     if (mode === "type" || mode === "search") {
       bar.appendChild(el("span", "dsep", "›"));
-      var cur = el("span", "dcrumb cur", mode === "type" ? kindInfo(state.dtype).long : "Resultados para «" + state.search.trim() + "»");
-      bar.appendChild(cur);
+      bar.appendChild(el("span", "dcrumb cur", mode === "type" ? kindInfo(state.dtype).long : "Resultados para «" + state.search.trim() + "»"));
       var clr = el("button", "btn small dclear"); clr.type = "button";
       clr.appendChild(icon("x")); clr.appendChild(document.createTextNode(mode === "type" ? "Quitar filtro" : "Borrar búsqueda"));
-      clr.onclick = function () { if (mode === "type") { state.dtype = ""; renderDocs(); } else setSearch(""); };
+      clr.onclick = function () { if (mode === "type") { state.dtype = ""; dirAnim = "fade"; renderDocs(); } else setSearch(""); };
       bar.appendChild(clr);
     }
     box.appendChild(bar);
   }
-  function sectionTitle(text, n, extra) {
+  function sectionTitle(text, n, ic) {
     var h = el("div", "dsec-t");
+    if (ic) h.appendChild(icon(ic));
     h.appendChild(el("h3", null, text));
     if (n != null) h.appendChild(el("span", "ccount", String(n)));
-    if (extra) { h.appendChild(el("span", "spacer")); h.appendChild(extra); }
     return h;
   }
+  function pinnedList() { return state.dIdx.alive.filter(function (d) { return d.pinnedAt && !isLink(d); }).sort(function (a, b) { return String(a.pinnedAt).localeCompare(String(b.pinnedAt)); }); }
+  function storageUsed() {
+    var seen = {}, total = 0;
+    state.docs.forEach(function (d) { if (d.type === "file" && d.path && !d._purged && !seen[d.path]) { seen[d.path] = 1; total += Number(d.size) || 0; } });
+    (state.allTasks || state.tasks || []).forEach(function (t) { filesOf(t).forEach(function (f) { if (!seen[f.path]) { seen[f.path] = 1; total += Number(f.size) || 0; } }); });
+    return total;
+  }
+  function navMenu(d, at) {
+    var w = state.canWrite, items = [];
+    items.push([isFolder(d) ? "folder" : "eye", "Abrir", function () { openDoc(d); }, "strong"]);
+    if (!isFolder(d) || d._p !== state.dfolder) items.push(["search", "Mostrar en su carpeta", function () { showInFolder(d); }]);
+    if (w) {
+      items.push("-");
+      if (isFolder(d)) {
+        items.push(["folderplus", "Nueva carpeta dentro", function () { newFolder(d.id); }]);
+        items.push(["upload", "Subir archivos aquí", function () { pickFiles(d.id); }]);
+        if (clipIds().length) items.push(["paste", "Pegar dentro", function () { var ids2 = clipIds(); if (state.dclip.mode === "cut") { state.dclip = null; moveDocs(ids2, d.id); } else copyDocs(ids2, d.id); }]);
+      }
+      items.push(["shortcut", "Crear acceso directo…", function () { shortcutDialog([d.id]); }]);
+      items.push([d.pinnedAt ? "pinoff" : "pin", d.pinnedAt ? "Quitar de Acceso rápido" : "Anclar a Acceso rápido", function () { pinDocs([d.id], !d.pinnedAt); }]);
+      items.push(["pencil", isFolder(d) ? "Nombre y color" : "Cambiar nombre", function () { renameDoc(d); }]);
+      items.push(["move", "Mover a…", function () { moveDialog([d.id]); }]);
+    }
+    items.push("-");
+    items.push(["info", "Propiedades", function () { propsDialog(d); }]);
+    if (w) { items.push("-"); items.push(["trash", "Borrar", function () { confirmDelete([d.id]); }, "danger"]); }
+    popMenu(items, at);
+  }
+  /* the left pane, as in a file explorer: quick access, the folder tree, trash and space used */
+  function renderNav(memo, mode) {
+    var nav = el("aside", "dnav"); nav.setAttribute("aria-label", "Carpetas y Acceso rápido");
+    var q = el("section", "dnav-sec dnav-quick");
+    var qh = el("div", "dnav-h"); qh.appendChild(icon("pin")); qh.appendChild(el("span", null, "Acceso rápido"));
+    q.appendChild(qh);
+    makePinTarget(q);
+    var pins = pinnedList();
+    if (!pins.length) q.appendChild(el("div", "dnav-empty", state.canWrite ? "Arrastra aquí carpetas o archivos que usen seguido, o elige «Anclar» en su menú." : "Nada anclado todavía."));
+    pins.forEach(function (d) {
+      var r = el("button", "dnav-row" + (isFolder(d) && mode === "folder" && state.dfolder === d.id ? " cur" : "") + (state.dflash["q" + d.id] ? " pop" : ""));
+      r.type = "button"; r.dataset.tid = d.id;
+      r.appendChild(isFolder(d) ? folderArt(d.color) : pageArt(d));
+      r.appendChild(el("span", "dn-name", d.name));
+      r.title = d.name + " · en " + pathText(d._p);
+      r.onclick = function () { openDoc(d); };
+      r.addEventListener("contextmenu", function (e) { e.preventDefault(); navMenu(d, { x: e.clientX, y: e.clientY }); });
+      if (isFolder(d)) makeDropTarget(r, d.id);
+      q.appendChild(r);
+    });
+    nav.appendChild(q);
+
+    var t = el("section", "dnav-sec dtree");
+    var th = el("div", "dnav-h"); th.appendChild(icon("folder")); th.appendChild(el("span", null, "Carpetas"));
+    t.appendChild(th);
+    var root = el("div", "dt-r" + (mode === "folder" && !state.dfolder ? " cur" : "")); root.dataset.tid = "root";
+    root.appendChild(el("span", "dt-sp"));
+    var rb = el("button", "dt-main"); rb.type = "button"; rb.appendChild(icon("home")); rb.appendChild(el("span", "dn-name", "Documentos"));
+    rb.onclick = function () { openFolder(""); };
+    root.appendChild(rb);
+    makeDropTarget(root, "");
+    t.appendChild(root);
+    var list = el("div", "dt-kids");
+    (function walk(pid, depth, into) {
+      (state.dIdx.kids[pid] || []).filter(isFolder).sort(byName).forEach(function (f) {
+        var subs = (state.dIdx.kids[f.id] || []).filter(isFolder);
+        var open = !!state.dexp[f.id];
+        var row = el("div", "dt-r" + (mode === "folder" && state.dfolder === f.id ? " cur" : "")); row.dataset.tid = f.id;
+        row.style.setProperty("--depth", depth);
+        if (subs.length) {
+          var ch = el("button", "dt-chev" + (open ? " open" : "")); ch.type = "button";
+          ch.setAttribute("aria-expanded", String(open)); ch.setAttribute("aria-label", (open ? "Cerrar " : "Abrir ") + f.name);
+          ch.appendChild(icon("chevR"));
+          ch.onclick = function (e) {
+            e.stopPropagation();
+            if (state.dexp[f.id]) delete state.dexp[f.id]; else state.dexp[f.id] = 1;
+            try { localStorage.setItem("tb-dexp", JSON.stringify(state.dexp)); } catch (er) {}
+            var navOld = document.querySelector("#docs .dnav"); if (navOld) { var nn = renderNav({}, mode); nn.scrollTop = navOld.scrollTop; navOld.replaceWith(nn); var cv = nn.querySelector('[data-tid="' + f.id + '"] .dt-chev'); if (cv) cv.focus(); }
+          };
+          row.appendChild(ch);
+        } else row.appendChild(el("span", "dt-sp"));
+        var mb = el("button", "dt-main"); mb.type = "button"; mb.title = f.name;
+        mb.appendChild(folderArt(f.color)); mb.appendChild(el("span", "dn-name", f.name));
+        var n = folderStats(f.id, memo).files; if (n) mb.appendChild(el("span", "dn-n", String(n)));
+        mb.onclick = function () { openFolder(f.id); };
+        mb.addEventListener("contextmenu", function (e) { e.preventDefault(); navMenu(f, { x: e.clientX, y: e.clientY }); });
+        row.appendChild(mb);
+        makeDropTarget(row, f.id);
+        into.appendChild(row);
+        if (subs.length && open && depth < 14) { var box = el("div", "dt-kids"); walk(f.id, depth + 1, box); into.appendChild(box); }
+      });
+    })("", 1, list);
+    t.appendChild(list);
+    nav.appendChild(t);
+
+    var foot = el("div", "dnav-foot");
+    var trashN = trashTops().length;
+    var tr = el("button", "dnav-row dn-trash"); tr.type = "button";
+    tr.appendChild(icon("trash")); tr.appendChild(el("span", "dn-name", "Papelera"));
+    if (trashN) tr.appendChild(el("span", "dn-n", String(trashN)));
+    tr.onclick = openDocTrash;
+    foot.appendChild(tr);
+    var used = storageUsed(), pct = Math.min(100, used / STORAGE_QUOTA * 100);
+    var meter = el("div", "dmeter" + (pct > 95 ? " full" : pct > 80 ? " high" : ""));
+    meter.title = "El plan gratuito tiene 1 GB para documentos y adjuntos de las tarjetas";
+    var mt = el("div", "dm-t"); mt.appendChild(el("span", null, "Espacio usado")); mt.appendChild(el("b", null, fmtSize(used) + " de 1 GB"));
+    meter.appendChild(mt);
+    var bar = el("div", "dm-bar"); var fill = el("i"); fill.style.width = Math.max(pct, used ? 1.5 : 0).toFixed(1) + "%"; bar.appendChild(fill);
+    meter.appendChild(bar);
+    foot.appendChild(meter);
+    nav.appendChild(foot);
+    return nav;
+  }
+  function quickRow() {
+    var pins = pinnedList();
+    if (!pins.length) return null;
+    var w = el("section", "dquick");
+    w.appendChild(sectionTitle("Acceso rápido", null, "pin"));
+    var row = el("div", "dquick-row");
+    pins.forEach(function (d) {
+      var b = el("button", "dq" + (state.dflash["q" + d.id] ? " pop" : "")); b.type = "button"; b.dataset.tid = d.id;
+      b.appendChild(isFolder(d) ? folderArt(d.color) : pageArt(d));
+      b.appendChild(el("span", "dn-name", d.name));
+      b.onclick = function () { openDoc(d); };
+      b.addEventListener("contextmenu", function (e) { e.preventDefault(); if (lastPtr !== "touch") navMenu(d, { x: e.clientX, y: e.clientY }); else navMenu(d, b); });
+      if (isFolder(d)) makeDropTarget(b, d.id);
+      row.appendChild(b);
+    });
+    w.appendChild(row);
+    return w;
+  }
+  function wireMain(main) {
+    main.addEventListener("mousedown", function (e) {
+      if (e.button !== 0 || touchy() || e.target.closest("[data-id], button, a, input, select, label, .dsum, .drecent-sec, .dquick, .dcrumbs, .dempty")) return;
+      var add = e.ctrlKey || e.metaKey || e.shiftKey, base = add ? Object.assign({}, state.dsel) : {};
+      var sx = e.clientX, sy = e.clientY, box = null, moved = false;
+      var nodes = Array.prototype.slice.call(main.querySelectorAll("[data-id]"));
+      function mv(ev) {
+        var dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (!moved && dx * dx + dy * dy < 30) return;
+        moved = true;
+        if (!box) { box = el("div", "dmarquee"); document.body.appendChild(box); document.body.classList.add("marqueeing"); }
+        var l = Math.min(sx, ev.clientX), t = Math.min(sy, ev.clientY), w = Math.abs(dx), h = Math.abs(dy);
+        box.style.left = l + "px"; box.style.top = t + "px"; box.style.width = w + "px"; box.style.height = h + "px";
+        var sel = Object.assign({}, base);
+        nodes.forEach(function (n) { var r = n.getBoundingClientRect(); if (r.left < l + w && r.right > l && r.top < t + h && r.bottom > t) sel[n.dataset.id] = 1; });
+        var keys = Object.keys(sel).sort().join(",");
+        if (keys !== Object.keys(state.dsel).sort().join(",")) { state.dsel = sel; paintSel(); }
+      }
+      function up() {
+        document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up);
+        if (box) { box.classList.add("out"); setTimeout(function () { box.remove(); }, 120); document.body.classList.remove("marqueeing"); }
+        if (!moved && !add) clearSel();
+      }
+      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+      e.preventDefault();
+      if (document.activeElement && document.activeElement !== document.body && $("docs").contains(document.activeElement)) document.activeElement.blur();
+    });
+    main.addEventListener("contextmenu", function (e) {
+      if (e.target.closest("[data-id], button, a, input, .dsum, .drecent-sec, .dquick, .dcrumbs")) return;
+      e.preventDefault();
+      if (lastPtr === "touch") return;
+      clearSel();
+      bgMenu({ x: e.clientX, y: e.clientY });
+    });
+  }
+  function arrowNav(k, shift) {
+    if (!docOrder.length) return;
+    var cur = state.dfocus && docOrder.indexOf(state.dfocus) >= 0 ? state.dfocus : null;
+    var next, i = cur ? docOrder.indexOf(cur) : -1;
+    if (!cur) next = docOrder[0];
+    else if (k === "Home") next = docOrder[0];
+    else if (k === "End") next = docOrder[docOrder.length - 1];
+    else if (state.dview === "list" || k === "ArrowLeft" || k === "ArrowRight") {
+      var step = k === "ArrowUp" || k === "ArrowLeft" ? -1 : 1;
+      next = docOrder[Math.max(0, Math.min(docOrder.length - 1, i + step))];
+    } else {
+      var n = nodeFor(cur), r = n ? n.getBoundingClientRect() : null, best = null, bd = 1e9;
+      if (r) docOrder.forEach(function (id) {
+        if (id === cur) return;
+        var m = nodeFor(id); if (!m) return;
+        var q = m.getBoundingClientRect(), dy = (q.top + q.height / 2) - (r.top + r.height / 2);
+        if (k === "ArrowDown" ? dy <= 6 : dy >= -6) return;
+        var dist = Math.abs(dy) * 3 + Math.abs(q.left + q.width / 2 - (r.left + r.width / 2));
+        if (dist < bd) { bd = dist; best = id; }
+      });
+      next = best || cur;
+    }
+    if (shift && state.danchor) rangeSel(state.danchor, next, false);
+    else setSel([next], next);
+    focusItem(next, true);
+  }
+  document.addEventListener("keydown", function (e) {
+    if (state.view !== "docs" || e.defaultPrevented || anyOverlay()) return;
+    var tg = e.target, tag = tg && tg.tagName;
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (tg && tg.isContentEditable)) return;
+    var mod = e.ctrlKey || e.metaKey, ids = selIds(), one = ids.length === 1 ? state.dIdx.byId[ids[0]] : null, k = e.key;
+    if (mod && (k === "a" || k === "A")) { if (docOrder.length) { e.preventDefault(); setSel(docOrder.slice()); } return; }
+    if (mod && (k === "c" || k === "C") && ids.length && state.canWrite) { if (window.getSelection && String(window.getSelection())) return; e.preventDefault(); clipSet("copy", ids); return; }
+    if (mod && (k === "x" || k === "X") && ids.length && state.canWrite) { e.preventDefault(); clipSet("cut", ids); return; }
+    if (mod && (k === "v" || k === "V") && clipIds().length && state.canWrite) { e.preventDefault(); paste(e.shiftKey); return; }
+    if (mod && e.shiftKey && (k === "n" || k === "N") && state.canWrite) { e.preventDefault(); newFolder(hereFolder()); return; }
+    if (mod) return;
+    if (k === "Enter") {
+      if (e.altKey) { if (one) { e.preventDefault(); propsDialog(one); } return; }
+      var f = state.dfocus && state.dsel[state.dfocus] ? state.dIdx.byId[state.dfocus] : one;
+      if (f && (tg === document.body || (tg && tg.closest && tg.closest("[data-id]")))) { e.preventDefault(); openDoc(f); }
+      return;
+    }
+    if (e.altKey && k === "ArrowUp") { if (state.dfolder && !state.dtype && !state.search) { e.preventDefault(); upOne(); } return; }
+    if (e.altKey) return;
+    if (tag === "BUTTON" && !(tg.closest && tg.closest("[data-id]"))) return;
+    if (k === "Escape") { if (ids.length || touchSel) { e.preventDefault(); clearSel(); } else if (state.dclip) { state.dclip = null; paintSel(); } return; }
+    if (k === "F2" && one && state.canWrite) { e.preventDefault(); renameDoc(one); return; }
+    if (k === "Delete" && ids.length && state.canWrite) { e.preventDefault(); confirmDelete(ids); return; }
+    if (k === "Backspace") { if (state.dfolder && !state.dtype && !state.search) { e.preventDefault(); upOne(); } return; }
+    if (/^Arrow(Left|Right|Up|Down)$/.test(k) || k === "Home" || k === "End") { if (docOrder.length) { e.preventDefault(); arrowNav(k, e.shiftKey); } return; }
+  });
+
   function renderDocs() {
     applyView();
-    if (state.view !== "docs") return;
+    if (state.view !== "docs") { drawSelBar(); return; }
     var box = $("docs");
+    var hadFocus = document.activeElement && box.contains(document.activeElement) && document.activeElement.closest && document.activeElement.closest("[data-id]");
+    var navScroll = (function () { var n = box.querySelector(".dnav"); return n ? n.scrollTop : 0; })();
     box.textContent = "";
     box.appendChild(el("div", "ddrop-msg"));
     if (!state.docsLoaded) {
@@ -5070,10 +6087,10 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     var qq = norm(state.search);
     var mode = qq ? "search" : state.dtype ? "type" : "folder";
     var here = docFolder(state.dfolder);
-    var dropName = mode === "folder" && here ? here.name : "Documentos";
-    box.firstChild.appendChild(icon("upload"));
-    box.firstChild.appendChild(el("b", null, "Suelta para subir a «" + dropName + "»"));
-    box.firstChild.appendChild(el("span", null, "Archivos sueltos o carpetas completas · hasta 50 MB cada archivo"));
+    var dm = box.firstChild;
+    dm.appendChild(icon("upload"));
+    dm.appendChild(el("b", null, "Suelta para subir a «" + (mode === "folder" && here ? here.name : "Documentos") + "»"));
+    dm.appendChild(el("span", null, "Archivos sueltos o carpetas completas · hasta 50 MB cada archivo"));
 
     /* header */
     var head = el("div", "chead dhead");
@@ -5085,38 +6102,48 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       var b = el("button"); b.type = "button"; b.title = v[2]; b.setAttribute("aria-label", v[2]);
       b.setAttribute("aria-pressed", String(state.dview === v[0]));
       b.appendChild(icon(v[1]));
-      b.onclick = function () { state.dview = v[0]; try { localStorage.setItem("tb-dview", v[0]); } catch (e) {} renderDocs(); };
+      b.onclick = function () { if (state.dview !== v[0]) setDview(v[0]); };
       vs.appendChild(b);
     });
     head.appendChild(vs);
     var sort = select("d-sort", [{ value: "name", label: "Nombre A–Z" }, { value: "recent", label: "Más recientes" }, { value: "type", label: "Tipo" }, { value: "size", label: "Tamaño" }], state.dsort);
     sort.className = "csort"; sort.setAttribute("aria-label", "Ordenar documentos");
-    sort.onchange = function () { state.dsort = sort.value; try { localStorage.setItem("tb-dsort", sort.value); } catch (e) {} renderDocs(); };
+    sort.onchange = function () { state.dsort = sort.value; try { localStorage.setItem("tb-dsort", sort.value); } catch (e) {} dirAnim = "fade"; renderDocs(); };
     head.appendChild(sort);
     var trashN = trashTops().length;
     if (trashN) {
-      var tb = el("button", "btn small"); tb.type = "button"; tb.title = "Papelera de documentos";
+      var tb = el("button", "btn small dtrash-btn"); tb.type = "button"; tb.title = "Papelera de documentos";
       tb.appendChild(icon("trash")); tb.appendChild(el("span", "t", "Papelera")); tb.appendChild(el("span", "nb", String(trashN)));
       tb.onclick = openDocTrash;
       head.appendChild(tb);
     }
     if (state.canWrite) {
+      var into = mode === "folder" ? state.dfolder : "";
       var nf = el("button", "btn small dnewf"); nf.type = "button";
-      nf.appendChild(icon("folderplus")); nf.appendChild(el("span", "t", "Nueva carpeta"));
-      nf.title = "Nueva carpeta"; nf.onclick = function () { newFolder(mode === "folder" ? state.dfolder : ""); };
+      nf.appendChild(icon("plus")); nf.appendChild(el("span", "t", "Nuevo")); nf.appendChild(icon("chevD"));
+      nf.title = "Nueva carpeta, acceso directo o subir una carpeta";
+      nf.onclick = function () {
+        popMenu([["folderplus", "Nueva carpeta", function () { newFolder(into); }, "", "N"],
+          ["shortcut", "Nuevo acceso directo…", function () { targetPicker(function (id) { makeShortcuts([id], into); }); }],
+          isPhone() ? null : ["folderup", "Subir una carpeta completa", function () { pickDir(into); }]], nf);
+      };
       head.appendChild(nf);
-      var ud = el("button", "btn small dup-dir"); ud.type = "button";
-      ud.appendChild(icon("folderup")); ud.appendChild(el("span", "t", "Subir carpeta"));
-      ud.title = "Subir una carpeta completa con todo lo que tiene"; ud.onclick = function () { pickDir(mode === "folder" ? state.dfolder : ""); };
-      head.appendChild(ud);
       var up = el("button", "btn primary small"); up.type = "button";
       up.appendChild(icon("upload")); up.appendChild(document.createTextNode("Subir archivos"));
-      up.onclick = function () { pickFiles(mode === "folder" ? state.dfolder : ""); };
+      up.onclick = function () { pickFiles(into); };
       head.appendChild(up);
     }
     box.appendChild(head);
 
-    /* the first screen: what kinds of files there are, and the latest ones */
+    var layout = el("div", "dlayout");
+    var nav = renderNav(memo, mode);
+    layout.appendChild(nav);
+    var main = el("div", "dmain");
+    layout.appendChild(main);
+    box.appendChild(layout);
+    wireMain(main);
+
+    /* the first screen: what kinds of files there are */
     if (mode === "folder" && !here && totals.files) {
       var sum = el("div", "dsum");
       DKINDS.forEach(function (k) {
@@ -5127,35 +6154,40 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         b.title = n ? "Ver todos: " + k.long.toLowerCase() : "No hay " + k.long.toLowerCase();
         var ic = el("span", "dsum-ic"); ic.appendChild(pageArt({ name: "x." + ({ pdf: "pdf", doc: "docx", sheet: "xlsx", slide: "pptx", img: "jpg", other: "zip" })[k.k] })); b.appendChild(ic);
         var tx = el("span", "dsum-tx"); tx.appendChild(el("b", null, String(n))); tx.appendChild(el("span", null, k.label)); b.appendChild(tx);
-        b.onclick = function () { state.dtype = k.k; dirAnim = true; renderDocs(); };
+        b.onclick = function () { state.dtype = k.k; dirAnim = "fwd"; state.dsel = {}; renderDocs(); };
         sum.appendChild(b);
       });
-      var tot = el("div", "dsum-total");
-      tot.appendChild(el("b", null, fmtSize(totals.size)));
-      tot.appendChild(el("span", null, "en " + plural(totals.folders, "carpeta", "carpetas")));
+      var used = storageUsed();
+      var tot = el("div", "dsum-total narrow-only");
+      tot.appendChild(el("b", null, fmtSize(used)));
+      tot.appendChild(el("span", null, "usados de 1 GB · " + plural(totals.folders, "carpeta", "carpetas")));
       sum.appendChild(tot);
-      box.appendChild(sum);
+      main.appendChild(sum);
     }
-    crumbs(box, mode);
+    if (mode === "folder" && !here) { var qr = quickRow(); if (qr) main.appendChild(qr); }
+    crumbs(main, mode);
 
-    var body = el("div", "dbody" + (dirAnim && !reduced() ? " view-in" : ""));
+    var body = el("div", "dbody"); body.setAttribute("role", "listbox"); body.setAttribute("aria-multiselectable", "true"); body.setAttribute("aria-label", "Contenido de la carpeta");
+    if (dirAnim && !reduced()) body.classList.add("nav-" + (dirAnim === true ? "fade" : dirAnim), "stagger");
     dirAnim = false;
-    box.appendChild(body);
+    staggerI = 0;
+    main.appendChild(body);
 
     if (mode === "folder" && !here && totals.files) {
-      var recent = all.filter(function (d) { return !isFolder(d); }).sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); }).slice(0, 8);
+      var recent = all.filter(isFileDoc).sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); }).slice(0, 8);
       var rs = el("section", "drecent-sec");
-      rs.appendChild(sectionTitle("Recientes"));
+      rs.appendChild(sectionTitle("Recientes", null, "clock"));
       var rl = el("div", "drecent");
       recent.forEach(function (d) {
-        var r = el("div", "drec");
+        var r = el("button", "drec"); r.type = "button";
         r.appendChild(pageArt(d));
         var tx = el("span", "drec-tx");
         tx.appendChild(el("b", "dname", d.name));
-        tx.appendChild(el("span", "dmeta", (d._p ? docFolder(d._p).name + " · " : "") + relTime(d.createdAt)));
+        tx.appendChild(el("span", "dmeta", (d._p ? nameOf(d._p) + " · " : "") + relTime(d.createdAt)));
         r.appendChild(tx);
-        wireItem(r, d);
         r.title = d.name + " · " + pathText(d._p);
+        r.onclick = function () { openDoc(d); };
+        r.addEventListener("contextmenu", function (e) { e.preventDefault(); navMenu(d, lastPtr === "touch" ? r : { x: e.clientX, y: e.clientY }); });
         rl.appendChild(r);
       });
       rs.appendChild(rl);
@@ -5163,12 +6195,13 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     }
 
     var items;
-    if (mode === "search") items = all.filter(function (d) { return norm(d.name).indexOf(qq) >= 0 || (!isFolder(d) && norm(fileExt(d.name)) === qq); });
-    else if (mode === "type") items = all.filter(function (d) { return !isFolder(d) && dKind(d) === state.dtype; });
+    if (mode === "search") items = all.filter(function (d) { return norm(d.name).indexOf(qq) >= 0 || (isFileDoc(d) && norm(fileExt(d.name)) === qq); });
+    else if (mode === "type") items = all.filter(function (d) { return isFileDoc(d) && dKind(d) === state.dtype; });
     else items = state.dIdx.kids[state.dfolder || ""] || [];
     items = sortDocs(items);
-    var folders = items.filter(isFolder), files = items.filter(function (d) { return !isFolder(d); });
+    var folders = items.filter(isFolder), links = items.filter(isLink), files = items.filter(isFileDoc);
     var showWhere = mode !== "folder";
+    docOrder = folders.concat(links, files).map(function (d) { return d.id; });
 
     if (!items.length) {
       var em = el("div", "dempty");
@@ -5178,13 +6211,15 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         var art = el("div", "dempty-art"); art.appendChild(folderArt(here ? here.color : "amarillo")); em.appendChild(art);
         em.appendChild(el("b", null, here ? "Esta carpeta está vacía" : "Todavía no hay documentos"));
         em.appendChild(el("span", null, state.canWrite
-          ? (here ? "Sube archivos aquí o crea carpetas dentro para ordenarlos." : "Empieza creando carpetas (por ejemplo: Contratos, Facturas, Presentaciones) y sube los archivos del equipo: PDF, Word, Excel, PowerPoint y más.")
+          ? (here ? "Sube archivos aquí, crea carpetas dentro o pega lo que copiaste." : "Empieza creando carpetas (por ejemplo: Contratos, Facturas, Presentaciones) y sube los archivos del equipo: PDF, Word, Excel, PowerPoint y más.")
           : "Aquí aparecerán los documentos del equipo."));
         if (state.canWrite) {
           var ea = el("div", "dempty-acts");
-          var b1 = el("button", "btn primary"); b1.type = "button"; b1.appendChild(icon("upload")); b1.appendChild(document.createTextNode("Subir archivos")); b1.onclick = function () { pickFiles(state.dfolder); };
-          var b2 = el("button", "btn"); b2.type = "button"; b2.appendChild(icon("folderplus")); b2.appendChild(document.createTextNode("Nueva carpeta")); b2.onclick = function () { newFolder(state.dfolder); };
-          ea.appendChild(b1); ea.appendChild(b2); em.appendChild(ea);
+          var b1 = btn("Subir archivos", "primary", "upload"); b1.onclick = function () { pickFiles(state.dfolder); };
+          var b2 = btn("Nueva carpeta", "", "folderplus"); b2.onclick = function () { newFolder(state.dfolder); };
+          ea.appendChild(b1); ea.appendChild(b2);
+          if (clipIds().length) { var b3 = btn(state.dclip.mode === "cut" ? "Pegar aquí" : "Pegar copia aquí", "", "paste"); b3.onclick = function () { paste(false); }; ea.appendChild(b3); }
+          em.appendChild(ea);
           if (!isPhone()) em.appendChild(el("span", "dempty-hint", "También puedes arrastrar archivos o carpetas completas desde tu computadora a esta página."));
         }
       }
@@ -5194,7 +6229,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
       var hr = el("div", "drow dhead-row"); hr.setAttribute("aria-hidden", "true");
       ["", "Nombre", "Tipo", "Tamaño", "Modificado", ""].forEach(function (h, i) { hr.appendChild(el("span", ["drow-ic", "drow-name", "drow-kind", "drow-size", "drow-when", "dmore-sp"][i], h)); });
       tbl.appendChild(hr);
-      items.forEach(function (d) { tbl.appendChild(docRow(d, memo, showWhere)); });
+      folders.concat(links, files).forEach(function (d) { tbl.appendChild(docRow(d, memo, showWhere)); });
       body.appendChild(tbl);
     } else {
       if (folders.length) {
@@ -5203,15 +6238,26 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
         folders.forEach(function (f) { fg.appendChild(folderTile(f, memo, showWhere)); });
         body.appendChild(fg);
       }
+      if (links.length) {
+        body.appendChild(sectionTitle("Accesos directos", links.length));
+        var lg = el("div", "dlinks");
+        links.forEach(function (d) { lg.appendChild(linkTile(d)); });
+        body.appendChild(lg);
+      }
       if (files.length) {
         body.appendChild(sectionTitle("Archivos", files.length));
         var gg = el("div", "dfiles");
         files.forEach(function (d) { gg.appendChild(fileCard(d, showWhere)); });
         body.appendChild(gg);
       }
-      if (mode === "folder" && state.canWrite && !isPhone()) body.appendChild(el("p", "dhint", "Arrastra archivos desde tu computadora para subirlos aquí · arrastra un archivo sobre una carpeta para moverlo · clic derecho para más opciones"));
     }
-    var imgs = items.filter(function (d) { return !isFolder(d) && dKind(d) === "img" && !urlFor(asFile(d)); }).map(asFile);
+    if (items.length) body.appendChild(el("p", "dhint", touchy()
+      ? "Toca para abrir · mantén presionado para seleccionar varios"
+      : "Doble clic para abrir · Ctrl o Mayús + clic para elegir varios, o arrastra un recuadro · arrastra sobre una carpeta para mover (con Alt crea un acceso directo) · clic derecho para más opciones"));
+    var navNew = box.querySelector(".dnav"); if (navNew) navNew.scrollTop = navScroll;
+    paintSel();
+    if (state.dfocus && (hadFocus || (state.dsel[state.dfocus] && document.activeElement === document.body))) focusItem(state.dfocus, false);
+    var imgs = items.filter(function (d) { return isFileDoc(d) && dKind(d) === "img" && !urlFor(asFile(d)); }).map(asFile);
     if (imgs.length && state.dview === "grid") signFiles(imgs.slice(0, 40)).then(function () { if (state.view === "docs" && imgs.some(urlFor)) renderDocs(); });
   }
   function openEditor(t, preset) {
@@ -5653,7 +6699,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     $("viewCal").setAttribute("aria-selected", String(v === "cal"));
     $("viewContacts").setAttribute("aria-selected", String(v === "contacts"));
     $("hint").innerHTML = HINTS[v];
-    $("search").placeholder = v === "contacts" ? "Buscar contactos: nombre, empresa, correo…" : v === "docs" ? "Buscar documentos y carpetas" : "Buscar tareas, clientes o notas";
+    $("search").placeholder = v === "contacts" ? "Buscar contactos: nombre, empresa, correo…" : v === "docs" ? "Buscar documentos" : "Buscar tareas, clientes o notas";
     $("search").setAttribute("aria-label", v === "docs" ? "Buscar documentos" : v === "contacts" ? "Buscar contactos" : "Buscar tareas");
     $("fab").setAttribute("aria-label", v === "contacts" ? "Nuevo contacto" : v === "docs" ? "Subir o crear" : "Nueva tarea");
     var h1 = $("boardName"); if (h1) { var vt = viewTitle(); if (h1.textContent !== vt) h1.textContent = vt; }
@@ -7708,7 +8754,8 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
     if (state.view === "docs") {
       closeAddMenu();
       var into = state.dtype || state.search ? "" : state.dfolder;
-      var ditems = [["upload", "Subir archivos", function () { pickFiles(into); }], ["folderplus", "Nueva carpeta", function () { newFolder(into); }]];
+      var ditems = [["upload", "Subir archivos", function () { pickFiles(into); }], ["folderplus", "Nueva carpeta", function () { newFolder(into); }],
+        ["shortcut", "Nuevo acceso directo", function () { targetPicker(function (id) { makeShortcuts([id], into); }); }]];
       if (!isPhone()) ditems.push(["folderup", "Subir una carpeta completa", function () { pickDir(into); }]);
       ditems.push(["plus", "Nueva tarea", function () { openEditor(null); }]);
       return showMenu(ditems);
