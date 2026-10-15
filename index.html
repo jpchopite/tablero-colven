@@ -5366,10 +5366,12 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
       function evName() { if (sel.value === "_other") return nameIn.value.trim(); var m = findMeeting(sel.value); return m ? meetingTitle(m) : ""; }
       function drawBack() {
         back.textContent = ""; picked = {};
-        var ds = evDate();
-        var loose = state.contacts.filter(function (c) { return !c.met && (c.date === ds || (c.createdAt && fmt(new Date(c.createdAt)) === ds)); });
+        var ds = evDate(), dsPrev = fmt(addDays(parseDay(ds), -1));
+        /* cards saved that day or the day before (often typed in the evening after the event) */
+        var near = function (x) { return x === ds || x === dsPrev; };
+        var loose = state.contacts.filter(function (c) { return !c.met && (near(c.date) || (c.createdAt && near(fmt(new Date(c.createdAt))))); });
         if (!loose.length) return;
-        back.appendChild(el("div", "flabel", "Tarjetas de ese día sin evento (" + loose.length + ")"));
+        back.appendChild(el("div", "flabel", "Tarjetas de esos días sin evento (" + loose.length + ")"));
         back.appendChild(el("div", "help", "Marca las que también son de este evento para vincularlas."));
         var lst = el("div", "ev-list");
         loose.forEach(function (c) {
