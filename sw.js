@@ -1,8 +1,8 @@
 /* Colven board as an installable app.
    The page itself is fetched fresh whenever there is signal (so updates show right away) and kept for when there is none;
    icons, the logo, fonts and the libraries are kept after the first visit. Calls to the database are never cached. */
-var CACHE = "colven-v1";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/colven-logo.png", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/favicon-32.png"];
+var CACHE = "colven-v2";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/colven-logo.png", "./assets/app-icon-192.png", "./assets/app-icon-512.png", "./assets/favicon-32.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
 });
