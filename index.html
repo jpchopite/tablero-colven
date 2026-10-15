@@ -1749,6 +1749,55 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 .pick-list[aria-multiselectable] .pick-row[aria-selected="true"] { background: color-mix(in srgb, var(--focus) 9%, transparent); box-shadow: none; }
 .anx-panel .panel-actions .btn { display: inline-flex; align-items: center; gap: 7px; }
 .anx-panel .panel-actions .btn .ico { width: 16px; height: 16px; }
+
+/* ================= calendar on phones, and labels on meetings ================= */
+.mlabels { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0 2px; }
+.ctask .cdots { order: -1; }
+.wkstrip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.wkstrip.anim { animation: calin .3s cubic-bezier(.2,.8,.2,1); }
+.wks { border: 1.5px solid transparent; background: var(--bg); border-radius: 14px; padding: 8px 2px 7px; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--ink); min-width: 0; transition: background .15s, border-color .15s, transform .12s; }
+.wks:active { transform: scale(.95); }
+.wks.weekend { background: var(--lane); }
+.wks-wd { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.wks b { font-family: var(--font-display); font-size: 18px; line-height: 1.2; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; }
+.wks.today b { background: var(--accent); color: var(--accent-ink); }
+.wks.sel { border-color: var(--ink); background: var(--surface); box-shadow: var(--shadow-sm); }
+.wks.drop { border-color: var(--focus); background: var(--focus-ring); }
+.wks-dots { display: flex; gap: 3px; align-items: center; min-height: 8px; }
+.wks-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--c-todo); }
+.wks-dots i.k-mt { background: var(--meet); }
+.wks-dots i.k-ev { background: var(--event); }
+.wks-dots i.k-late { background: var(--late); }
+.wks-dots i.k-done { background: var(--ok); opacity: .6; }
+.wks-dots em { font-style: normal; font-size: 9.5px; font-weight: 800; color: var(--muted); }
+.cbars { display: none; }
+@media (max-width: 680px) {
+  .cal-head { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px auto auto; align-items: center; gap: 6px; }
+  .cal-head h2 { font-size: 15.5px; letter-spacing: .03em; min-width: 0; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cal-head .cal-new { display: none !important; }
+  .cal-head > .btn.small { order: 0; width: auto; padding: 7px 10px; }
+  .cal-head .sub-btn { padding: 7px 9px; }
+  .cal-head .sub-btn .t { display: none; }
+  .cal-head .sub-btn .ico { margin: 0; }
+  .cal-head > * { order: 0 !important; }
+  .cal-head .cal-modes { grid-column: 1 / -1; order: 1 !important; width: 100%; }
+  .cal-legend { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; gap: 12px; margin-top: 0; padding-bottom: 2px; }
+  .cal-legend::-webkit-scrollbar { display: none; }
+  .cal-legend .lg { white-space: nowrap; }
+  .cell { min-height: 56px; padding: 5px 2px 8px; gap: 3px; }
+  .ctasks { gap: 2px; max-width: 100%; }
+  .ctask { width: 6px; height: 6px; }
+  .ctask .cdots, .ctask .mtime { display: none; }
+  .cmore { font-size: 9.5px; font-weight: 800; color: var(--muted); line-height: 6px; }
+  .cbars { display: flex; flex-direction: column; gap: 2px; position: absolute; left: 0; right: 0; bottom: 3px; pointer-events: none; }
+  .cbar { display: block; height: 3px; background: var(--event); margin: 0 -3px; }
+  .cbar.s-start { margin-left: 5px; border-radius: 3px 0 0 3px; }
+  .cbar.s-end { margin-right: 5px; border-radius: 0 3px 3px 0; }
+  .cbar.s-start.s-end { border-radius: 3px; }
+  .agenda-head h3 { font-size: 17px; }
+  .agv-date span { font-size: 10px; letter-spacing: .06em; }
+}
+.ctask.hi .cdots::before { content: none; }
 </style>
 </head>
 <body>
@@ -3467,10 +3516,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var b = el("button", "lbchip lb-" + colorKey(l.color));
       b.type = "button";
       b.setAttribute("aria-pressed", String(on));
-      b.title = on ? "Ver todas las tarjetas" : "Ver solo las tarjetas con «" + l.name + "»";
+      b.title = on ? (state.view === "cal" ? "Ver todo el calendario" : "Ver todas las tarjetas") : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»");
       b.appendChild(el("span", "lbdot"));
       b.appendChild(el("span", "lbname", l.name));
       var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
+      if (state.view === "cal") n += (state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
       b.appendChild(el("span", "lbn", String(n)));
       b.onclick = function () { setLabelFilter(on ? "" : l.id); };
       chips.appendChild(b);
@@ -7133,7 +7183,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var ws = weekStartOf(state.calSel), we = addDays(ws, 6);
       ttl = ws.getMonth() === we.getMonth() ? ws.getDate() + "–" + we.getDate() + " " + MONTHS_LONG[we.getMonth()] + " " + we.getFullYear()
         : ws.getDate() + " " + MONTHS[ws.getMonth()] + " – " + we.getDate() + " " + MONTHS[we.getMonth()] + " " + we.getFullYear();
-    } else ttl = "Desde el " + fmtShort(parseDay(state.calSel) || parseDay(today));
+    } else { var dsel = parseDay(state.calSel) || parseDay(today); ttl = isPhone() ? "Desde el " + dsel.getDate() + " " + MONTHS[dsel.getMonth()] : "Desde el " + fmtShort(dsel); }
+    if (isPhone() && mode === "week") { var ws2 = weekStartOf(state.calSel), we2 = addDays(ws2, 6); ttl = ws2.getMonth() === we2.getMonth() ? ws2.getDate() + "–" + we2.getDate() + " " + MONTHS[we2.getMonth()] : ws2.getDate() + " " + MONTHS[ws2.getMonth()] + " – " + we2.getDate() + " " + MONTHS[we2.getMonth()]; }
     var title = el("h2", null, ttl);
     title.setAttribute("aria-live", "polite");
     var todayB = el("button", "btn small", "Hoy"); todayB.type = "button";
@@ -7149,18 +7200,19 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     head.appendChild(modes.el);
     head.appendChild(el("span", "spacer"));
     if (state.canWrite) {
-      var nm = el("button", "btn primary small"); nm.type = "button";
+      var nm = el("button", "btn primary small cal-new"); nm.type = "button";
       nm.appendChild(icon("users")); nm.appendChild(document.createTextNode("Nueva reunión"));
       nm.onclick = function () { openMeeting(null, { date: state.calSel || todayStr() }); };
       head.appendChild(nm);
-      var ne = el("button", "btn small"); ne.type = "button";
+      var ne = el("button", "btn small cal-new"); ne.type = "button";
       ne.appendChild(icon("flag")); ne.appendChild(document.createTextNode("Nuevo evento"));
       ne.onclick = function () { openMeeting(null, { kind: "event", date: state.calSel || todayStr() }); };
       head.appendChild(ne);
     }
     if (state.db && state.db.calendarToken) {
       var sub = el("button", "btn small sub-btn"); sub.type = "button";
-      sub.appendChild(icon("cal")); sub.appendChild(document.createTextNode("Suscribirse en tu calendario"));
+      sub.title = "Suscribirse en tu calendario"; sub.setAttribute("aria-label", "Suscribirse en tu calendario");
+      sub.appendChild(icon("cal")); sub.appendChild(el("span", "t", "Suscribirse en tu calendario"));
       sub.onclick = openSubscribe;
       head.appendChild(sub);
     }
@@ -7198,10 +7250,16 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       cell.setAttribute("aria-label", longDate(ds) + (mlist.length ? ", " + plural(mlist.length, "reunión o evento", "reuniones o eventos") : "") + (list.length ? ", " + plural(list.length, "tarea", "tareas") : (mlist.length ? "" : ", sin tareas")));
       cell.appendChild(el("span", "dnum", String(d.getDate())));
       var ct = el("div", "ctasks");
-      var maxChips = isPhone() ? 4 : 3;
-      var chipEls = mlist.map(function (x) { return meetChip(x, ds); }).concat(list.map(calChip));
+      var phone = isPhone(), maxChips = 3;
+      var spans = phone ? mlist.filter(isMultiDay) : [];
+      var chipEls = mlist.filter(function (x) { return !phone || !isMultiDay(x); }).map(function (x) { return meetChip(x, ds); }).concat(list.map(calChip));
       chipEls.slice(0, maxChips).forEach(function (n) { ct.appendChild(n); });
-      if (chipEls.length > maxChips) ct.appendChild(el("span", "cmore", "+" + (chipEls.length - maxChips) + " más"));
+      if (chipEls.length > maxChips) ct.appendChild(el("span", "cmore", "+" + (chipEls.length - maxChips) + (phone ? "" : " más")));
+      if (spans.length) {
+        var bars = el("div", "cbars");
+        spans.slice(0, 2).forEach(function (x) { bars.appendChild(el("i", "cbar" + (ds === x.date ? " s-start" : "") + (ds === mEnd(x) ? " s-end" : ""))); });
+        cell.appendChild(bars);
+      }
       cell.appendChild(ct);
       if (state.canWrite) {
         var add = el("button", "cell-add"); add.type = "button";
@@ -7253,7 +7311,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     ag.appendChild(ah);
     var items = map[sel] || [], mitems = mmap[sel] || [];
-    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : "No hay reuniones, eventos ni tareas este día."));
+    var lf = state.labelFilter && labelById(state.labelFilter);
+    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : lf ? "Nada con «" + lf.name + "» este día." : "No hay reuniones, eventos ni tareas este día."));
     if (mitems.length) {
       var evs = mitems.filter(isEvent), mts = mitems.filter(function (x) { return !isEvent(x); });
       if (evs.length) {
@@ -7277,7 +7336,34 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function hm2min(s) { var p = String(s || "").split(":"); return (+p[0]) * 60 + (+p[1] || 0); }
   /* week: an all-day strip on top (events, tasks, meetings without a time) and the hours below */
+  /* on a phone a 7-column hour grid does not fit: a strip of the 7 days, and the chosen day below */
+  function renderWeekStrip(box, map, mmap) {
+    var today = todayStr(), ws = weekStartOf(state.calSel);
+    var strip = el("div", "wkstrip" + (calDir && !reduced() ? " anim" : ""));
+    strip.style.setProperty("--dx", (calDir > 0 ? 28 : calDir < 0 ? -28 : 0) + "px");
+    calDir = 0;
+    for (var i = 0; i < 7; i++) (function (d) {
+      var ds = fmt(d), ts = map[ds] || [], ms = mmap[ds] || [];
+      var b = el("button", "wks" + (ds === today ? " today" : "") + (ds === state.calSel ? " sel" : "") + (d.getDay() === 0 || d.getDay() === 6 ? " weekend" : ""));
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(ds === state.calSel));
+      b.setAttribute("aria-label", longDate(ds) + (ms.length + ts.length ? ", " + plural(ms.length + ts.length, "cosa", "cosas") : ""));
+      b.appendChild(el("span", "wks-wd", WD_SHORT[d.getDay()].slice(0, 3)));
+      b.appendChild(el("b", null, String(d.getDate())));
+      var dots = el("span", "wks-dots");
+      var kinds = ms.map(function (m) { return isEvent(m) ? "ev" : "mt"; }).concat(ts.map(function (t) { return isOverdue(t) ? "late" : t.status === "done" ? "done" : "tk"; }));
+      kinds.slice(0, 3).forEach(function (k) { dots.appendChild(el("i", "k-" + k)); });
+      if (kinds.length > 3) dots.appendChild(el("em", null, "+" + (kinds.length - 3)));
+      b.appendChild(dots);
+      b.onclick = function () { state.calSel = ds; state.calMonth = new Date(d.getFullYear(), d.getMonth(), 1); renderCal(); };
+      if (state.canWrite) calDropTarget(b, ds);
+      strip.appendChild(b);
+    })(addDays(ws, i));
+    box.appendChild(strip);
+    renderDayAgenda(box, map, mmap);
+  }
   function renderWeekView(box, map, mmap) {
+    if (isPhone()) { renderWeekStrip(box, map, mmap); return; }
     var today = todayStr(), ws = weekStartOf(state.calSel), days = [];
     for (var i = 0; i < 7; i++) days.push(addDays(ws, i));
     var timed = [];
@@ -8588,7 +8674,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function timeRange(m) { return m.start ? m.start + (m.end ? "–" + m.end : "") : "Todo el día"; }
   function meetingContacts(m) { return (Array.isArray(m.contactIds) ? m.contactIds : []).map(findContact).filter(Boolean); }
   function meetingTitle(m) { return m.title || "Reunión"; }
+  function meetingLabels(m) { return (Array.isArray(m && m.labels) ? m.labels : []).filter(function (id) { return labelById(id); }); }
   function matchesMeeting(m) {
+    if (state.labelFilter && labelById(state.labelFilter) && meetingLabels(m).indexOf(state.labelFilter) < 0) return false;
     var q = norm(state.search);
     if (!q) return true;
     return norm([m.title, m.place, m.link, m.others, m.agenda, m.minutes,
@@ -8633,6 +8721,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var c = el("div", "ctask " + (isEvent(m) ? "cevent" : "cmeet") + (multi ? " span" + (ds === m.date ? " s-start" : "") + (ds === mEnd(m) ? " s-end" : "") : "")
       + (m.status === "cancelled" ? " cancelled" : "") + (m.status === "done" ? " mdone" : ""));
     c.title = (multi ? rangeLabel(m) : timeRange(m)) + " · " + meetingTitle(m) + (isEvent(m) ? " (evento)" : "");
+    var mls = meetingLabels(m).map(labelById).filter(Boolean);
+    if (mls.length) { var dts = el("span", "cdots"); mls.slice(0, 3).forEach(function (l) { dts.appendChild(el("i", "cdot lb-" + colorKey(l.color))); }); c.appendChild(dts); }
     if (m.start && (!multi || ds === m.date)) c.appendChild(el("b", "mtime", m.start));
     c.appendChild(el("span", null, meetingTitle(m)));
     c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openMeeting(m); });
@@ -8676,6 +8766,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (m.status === "done") tr.appendChild(el("span", "mpill done", "Realizada"));
     if (m.status === "cancelled") tr.appendChild(el("span", "mpill cancelled", "Cancelada"));
     body.appendChild(tr);
+    var mlb = meetingLabels(m).map(labelById).filter(Boolean);
+    if (mlb.length) { var lr = el("div", "mlabels"); mlb.forEach(function (l) { lr.appendChild(labelPill(l)); }); body.appendChild(lr); }
     var where = m.mode === "video" ? (m.link ? "Videollamada · " + m.link.replace(/^https?:\/\//, "") : "Videollamada") : m.mode === "llamada" ? "Llamada" : (m.place || "Presencial");
     var row = el("div", "mrow"); row.appendChild(icon(MODE_ICON[m.mode] || "pin")); row.appendChild(el("span", null, where));
     body.appendChild(row);
@@ -8812,6 +8904,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       titleIn.placeholder = "p. ej. Presentación de la propuesta";
       var titleF = field("Reunión", titleIn);
       p.appendChild(titleF);
+      var mLabels = labelsField(isNew ? (m.labels || (state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [])) : meetingLabels(m), ro);
+      mLabels.el.querySelector(".flabel").id = "m-labels-lbl";
+      p.appendChild(mLabels.el);
 
       var dateIn = input("m-date", m.date, "date");
       var startIn = input("m-start", m.start, "time"); startIn.step = 300;
@@ -8969,6 +9064,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
             contactIds: chosen.slice(), others: othersIn.value.trim(), team: teamSel.slice(),
             agenda: agendaIn.value.trim(), status: status.get(), minutes: minutesIn.value.trim(),
             kind: isEv ? "event" : "meeting", endDate: isEv && endDateIn.value > dateIn.value ? endDateIn.value : "",
+            labels: mLabels.get(),
             createdAt: m.createdAt || now, updatedAt: now
           };
           if (!conflictArmed && st && data.status !== "cancelled" && !isEv) {
