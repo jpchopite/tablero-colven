@@ -1703,6 +1703,52 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .docs *, .dselbar, .dfly, .dtray, .dlg, .dlg-scrim { animation: none !important; transition: none !important; }
 }
 .arch-row.leaving { transition: transform .17s ease, opacity .17s ease; transform: scale(.96); opacity: 0; }
+
+/* ================= annexes: a document with its attachments ================= */
+.dfile.has-annex { box-shadow: 5px 5px 0 -1px var(--surface), 5px 5px 0 0 var(--line-strong), 10px 10px 0 -1px var(--surface), 10px 10px 0 0 var(--line), var(--shadow-sm); margin: 0 10px 10px 0; }
+.dfile.has-annex:hover { box-shadow: 6px 7px 0 -1px var(--surface), 6px 7px 0 0 var(--line-strong), 12px 13px 0 -1px var(--surface), 12px 13px 0 0 var(--line), var(--shadow-md); }
+.dfile.has-annex.sel { box-shadow: 0 0 0 3px var(--focus-ring), 5px 5px 0 -1px var(--surface), 5px 5px 0 0 var(--focus), 10px 10px 0 -1px var(--surface), 10px 10px 0 0 var(--line-strong); }
+.danx { align-self: flex-start; display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; border: none; background: var(--k-soft, var(--lane)); color: var(--ink); border-radius: 999px; padding: 4px 10px 4px 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: transform .15s cubic-bezier(.3,1.5,.5,1), filter .15s; }
+.danx .ico { width: 13px; height: 13px; color: var(--k, var(--muted)); }
+.danx:hover { transform: translateY(-1px) scale(1.04); filter: brightness(.97); }
+.danx.in-row { margin-top: 3px; padding: 2px 9px 2px 7px; font-size: 11.5px; }
+.dfile.anx-on, .drow.anx-on { border-color: var(--k, var(--focus)); border-style: solid; }
+.dfile.anx-on .part.big { transform: translateY(-6px) rotate(-6deg) scale(1.05); }
+.dfile.anx-on .dprev::before { content: ""; position: absolute; inset: 10px; border: 2px dashed var(--k); border-radius: 12px; animation: fade .15s ease; }
+.dfile[data-hint].drop-on::after { content: attr(data-hint); position: absolute; left: 50%; top: 10px; transform: translateX(-50%); z-index: 6; background: var(--ink); color: var(--surface); font-size: 12px; font-weight: 700; padding: 5px 9px; border-radius: 8px; white-space: nowrap; pointer-events: none; box-shadow: var(--shadow-md); max-width: 92%; overflow: hidden; text-overflow: ellipsis; }
+.anx-hero { display: flex; gap: 16px; align-items: center; padding: 16px; border-radius: 16px; background: var(--k-soft); }
+.anx-art { flex: none; width: 70px; display: grid; place-items: center; }
+.anx-tx { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.anx-tx > b { font-size: 16px; overflow-wrap: anywhere; line-height: 1.25; }
+.anx-tx > span { font-size: 13px; color: var(--muted); }
+.anx-btns { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.anx-btns .btn .ico { width: 15px; height: 15px; }
+.anx-head { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.anx-head h3 { margin: 0; font-size: 12.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.anx-list { display: flex; flex-direction: column; gap: 6px; position: relative; }
+.anx-list::before { content: ""; position: absolute; left: 13px; top: 4px; bottom: 4px; width: 2px; border-radius: 2px; background: var(--line); }
+.anx-row { position: relative; display: flex; align-items: center; gap: 10px; padding: 8px 6px 8px 0; border-radius: 12px; animation: dinU .3s cubic-bezier(.2,.8,.2,1) both; }
+.anx-row:hover { background: var(--lane); }
+.anx-row.flash { animation: dpopin .5s cubic-bezier(.3,1.5,.5,1); }
+.anx-row.leaving { transition: transform .15s, opacity .15s; transform: scale(.94); opacity: 0; }
+.anx-n { position: relative; z-index: 1; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--surface); border: 2px solid var(--line); display: grid; place-items: center; font-size: 12px; font-weight: 800; color: var(--muted); }
+.anx-row .part { width: 26px; height: 32px; }
+.anx-row .part b { font-size: 6.5px; bottom: 4px; }
+.anx-name { flex: 1; min-width: 0; display: flex; flex-direction: column; border: none; background: transparent; text-align: left; padding: 0; color: var(--ink); }
+.anx-name b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.anx-name span { font-size: 12px; color: var(--muted); }
+.anx-name:hover b { text-decoration: underline; text-underline-offset: 3px; }
+.anx-empty { display: flex; flex-direction: column; gap: 4px; padding: 16px; border: 1.5px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 13.5px; }
+.anx-empty b { color: var(--ink); }
+.anx-list:has(.anx-empty)::before { display: none; }
+.anx-existing { align-self: flex-start; display: inline-flex; gap: 7px; align-items: center; }
+.anx-existing .ico { width: 15px; height: 15px; }
+.pick-ck { margin-left: auto; width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line-strong); display: grid; place-items: center; color: transparent; flex: none; transition: background .12s, border-color .12s; }
+.pick-ck .ico { width: 13px; height: 13px; stroke-width: 3; }
+.pick-row[aria-selected="true"] .pick-ck { background: var(--focus); border-color: var(--focus); color: #fff; animation: dck .3s cubic-bezier(.3,1.6,.5,1); }
+.pick-list[aria-multiselectable] .pick-row[aria-selected="true"] { background: color-mix(in srgb, var(--focus) 9%, transparent); box-shadow: none; }
+.anx-panel .panel-actions .btn { display: inline-flex; align-items: center; gap: 7px; }
+.anx-panel .panel-actions .btn .ico { width: 16px; height: 16px; }
 </style>
 </head>
 <body>
@@ -1870,6 +1916,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     rows: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
     trash: '<path d="M4.5 7h15M9.5 7V4.8h5V7M6.5 7l1 12.4a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12.4"/><path d="M10 11v5.5M14 11v5.5"/>',
     eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+    unlink: '<path d="M10.5 6.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2M13.5 17.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"/><path d="M4 4l16 16"/>',
     shortcut: '<path d="M8 16.5V13a4.5 4.5 0 0 1 4.5-4.5H17"/><path d="M14 5.5l3 3-3 3"/>',
     pin: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5"/>',
     pinoff: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5M4 4l16 16"/>',
@@ -2857,7 +2904,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     meeting_create: "agendó la reunión", meeting_edit: "editó la reunión", meeting_delete: "borró la reunión", meeting_restore: "restauró la reunión",
     doc_upload: "subió", doc_folder: "creó la carpeta", doc_rename: "cambió el nombre de", doc_move: "movió", doc_delete: "borró", doc_restore: "restauró",
     doc_purge: "eliminó para siempre", doc_color: "cambió el color de la carpeta",
-    doc_copy: "copió", doc_link: "creó un acceso directo a", doc_pin: "ancló en Acceso rápido", doc_unpin: "quitó de Acceso rápido" };
+    doc_copy: "copió", doc_annex: "anexó", doc_link: "creó un acceso directo a", doc_pin: "ancló en Acceso rápido", doc_unpin: "quitó de Acceso rápido" };
   function drawEntries(box, entries, opts) {
     box.textContent = "";
     var list = entries.filter(function (e) { return e.at && !isNaN(Date.parse(e.at)); });
@@ -4484,7 +4531,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var byId = {}, kids = {}, alive = [], linksTo = {};
     state.docs.forEach(function (d) { if (!d._deleted) { byId[d.id] = d; alive.push(d); } });
     alive.forEach(function (d) {
-      var p = d.parent && byId[d.parent] && isFolder(byId[d.parent]) && d.parent !== d.id ? d.parent : "";
+      var par = d.parent && d.parent !== d.id ? byId[d.parent] : null;
+      /* a file inside another file is one of its annexes (only one level deep) */
+      var ok = par && (isFolder(par) || (isFileDoc(par) && isFileDoc(d) && !(par.parent && byId[par.parent] && isFileDoc(byId[par.parent]))));
+      var p = ok ? d.parent : "";
       d._p = p; (kids[p] = kids[p] || []).push(d);
       if (isLink(d)) (linksTo[d.target] = linksTo[d.target] || []).push(d);
     });
@@ -4498,7 +4548,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     while (cur && !seen[cur.id] && out.length < 40) { seen[cur.id] = 1; out.unshift(cur); cur = docFolder(cur._p); }
     return out;
   }
-  function pathText(pid) { var p = docPath(pid); return p.length ? p.map(function (f) { return f.name; }).join(" › ") : "Documentos"; }
+  function pathText(pid) {
+    var f = pid && state.dIdx.byId[pid];
+    if (isFileDoc(f)) return pathText(f._p) + " › " + f.name;
+    var p = docPath(pid); return p.length ? p.map(function (x) { return x.name; }).join(" › ") : "Documentos";
+  }
   function descendants(id) {
     var out = [], seen = {}, stack = [id];
     while (stack.length) {
@@ -4520,11 +4574,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         if (cs.last > s.last) s.last = cs.last;
         Object.keys(cs.kinds).forEach(function (k) { s.kinds[k] = (s.kinds[k] || 0) + cs.kinds[k]; });
       } else if (isLink(c)) s.links++;
-      else {
-        s.files++; s.size += Number(c.size) || 0;
-        var k = dKind(c); s.kinds[k] = (s.kinds[k] || 0) + 1;
-        var u = c.updatedAt || c.createdAt || ""; if (u > s.last) s.last = u;
-      }
+      else [c].concat((state.dIdx.kids[c.id] || []).filter(isFileDoc)).forEach(function (f) {
+        s.files++; s.size += Number(f.size) || 0;
+        var k = dKind(f); s.kinds[k] = (s.kinds[k] || 0) + 1;
+        var u = f.updatedAt || f.createdAt || ""; if (u > s.last) s.last = u;
+      });
     });
     return s;
   }
@@ -4556,7 +4610,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     else toast("No se guardó. Revisa tu conexión e inténtalo de nuevo.");
   }
   function flash(id) { state.dflash[id] = Date.now(); setTimeout(function () { delete state.dflash[id]; }, 2500); }
-  function nameOf(id) { return id ? ((docFolder(id) || {}).name || "Documentos") : "Documentos"; }
+  function nameOf(id) { var d = id && state.dIdx.byId[id]; return d && (isFolder(d) || isFileDoc(d)) ? d.name : "Documentos"; }
   function many(n) { return plural(n, "elemento", "elementos"); }
   function longStamp(iso) {
     var d = new Date(iso); if (!iso || isNaN(d)) return "";
@@ -4596,6 +4650,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function showInFolder(d) {
     var t = isLink(d) ? resolve(d) : d;
     if (!t) { brokenLink(d); return; }
+    var main = annexMain(t);
+    if (main) { openFolder(main._p || "", { select: main.id }); setTimeout(function () { openAnnexes(main); }, 380); return; }
     openFolder(t._p || "", { select: t.id });
   }
 
@@ -4888,6 +4944,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var lk = state.dIdx.linksTo[d.id] || [];
     if (lk.length) rowp("Accesos directos", plural(lk.length, "acceso directo lleva", "accesos directos llevan") + " aquí");
     if (d.pinnedAt) rowp("Acceso rápido", "Anclado");
+    if (isFileDoc(d)) { var axs = annexesOf(d); if (axs.length) rowp("Anexos", plural(axs.length, "anexo", "anexos") + " · " + fmtSize(axs.reduce(function (a, x) { return a + (Number(x.size) || 0); }, 0)), function () { openAnnexes(d); }); }
     bx.appendChild(dl);
     var close = btn("Cerrar"), open = btn(isFolder(d) || (isLink(d) && isFolder(resolve(d))) ? "Abrir carpeta" : "Abrir", "primary");
     dlgActs(bx, [close, open]);
@@ -4991,6 +5048,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   /* which of `ids` can go into `target` (not into themselves, not where they already are) */
   function movable(ids, target) {
+    if (target && isFileDoc(state.dIdx.byId[target])) return attachable(ids, target);
     return ids.map(function (id) { return state.dIdx.byId[id]; }).filter(function (d) {
       return d && (d._p || "") !== (target || "") && d.id !== target && !(isFolder(d) && target && isInside(target, d.id));
     });
@@ -5017,6 +5075,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       });
       return p.then(function () {
         buzz(12);
+        if (opts.annex) {
+          logEntry({ action: "doc_annex", docId: list.length === 1 ? list[0].id : target, title: list.length === 1 ? list[0].name : plural(list.length, "archivo", "archivos"), changes: [{ f: "doc_in", to: nameOf(target) }] });
+          toast((list.length === 1 ? "«" + list[0].name + "» anexado" : plural(list.length, "archivo anexado", "archivos anexados")) + " a «" + nameOf(target) + "»", function () {
+            var q = Promise.resolve();
+            back.forEach(function (b) { q = q.then(function () { var cur = state.dIdx.byId[b.d.id]; return cur ? docSave(cur, { parent: b.from, name: uniqueName(b.from, b.name, cur.type, cur.id) }) : null; }); });
+            q.then(function () { toast("Deshecho"); }).catch(docErr);
+          }, "Deshacer");
+          return;
+        }
         logEntry(list.length === 1 ? { action: "doc_move", docId: list[0].id, title: list[0].name, changes: [{ f: "doc_move", to: target ? nameOf(target) : "" }] }
           : { action: "doc_move", docFolder: target, title: many(list.length), changes: [{ f: "doc_move", to: target ? nameOf(target) : "" }] });
         toast((list.length === 1 ? "«" + list[0].name + "» movido" : many(list.length) + " movidos") + " a «" + nameOf(target) + "»", function () {
@@ -5043,7 +5110,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (!src.length) { toast("Una carpeta no puede copiarse dentro de sí misma."); return Promise.resolve(); }
     var made = [];
     function one(d, parent, top) {
-      var kids = isFolder(d) ? (state.dIdx.kids[d.id] || []).slice() : [];
+      var kids = (state.dIdx.kids[d.id] || []).slice();
       var id = newId(), now = new Date().toISOString();
       var data = rawDoc(d);
       delete data.pinnedAt; delete data.updatedBy;
@@ -5123,7 +5190,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     top = top.filter(function (d) { return !top.some(function (o) { return o !== d && isFolder(o) && isInside(d._p, o.id); }); });
     if (!top.length) return;
     var all = [], seen = {};
-    top.forEach(function (d) { [d].concat(isFolder(d) ? descendants(d.id) : []).forEach(function (x) { if (!seen[x.id]) { seen[x.id] = 1; all.push(x.id); } }); });
+    top.forEach(function (d) { [d].concat(descendants(d.id)).forEach(function (x) { if (!seen[x.id]) { seen[x.id] = 1; all.push(x.id); } }); });
     var nFiles = all.filter(function (id) { return isFileDoc(state.dIdx.byId[id]); }).length;
     state.dsel = {};
     leave(top.map(function (d) { return d.id; }), function () {
@@ -5146,10 +5213,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
     if (!ds.length || !state.canWrite) return;
     var memo = {}, files = 0, folders = 0;
-    ds.forEach(function (d) { if (isFolder(d)) { var st = folderStats(d.id, memo); files += st.files; folders += st.folders; } });
+    var annexN = 0;
+    ds.forEach(function (d) { if (isFolder(d)) { var st = folderStats(d.id, memo); files += st.files; folders += st.folders; } else annexN += annexesOf(d).length; });
+    files += annexN;
     if (!files && !folders && ds.length < 4) { deleteDocs(ids); return; }
     var parts = [];
-    if (files) parts.push(plural(files, "archivo", "archivos"));
+    if (files) parts.push(annexN === files ? plural(files, "anexo", "anexos") : plural(files, "archivo", "archivos"));
     if (folders) parts.push(plural(folders, "carpeta", "carpetas"));
     var single = ds.length === 1;
     var dg = dialog({ title: single ? "¿Borrar «" + ds[0].name + "»?" : "¿Borrar " + many(ds.length) + "?", art: single ? itemArt(ds[0]) : folderArt("gris"), alert: true });
@@ -5264,6 +5333,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     else {
       items.push(["eye", "Abrir", function () { openDoc(d); }, "strong", "Enter"]);
       items.push(["download", "Descargar", function () { openFile(asFile(d), true); }]);
+      var mainD = annexMain(d), nAx = annexesOf(d).length;
+      if (mainD) {
+        items.push(["note", "Ver el documento principal", function () { openAnnexes(mainD); }]);
+        if (w) items.push(["unlink", "Sacar del documento", function () { detachAnnex(d); }]);
+      } else if (nAx || w) items.push(["clip", nAx ? "Ver anexos (" + nAx + ")" : "Agregar anexos…", function () { openAnnexes(d); }, nAx ? "strong" : ""]);
     }
     if (away && !isLink(d)) items.push(["search", "Mostrar en su carpeta", function () { showInFolder(d); }]);
     if (w) {
@@ -5378,10 +5452,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var db = state.db;
     items = (items || []).filter(function (x) { return x && x.file && !/^\.|^(Thumbs\.db|desktop\.ini)$/i.test(x.file.name || ""); });
     if (!db || !db.fileCall || !items.length || !state.canWrite) return Promise.resolve([]);
-    parent = docFolder(parent) ? parent : "";
+    var toFile = isFileDoc(state.dIdx.byId[parent]);
+    parent = docFolder(parent) || toFile ? parent : "";
     var folders = {};
     function ensure(rel) {
-      if (!rel) return Promise.resolve(parent);
+      if (!rel || toFile) return Promise.resolve(parent);
       if (folders[rel]) return folders[rel];
       var parts = rel.split("/"), name = parts.pop().slice(0, 150);
       folders[rel] = ensure(parts.join("/")).then(function (pid) {
@@ -5571,6 +5646,226 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     });
   })();
 
+
+  /* ---------- annexes: files that travel with a main document ---------- */
+  /* An annex is a file whose parent is another file (the main document). It does not show in the folder,
+     only on its document; moving, copying or deleting the document takes its annexes along. */
+  function annexMain(d) { var p = d && d.parent && state.dIdx.byId[d.parent]; return isFileDoc(d) && isFileDoc(p) ? p : null; }
+  function annexesOf(d) { return isFileDoc(d) ? (state.dIdx.kids[d.id] || []).filter(isFileDoc).sort(byName) : []; }
+  function annexChip(d, n) {
+    var b = el("button", "danx"); b.type = "button";
+    b.title = "Ver los anexos de «" + d.name + "»";
+    b.appendChild(icon("clip")); b.appendChild(document.createTextNode(plural(n, "anexo", "anexos")));
+    b.onclick = function (e) { e.stopPropagation(); openAnnexes(d); };
+    b.addEventListener("dblclick", function (e) { e.stopPropagation(); });
+    return b;
+  }
+  /* other files dropped on a document become its annexes; files from the computer are uploaded as annexes */
+  function makeAnnexTarget(node, d) {
+    if (!state.canWrite) return;
+    function ok(e) {
+      if (isDocDrag(e)) return !!dragIds && attachable(dragIds, d.id).length > 0;
+      return isFileDrag(e);
+    }
+    node.addEventListener("dragenter", function (e) { if (!ok(e)) return; e.preventDefault(); e.stopPropagation(); node.classList.add("drop-on", "anx-on"); });
+    node.addEventListener("dragover", function (e) {
+      if (!ok(e)) return;
+      e.preventDefault(); e.stopPropagation();
+      e.dataTransfer.dropEffect = isDocDrag(e) ? "move" : "copy";
+      node.classList.add("drop-on", "anx-on");
+      var t = (isDocDrag(e) ? "Anexar a «" : "Subir como anexo de «") + d.name + "»";
+      if (node.dataset.hint !== t) node.dataset.hint = t;
+    });
+    node.addEventListener("dragleave", function (e) { if (!node.contains(e.relatedTarget)) node.classList.remove("drop-on", "anx-on"); });
+    node.addEventListener("drop", function (e) {
+      node.classList.remove("drop-on", "anx-on");
+      var box = $("docs"); if (box) box.classList.remove("dropping");
+      if (isDocDrag(e)) {
+        e.preventDefault(); e.stopPropagation();
+        attachDocs(String(e.dataTransfer.getData(DOC_DRAG) || "").split(",").filter(Boolean), d.id, node);
+        return;
+      }
+      if (!isFileDrag(e)) return;
+      e.preventDefault(); e.stopPropagation();
+      gulp(node);
+      dropItems(e.dataTransfer).then(function (its) { uploadDocs(its.map(function (x) { return { file: x.file, rel: "" }; }), d.id); });
+    });
+  }
+  /* which files can become annexes of `mainId` */
+  function attachable(ids, mainId) {
+    var main = state.dIdx.byId[mainId];
+    if (!isFileDoc(main)) return [];
+    return ids.map(function (id) { return state.dIdx.byId[id]; }).filter(function (x) {
+      return isFileDoc(x) && x.id !== mainId && x.parent !== mainId && !annexesOf(x).length;
+    });
+  }
+  function attachDocs(ids, mainId, spot) {
+    var main = state.dIdx.byId[mainId];
+    if (annexMain(main)) main = annexMain(main);
+    var list = attachable(ids, main.id);
+    var blocked = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(function (x) { return x && isFileDoc(x) && annexesOf(x).length; });
+    if (!list.length) {
+      toast(blocked.length ? "«" + blocked[0].name + "» ya tiene sus propios anexos; no puede ser anexo de otro." : "Solo se pueden anexar archivos (no carpetas ni accesos directos).");
+      return Promise.resolve();
+    }
+    return moveDocs(list.map(function (x) { return x.id; }), main.id, { spot: spot || nodeFor(main.id), annex: true });
+  }
+  function pickExisting(main) {
+    var dg = dialog({ title: "Anexar archivos a «" + main.name + "»", cls: "dlg-move", art: pageArt(main) });
+    var bx = dg.box;
+    bx.appendChild(el("p", "dlg-help", "Elige los archivos que van junto a este documento. Dejan de verse sueltos en su carpeta y quedan dentro de él."));
+    var q = document.createElement("input"); q.type = "search"; q.className = "dlg-in"; q.placeholder = "Buscar por nombre…"; q.setAttribute("aria-label", "Buscar archivo"); q.autocomplete = "off";
+    bx.appendChild(q);
+    var list = el("div", "mv-list pick-list"); list.setAttribute("role", "listbox"); list.setAttribute("aria-multiselectable", "true");
+    bx.appendChild(list);
+    var chosen = {};
+    var cancel = btn("Cancelar"), ok = btn("Anexar", "primary"); ok.disabled = true;
+    dlgActs(bx, [cancel, ok]);
+    function upd() { var n = Object.keys(chosen).length; ok.disabled = !n; ok.textContent = n ? "Anexar " + plural(n, "archivo", "archivos") : "Anexar"; }
+    function draw() {
+      var qq = norm(q.value);
+      list.textContent = "";
+      var all = attachable(state.dIdx.alive.map(function (x) { return x.id; }), main.id).filter(function (x) { return !qq || norm(x.name).indexOf(qq) >= 0; });
+      /* the same folder first: that is where annexes usually sit */
+      all.sort(function (a, b) { return ((a._p === main._p) ? 0 : 1) - ((b._p === main._p) ? 0 : 1) || byName(a, b); });
+      if (!all.length) { list.appendChild(el("div", "pick-empty", qq ? "Nada coincide con «" + q.value.trim() + "»." : "No hay otros archivos para anexar.")); return; }
+      all.slice(0, 120).forEach(function (x) {
+        var b = el("button", "mv-row pick-row"); b.type = "button"; b.setAttribute("role", "option");
+        b.setAttribute("aria-selected", String(!!chosen[x.id]));
+        b.appendChild(pageArt(x));
+        var tx = el("span", "pick-tx"); tx.appendChild(el("b", null, x.name)); tx.appendChild(el("small", null, "En " + pathText(x._p))); b.appendChild(tx);
+        var ck = el("span", "pick-ck"); ck.appendChild(icon("check")); b.appendChild(ck);
+        b.onclick = function () { if (chosen[x.id]) delete chosen[x.id]; else chosen[x.id] = 1; b.setAttribute("aria-selected", String(!!chosen[x.id])); upd(); };
+        list.appendChild(b);
+      });
+    }
+    q.addEventListener("input", draw);
+    cancel.onclick = function () { dg.close(); };
+    ok.onclick = function () { var ids = Object.keys(chosen); dg.close(); attachDocs(ids, main.id); };
+    draw(); upd();
+    setTimeout(function () { q.focus(); }, 30);
+  }
+  /* the document and its annexes, in a side panel */
+  function openAnnexes(main) {
+    if (annexMain(main)) main = annexMain(main);
+    clearSel();
+    openPanel(function (p) {
+      p.classList.add("anx-panel");
+      p.setAttribute("aria-label", "Anexos de " + main.name);
+      p.appendChild(el("h2", null, "Documento y anexos"));
+      var hero = el("div", "anx-hero k-" + dKind(main));
+      var ha = el("div", "anx-art"); ha.appendChild(pageArt(main, true)); hero.appendChild(ha);
+      var ht = el("div", "anx-tx");
+      ht.appendChild(el("b", null, main.name));
+      ht.appendChild(el("span", null, typeLabel(main) + " · " + fmtSize(main.size) + " · en " + pathText(main._p)));
+      var hb = el("div", "anx-btns");
+      var o = btn("Abrir", "primary small", "eye"); o.onclick = function () { openFile(asFile(main), false); };
+      var dl = btn("Descargar", "small", "download"); dl.onclick = function () { openFile(asFile(main), true); };
+      hb.appendChild(o); hb.appendChild(dl);
+      ht.appendChild(hb);
+      hero.appendChild(ht);
+      p.appendChild(hero);
+
+      var head = el("div", "anx-head");
+      var ttl = el("h3", null, "Anexos");
+      var cnt = el("span", "ccount", "0");
+      head.appendChild(ttl); head.appendChild(cnt);
+      p.appendChild(head);
+      var list = el("div", "anx-list");
+      p.appendChild(list);
+      if (state.canWrite) {
+        var zone = el("div", "fdrop anx-drop"); zone.tabIndex = 0; zone.setAttribute("role", "button"); zone.setAttribute("aria-label", "Agregar anexos");
+        zone.appendChild(icon("clip"));
+        var zt = el("div", "fdrop-text");
+        zt.appendChild(el("b", null, "Agregar anexos"));
+        zt.appendChild(el("span", "fdrop-hint", touchy() ? "Toca para subir archivos · hasta 50 MB cada uno" : "Haz clic para subir o arrastra aquí los archivos · hasta 50 MB cada uno"));
+        zone.appendChild(zt);
+        zone.addEventListener("click", function () { pickFiles(main.id); });
+        zone.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickFiles(main.id); } });
+        ["dragenter", "dragover"].forEach(function (ev) { zone.addEventListener(ev, function (e) { if (!isFileDrag(e)) return; e.preventDefault(); e.stopPropagation(); zone.classList.add("over"); }); });
+        zone.addEventListener("dragleave", function (e) { if (!zone.contains(e.relatedTarget)) zone.classList.remove("over"); });
+        zone.addEventListener("drop", function (e) {
+          if (!isFileDrag(e)) return;
+          e.preventDefault(); e.stopPropagation(); zone.classList.remove("over");
+          dropItems(e.dataTransfer).then(function (its) { uploadDocs(its.map(function (x) { return { file: x.file, rel: "" }; }), main.id); });
+        });
+        p.appendChild(zone);
+        var ex = btn("Anexar archivos que ya están en Documentos", "small anx-existing", "folder");
+        ex.onclick = function () { pickExisting(main); };
+        p.appendChild(ex);
+      }
+      var acts = el("div", "panel-actions");
+      var close = el("button", "btn", "Cerrar"); close.type = "button"; close.onclick = closePanel;
+      acts.appendChild(close);
+      acts.appendChild(el("span", "spacer"));
+      var dlAll = btn("Descargar todo", "", "download");
+      dlAll.title = "Descarga el documento y cada anexo, uno tras otro";
+      dlAll.onclick = function () {
+        var all = [main].concat(annexesOf(state.dIdx.byId[main.id] || main)).map(asFile);
+        signFiles(all).then(function () {
+          all.forEach(function (f, i) { setTimeout(function () { var u = urlFor(f); if (!u) return; var a = document.createElement("a"); a.href = u.download; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }, i * 450); });
+        });
+      };
+      acts.appendChild(dlAll);
+      p.appendChild(acts);
+
+      function draw() {
+        var cur = state.dIdx.byId[main.id];
+        if (!cur) { closePanel(); return; }
+        var ax = annexesOf(cur);
+        cnt.textContent = String(ax.length);
+        dlAll.hidden = !ax.length;
+        list.textContent = "";
+        if (!ax.length) {
+          var em = el("div", "anx-empty");
+          em.appendChild(el("b", null, "Todavía no tiene anexos"));
+          em.appendChild(el("span", null, state.canWrite ? (touchy() ? "Súbelos aquí abajo." : "Súbelos aquí abajo, o arrastra un archivo de la carpeta encima de este documento.") : "Aquí aparecerán sus anexos."));
+          list.appendChild(em);
+          return;
+        }
+        ax.forEach(function (x, i) {
+          var r = el("div", "anx-row" + (state.dflash[x.id] ? " flash" : ""));
+          r.appendChild(el("span", "anx-n", String(i + 1)));
+          r.appendChild(pageArt(x));
+          var tx = el("button", "anx-name"); tx.type = "button"; tx.title = "Abrir " + x.name;
+          tx.appendChild(el("b", null, x.name));
+          tx.appendChild(el("span", null, fmtSize(x.size) + (whoWhen(x) ? " · " + whoWhen(x) : "")));
+          tx.onclick = function () { openFile(asFile(x), false); };
+          r.appendChild(tx);
+          var d1 = el("button", "fbtn"); d1.type = "button"; d1.title = "Descargar"; d1.setAttribute("aria-label", "Descargar " + x.name); d1.appendChild(icon("download"));
+          d1.onclick = function () { openFile(asFile(x), true); };
+          r.appendChild(d1);
+          if (state.canWrite) {
+            var m = el("button", "fbtn"); m.type = "button"; m.title = "Opciones"; m.setAttribute("aria-label", "Opciones de " + x.name); m.appendChild(icon("more"));
+            m.onclick = function () {
+              popMenu([["eye", "Abrir", function () { openFile(asFile(x), false); }],
+                ["pencil", "Cambiar nombre", function () { renameDoc(x); }],
+                ["unlink", "Sacar del documento", function () { detachAnnex(x); }],
+                ["shortcut", "Crear acceso directo…", function () { shortcutDialog([x.id]); }],
+                "-",
+                ["trash", "Borrar anexo", function () { r.classList.add("leaving"); setTimeout(function () { deleteDocs([x.id]); }, 150); }, "danger"]], m);
+            };
+            r.appendChild(m);
+          }
+          list.appendChild(r);
+        });
+      }
+      onPanelClose(state.db ? state.db.collection("docs").onSnapshot(function () { if (list.isConnected) draw(); }) : function () {});
+      draw();
+    });
+  }
+  /* an annex goes back to being a loose file in its document's folder */
+  function detachAnnex(x) {
+    var main = annexMain(x); if (!main) return;
+    var to = main._p || "";
+    var name = uniqueName(to, x.name, "file", x.id);
+    flash(x.id);
+    docSave(x, { parent: to, name: name }).then(function () {
+      logEntry({ action: "doc_move", docId: x.id, title: name, changes: [{ f: "doc_move", to: to ? nameOf(to) : "" }] });
+      toast("«" + name + "» quedó suelto en «" + nameOf(to) + "»", function () { var cur = state.dIdx.byId[x.id]; if (cur) docSave(cur, { parent: main.id }).catch(docErr); });
+    }).catch(docErr);
+  }
+
   /* ---------- trash ---------- */
   function trashedDocs() { return state.docs.filter(function (d) { return d._deleted && !d._purged && d._deletedAt && Date.parse(d._deletedAt) > Date.now() - DOC_TRASH_DAYS * 86400000; }); }
   function deletedWith(d) {
@@ -5593,14 +5888,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function restoreDoc(d) {
     var group = deletedWith(d), ids = group.map(function (c) { return c.id; });
-    var home = docFolder(d.parent) ? d.parent : "";
+    var home = docFolder(d.parent) || (isFileDoc(state.dIdx.byId[d.parent]) && isFileDoc(d)) ? d.parent : "";
     var name = uniqueName(home, d.name, d.type, d.id);
     var data = Object.assign(rawDoc(d), { parent: home, name: name, updatedAt: new Date().toISOString(), updatedBy: meKey() || "" });
     delete data._deleted; delete data._deletedAt;
     return state.db.doc("docs/" + d.id).set(data).then(function () { return ids.length ? state.db.docRestore(ids) : null; }).then(function () {
       flash(d.id);
       logEntry({ action: "doc_restore", docId: d.id, title: name });
-      toast("Restaurado en «" + nameOf(home) + "»", function () { closePanel(); openFolder(home, { select: d.id }); }, "Ver");
+      toast("Restaurado en «" + nameOf(home) + "»", function () { closePanel(); var hd = state.dIdx.byId[home]; if (isFileDoc(hd)) showInFolder(hd); else openFolder(home, { select: d.id }); }, "Ver");
     });
   }
   function purgeDocs(list) {
@@ -5647,7 +5942,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var inner = deletedWith(d), meta = [];
           if (isFolder(d)) meta.push(inner.length ? "con " + plural(inner.filter(isFileDoc).length, "archivo", "archivos") : "vacía");
           else if (isLink(d)) meta.push("acceso directo");
-          else meta.push(fmtSize(d.size));
+          else meta.push(fmtSize(d.size) + (inner.length ? " · con " + plural(inner.length, "anexo", "anexos") : ""));
           meta.push("borrado " + relTime(d._deletedAt), "se elimina en " + plural(daysLeft(d._deletedAt, DOC_TRASH_DAYS), "día", "días"));
           main.appendChild(el("span", "arch-meta", meta.join(" · ")));
           r.appendChild(main);
@@ -5786,10 +6081,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var tx = el("div", "dfile-tx");
     tx.appendChild(el("b", "dname", d.name));
     tx.appendChild(el("span", "dmeta", showWhere ? "En " + pathText(d._p) : fmtSize(d.size) + (whoWhen(d) ? " · " + whoWhen(d) : "")));
+    var nax = annexesOf(d).length;
+    if (nax) { c.classList.add("has-annex"); c.style.setProperty("--stack", Math.min(nax, 2)); tx.appendChild(annexChip(d, nax)); }
     c.appendChild(tx);
     if (d.pinnedAt) c.appendChild(pinMark());
     c.appendChild(moreBtn(d));
     wireItem(c, d);
+    makeAnnexTarget(c, d);
     return c;
   }
   function docRow(d, memo, showWhere) {
@@ -5804,6 +6102,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (isFolder(d)) sub = sub || statsText(folderStats(d.id, memo));
     if (isLink(d) && !showWhere) { var t = resolve(d); sub = t ? "→ " + (t._p ? pathText(t._p) + " › " : "") + t.name : "El original ya no existe"; }
     if (sub) nm.appendChild(el("span", "dmeta", sub));
+    var rax = annexesOf(d).length;
+    if (rax) { var chip = annexChip(d, rax); chip.classList.add("in-row"); nm.appendChild(chip); r.classList.add("has-annex"); }
     r.appendChild(nm);
     var kd = el("span", "drow-kind", typeLabel(d)); kd.title = typeLabel(d); r.appendChild(kd);
     r.appendChild(el("span", "drow-size", isFolder(d) ? (folderStats(d.id, memo).size ? fmtSize(folderStats(d.id, memo).size) : "—") : isLink(d) ? "—" : fmtSize(d.size)));
@@ -5812,6 +6112,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     wireItem(r, d);
     if (isFolder(d)) makeDropTarget(r, d.id);
     else if (isLink(d) && isFolder(resolve(d))) makeDropTarget(r, resolve(d).id);
+    else if (isFileDoc(d)) makeAnnexTarget(r, d);
     return r;
   }
   function crumbs(box, mode) {
@@ -6260,7 +6561,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     if (items.length) body.appendChild(el("p", "dhint", touchy()
       ? "Toca para abrir · mantén presionado para seleccionar varios"
-      : "Clic para abrir · Ctrl o Mayús + clic (o la casilla) para elegir varios, o arrastra un recuadro · arrastra sobre una carpeta para mover (con Alt crea un acceso directo) · clic derecho para más opciones"));
+      : "Clic para abrir · Ctrl o Mayús + clic (o la casilla) para elegir varios, o arrastra un recuadro · arrastra sobre una carpeta para mover (con Alt crea un acceso directo) · suelta un archivo sobre otro para anexarlo · clic derecho para más opciones"));
     var navNew = box.querySelector(".dnav"); if (navNew) navNew.scrollTop = navScroll;
     paintSel();
     if (state.dfocus && (hadFocus || (state.dsel[state.dfocus] && document.activeElement === document.body))) focusItem(state.dfocus, false);
