@@ -1256,7 +1256,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
     <section class="stats" aria-label="Resumen">
       <div class="tile ring-tile">
         <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="26"/><circle class="prog" id="ringProg" cx="32" cy="32" r="26" transform="rotate(-90 32 32)" style="stroke-dasharray:163.36;stroke-dashoffset:163.36"/></svg>
-        <div class="ring-txt"><span class="lbl">Esta semana</span><span class="num" id="ringPct">–</span><span class="sub" id="ringSub">Cargando…</span></div>
+        <div class="ring-txt"><span class="lbl">Entregas de la semana</span><span class="num" id="ringPct">–</span><span class="sub" id="ringSub">Cargando…</span></div>
       </div>
       <div class="tile" id="t-open"><span class="num" id="n-open">–</span><span class="lbl">Abiertas</span></div>
       <div class="tile late" id="t-late"><span class="num" id="n-late">–</span><span class="lbl">Atrasadas</span></div>
@@ -1709,25 +1709,30 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
     setNum("soon", open.filter(function (t) { var d = dayDiff(t.due); return d !== null && d >= 0 && d <= 7; }).length);
     setNum("week", doneWeek);
 
-    var total = doneWeek + open.length;
-    var pct = total ? doneWeek / total : 0;
+    /* weekly progress: only the cards due this week (Monday to Sunday), whenever they were started */
+    var wkStart = addDays(today, -mIdx(today.getDay())), wkEnd = addDays(wkStart, 6);
+    var ws0 = fmt(wkStart), ws1 = fmt(wkEnd);
+    var dueWeek = (state.allTasks || list).filter(function (t) { return !t.trashed && t.due && t.due >= ws0 && t.due <= ws1; });
+    var total = dueWeek.length, doneDue = dueWeek.filter(function (t) { return t.status === "done"; }).length;
+    var pct = total ? doneDue / total : 0;
     var C = 2 * Math.PI * 26;
     var prog = $("ringProg");
     prog.style.strokeDasharray = C.toFixed(2);
     prog.style.strokeDashoffset = (C * (1 - pct)).toFixed(2);
-    var pctNode = $("ringPct"), pctTxt = state.loaded ? Math.round(pct * 100) + "%" : "–";
+    var pctNode = $("ringPct"), pctTxt = state.loaded && total ? Math.round(pct * 100) + "%" : "–";
     if (pctNode.textContent !== pctTxt) {
       var had = /\d/.test(pctNode.textContent);
-      if (state.loaded && !reduced()) countTo(pctNode, had ? parseInt(pctNode.textContent, 10) || 0 : 0, Math.round(pct * 100), "%");
+      if (state.loaded && total && !reduced()) countTo(pctNode, had ? parseInt(pctNode.textContent, 10) || 0 : 0, Math.round(pct * 100), "%");
       else pctNode.textContent = pctTxt;
       if (had && !reduced()) { pctNode.classList.remove("bump"); void pctNode.offsetWidth; pctNode.classList.add("bump"); }
     }
-    $("ringSub").textContent = !state.loaded ? "Cargando…" : total ? doneWeek + " de " + total + " hechas" : "Sin tareas aún";
+    $("ringSub").textContent = !state.loaded ? "Cargando…" : total ? doneDue + " de " + total + " que vencen esta semana" : "Nada vence esta semana";
+    $("ringPct").parentNode.parentNode.title = "Tareas con entrega entre el " + fmtShort(wkStart) + " y el " + fmtShort(wkEnd) + " que ya están hechas";
 
     if (lanes.done) {
       lanes.done.lane.style.setProperty("--fill", state.loaded ? (pct * 100).toFixed(1) + "%" : "0%");
       lanes.done.hint.textContent = state.loaded && total
-        ? "Terminadas. La columna se llena con el avance de la semana: " + Math.round(pct * 100) + "%."
+        ? "Terminadas. La columna se llena con lo que vence esta semana y ya está hecho: " + Math.round(pct * 100) + "%."
         : "Terminadas. Las más recientes primero.";
     }
     var spark = $("t-week"), sEmpty = $("sparkEmpty");
