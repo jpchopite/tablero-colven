@@ -6,7 +6,9 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#121a41">
 <meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121a41'/%3E%3Cpath d='M18 33l9 9 19-20' fill='none' stroke='%23ffd453' stroke-width='7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}@media (max-width: 680px) {
   /* the selected day keeps its coloured dots */
   .cal-grid .cell.sel .ctask { background: var(--lane-c, var(--muted)); }
@@ -14,10 +16,11 @@
   .cal-grid .cell.sel .ctask.late { background: var(--late); }
 }
 </style>
-<title>Tablero del equipo</title>
+<title>Colven · Tablero del equipo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-glacial-indifference@1.1.14/index.css">
 <style>
 /* Layout: a navy command band (greeting, weekly ring, stats, people) over a light four-lane board; on phones the lanes become tabs and a floating + adds tasks. */
 :root {
@@ -887,6 +890,119 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   .viewswitch .ico { width: 14px; height: 14px; }
 }
 @media (max-width: 380px) { .viewswitch .ico { display: none; } }
+/* ================= Colven look: one family (Glacial Indifference), uppercase section labels, calm navy + yellow ================= */
+:root {
+  --font-display: "Glacial Indifference", "Figtree", system-ui, sans-serif;
+  --font-body: "Glacial Indifference", "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gold: #c8992a;
+}
+body { font-size: 15.5px; letter-spacing: .005em; }
+.hero h1 { font-weight: 700; letter-spacing: -.005em; }
+.eyebrow { font-family: var(--font-body); font-weight: 700; font-size: 12.5px; letter-spacing: .2em; }
+.eyebrow .eb-sec { color: var(--accent); }
+.lane-head h2 { font-weight: 700; font-size: 14.5px; text-transform: uppercase; letter-spacing: .12em; }
+.wg-head h2 { font-weight: 700; font-size: 13.5px; text-transform: uppercase; letter-spacing: .12em; }
+.panel h2 { font-weight: 700; letter-spacing: 0; }
+.tile .num { font-weight: 700; }
+.tile .lbl, .flabel, .log-day, .hgroup-t, .lb-title, .ag-label { letter-spacing: .14em; }
+.chead h2, .cal-head h2 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+
+/* ================= logo ================= */
+.brand img { height: 86px; }
+.brand { margin-bottom: 16px; }
+
+/* ================= compact header outside Inicio ================= */
+body.compact .hero-inner { padding-block: 12px; gap: 0; }
+body.compact .hero-top { align-items: center; }
+body.compact .hero-title { display: flex; align-items: center; gap: 18px; min-width: 0; }
+body.compact .brand { margin: 0; }
+body.compact .brand img { height: 48px; }
+body.compact .hero h1, body.compact .greet, body.compact .stats { display: none; }
+body.compact .hero::before { width: 300px; height: 300px; border-width: 44px; right: -120px; top: -200px; }
+.eyebrow { flex-wrap: wrap; row-gap: 2px; }
+.eyebrow .eb-date { color: var(--hero-muted); }
+
+/* ================= labels button in the toolbar (when there are no labels yet) ================= */
+.tbtn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 9px 14px; font-weight: 700; font-size: 13.5px; box-shadow: var(--shadow-sm); white-space: nowrap; transition: border-color .15s, transform .12s; }
+.tbtn:hover { border-color: var(--line-strong); }
+.tbtn:active { transform: scale(.96); }
+.tbtn .ico { width: 16px; height: 16px; }
+
+/* ================= weekly sparkline when nothing is done yet ================= */
+.spark-empty { font-size: 12.5px; color: var(--hero-muted); margin-top: 6px; line-height: 1.35; }
+.spark-tile.is-empty .bars, .spark-tile.is-empty .days { display: none; }
+
+/* ================= skeletons while loading ================= */
+.skel { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 13px; }
+.skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: shimmer 1.3s ease-in-out infinite; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); } }
+:root[data-theme="dark"] .skel::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent); }
+@keyframes shimmer { to { transform: translateX(100%); } }
+.skel-card { height: 92px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.skel-line { height: 10px; border-radius: 6px; background: var(--lane); }
+.skel-line.w60 { width: 60%; } .skel-line.w40 { width: 40%; } .skel-line.w80 { width: 80%; } .skel-line.w30 { width: 30%; }
+.skel-wg { height: 210px; padding: 16px; display: flex; flex-direction: column; gap: 14px; border-radius: 16px; }
+.skel-c { height: 170px; padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 16px; }
+.skel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+
+/* ================= drag & drop ================= */
+.drag-ghost { position: fixed; top: -1000px; left: -1000px; transform: rotate(3deg); box-shadow: 0 22px 46px rgba(18,26,65,.32) !important; border-color: var(--accent) !important; pointer-events: none; z-index: -1; }
+body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent), inset 0 0 0 1.5px var(--line-strong); }
+.lane.drop { box-shadow: inset 0 4px 0 var(--lane-c, var(--focus)), 0 0 0 3px var(--lane-c, var(--focus)), 0 14px 34px rgba(18,26,65,.18) !important; transform: translateY(-2px); }
+.lane.drop .cards::after { content: "Soltar aquí"; display: block; border: 2px dashed var(--lane-c, var(--focus)); border-radius: 12px; padding: 16px; text-align: center; font-weight: 700; font-size: 13px; color: var(--lane-c, var(--focus)); animation: fade .15s ease; }
+
+/* ================= view transitions ================= */
+::view-transition-old(root) { animation: vt-out .16s ease both; }
+::view-transition-new(root) { animation: vt-in .24s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+.view-in { animation: vt-in .26s cubic-bezier(.2,.8,.2,1); }
+
+/* ================= phone: bottom bar, compact header, stats strip ================= */
+.bnav { display: none; }
+.add-menu { position: fixed; z-index: 26; left: 50%; transform: translateX(-50%); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 8px; display: flex; flex-direction: column; gap: 2px; min-width: 230px; animation: menuin .2s cubic-bezier(.2,.8,.2,1); }
+@keyframes menuin { from { opacity: 0; transform: translate(-50%, 10px) scale(.96); } }
+.add-menu button { display: flex; align-items: center; gap: 12px; border: none; background: transparent; border-radius: 12px; padding: 12px 14px; font-weight: 700; font-size: 15px; color: var(--ink); text-align: left; }
+.add-menu button:hover, .add-menu button:focus-visible { background: var(--lane); }
+.add-menu .am-ico { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--lane); flex: none; }
+.add-menu .am-ico .ico { width: 18px; height: 18px; }
+.add-scrim { position: fixed; inset: 0; z-index: 25; background: rgba(10,14,40,.25); animation: fade .15s ease; }
+@media (min-width: 681px) { .add-menu { bottom: auto; top: 50%; transform: translate(-50%, -50%); } @keyframes menuin { from { opacity: 0; } } }
+@media (max-width: 680px) {
+  body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
+  .viewswitch, .fab { display: none !important; }
+  .bnav { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(18,26,65,.08); }
+  .bnav button { border: none; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; font-size: 11.5px; font-weight: 700; color: var(--muted); border-radius: 12px; transition: color .15s; }
+  .bnav button .ico { width: 22px; height: 22px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
+  .bnav button[aria-current="page"] { color: var(--ink); }
+  .bnav button[aria-current="page"] .ico { transform: translateY(-1px) scale(1.08); }
+  .bnav button[aria-current="page"]::after { content: ""; width: 18px; height: 3px; border-radius: 3px; background: var(--accent); margin-top: 1px; }
+  .bnav .bnav-add { align-self: center; justify-self: center; width: 54px; height: 54px; border-radius: 18px; background: var(--accent); color: var(--accent-ink); margin-top: -22px; box-shadow: 0 10px 24px rgba(18,26,65,.28); padding: 0; display: grid; place-items: center; transition: transform .12s; }
+  .bnav .bnav-add:active { transform: scale(.92); }
+  .bnav .bnav-add .ico { width: 26px; height: 26px; stroke-width: 2.4; }
+  .toast { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .panel { max-height: calc(100% - 24px); }
+  .brand img { height: 62px; }
+  body.compact .hero-inner { padding-block: 10px; }
+  body.compact .hero-top { flex-wrap: nowrap; }
+  body.compact .brand img { height: 36px; }
+  body.compact .hero-title { gap: 12px; flex: 1; }
+  body.compact .eyebrow { font-size: 11px; letter-spacing: .14em; }
+  body.compact .eyebrow::before { display: none; }
+  body.compact .eyebrow .eb-date { display: none; }
+  body.compact .hero-actions { width: auto; flex-wrap: nowrap; gap: 6px; }
+  body.compact .hbtn { padding: 8px 10px; }
+  /* Inicio keeps the numbers, as a strip that scrolls sideways instead of cut-off labels */
+  .stats { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin-inline: -16px; padding: 0 16px 2px; gap: 8px; }
+  .stats::-webkit-scrollbar { display: none; }
+  .stats > .tile { flex: none; min-width: 118px; scroll-snap-align: start; order: 0 !important; }
+  .stats > .ring-tile { min-width: 200px; }
+  .stats > .spark-tile { min-width: 210px; }
+  .tile .lbl { font-size: 10.5px; white-space: nowrap; }
+  .wg-head h2 { font-size: 12.5px; letter-spacing: .07em; }
+}
+.hbtn .me-av { width: 22px; height: 22px; font-size: 9.5px; }
+#meBtn { gap: 8px; }
 </style>
 </head>
 <body>
@@ -961,6 +1077,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       <input id="search" type="search" placeholder="Buscar tareas, clientes o notas" aria-label="Buscar tareas" autocomplete="off">
       <button class="clear" id="searchClear" type="button" aria-label="Borrar búsqueda" hidden><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
+    <button class="tbtn" id="labelsBtn" type="button" hidden><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-7.7 7.7a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7z"/><circle cx="8" cy="8" r="1.6"/></svg>Etiquetas</button>
     <div class="tabs" id="tabs" role="tablist" aria-label="Columnas"></div>
     <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
   </div>
@@ -976,6 +1093,13 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 </div>
 
 <button class="fab" id="fab" type="button" aria-label="Nueva tarea"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+<nav class="bnav" id="bnav" aria-label="Secciones">
+  <button type="button" data-v="home"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg><span>Inicio</span></button>
+  <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg><span>Tablero</span></button>
+  <button type="button" class="bnav-add" id="bnavAdd" aria-label="Agregar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
+  <button type="button" data-v="contacts"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg><span>Contactos</span></button>
+</nav>
 <div id="panelRoot"></div>
 <div id="toast" class="toast" role="status" hidden></div>
 
@@ -1295,7 +1419,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function renderHero() {
     $("boardName").textContent = viewTitle();
     var now = new Date();
-    $("today").textContent = WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()];
+    var eb = $("today"); eb.textContent = "";
+    var sec = { home: "01 · Inicio", board: "02 · Tablero", cal: "03 · Calendario", contacts: "04 · Contactos" }[state.view] || "";
+    eb.appendChild(el("span", "eb-sec", sec));
+    eb.appendChild(el("span", "eb-date", "· " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
     $("fab").hidden = !state.canWrite;
     $("teamBtn").hidden = !state.canWrite;
@@ -1330,12 +1457,24 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var txt = state.loaded ? String(n) : "–";
     if (node.textContent !== txt) {
       var had = /\d/.test(node.textContent);
-      node.textContent = txt;
+      if (state.loaded && !reduced()) countTo(node, had ? parseInt(node.textContent, 10) || 0 : 0, n, "");
+      else node.textContent = txt;
       if (had && !reduced()) { node.classList.remove("bump"); void node.offsetWidth; node.classList.add("bump"); }
     }
     if (tile) tile.classList.toggle("zero", state.loaded && n === 0);
   }
 
+  /* numbers roll up to their value: quick, eased, and always land on the exact figure */
+  function countTo(node, from, to, suffix) {
+    if (node._raf) cancelAnimationFrame(node._raf);
+    if (from === to) { node.textContent = to + suffix; return; }
+    var t0 = performance.now(), dur = 520;
+    (function step(now) {
+      var p = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      node.textContent = Math.round(from + (to - from) * e) + suffix;
+      if (p < 1) node._raf = requestAnimationFrame(step); else node._raf = null;
+    })(t0);
+  }
   function renderStats() {
     var list = byPerson(state.tasks);
     var open = list.filter(function (t) { return t.status !== "done"; });
@@ -1364,7 +1503,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var pctNode = $("ringPct"), pctTxt = state.loaded ? Math.round(pct * 100) + "%" : "–";
     if (pctNode.textContent !== pctTxt) {
       var had = /\d/.test(pctNode.textContent);
-      pctNode.textContent = pctTxt;
+      if (state.loaded && !reduced()) countTo(pctNode, had ? parseInt(pctNode.textContent, 10) || 0 : 0, Math.round(pct * 100), "%");
+      else pctNode.textContent = pctTxt;
       if (had && !reduced()) { pctNode.classList.remove("bump"); void pctNode.offsetWidth; pctNode.classList.add("bump"); }
     }
     $("ringSub").textContent = !state.loaded ? "Cargando…" : total ? doneWeek + " de " + total + " hechas" : "Sin tareas aún";
@@ -1375,6 +1515,12 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
         ? "Terminadas. La columna se llena con el avance de la semana: " + Math.round(pct * 100) + "%."
         : "Terminadas. Las más recientes primero.";
     }
+    var spark = $("t-week"), sEmpty = $("sparkEmpty");
+    if (!sEmpty) { sEmpty = el("div", "spark-empty"); sEmpty.id = "sparkEmpty"; spark.appendChild(sEmpty); }
+    var noneYet = state.loaded && doneWeek === 0;
+    spark.classList.toggle("is-empty", noneYet);
+    sEmpty.hidden = !noneYet;
+    sEmpty.textContent = "Aún no hay tareas hechas en los últimos 7 días. Aquí se verá el ritmo del equipo.";
     var max = Math.max.apply(null, counts.concat([1]));
     var bars = $("bars").children, days = $("days").children;
     for (var i = 0; i < 7; i++) {
@@ -1467,6 +1613,14 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     return form;
   }
 
+  function skelCard() {
+    var s = el("div", "skel skel-card");
+    s.appendChild(el("div", "skel-line w30"));
+    s.appendChild(el("div", "skel-line w80"));
+    s.appendChild(el("div", "skel-line w40"));
+    s.setAttribute("aria-hidden", "true");
+    return s;
+  }
   function emptyState(id) {
     if (state.search) return el("div", "empty", "Ninguna tarea coincide con la búsqueda.");
     var msgs = {
@@ -1493,7 +1647,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       tab.lastChild.textContent = String(items.length);
 
       L.cards.textContent = "";
-      if (!state.loaded) L.cards.appendChild(el("div", "empty", "Cargando tareas…"));
+      if (!state.loaded) { for (var sk = 0; sk < (s.id === "todo" ? 3 : 2); sk++) L.cards.appendChild(skelCard()); }
       else if (!items.length) L.cards.appendChild(emptyState(s.id));
       var shown = items;
       if (s.id === "done" && !state.showAllDone && items.length > DONE_VISIBLE) shown = items.slice(0, DONE_VISIBLE);
@@ -1602,8 +1756,18 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     });
     if (state.canWrite) {
       c.draggable = true;
-      c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", t.id); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging"); });
-      c.addEventListener("dragend", function () { c.classList.remove("dragging"); });
+      c.addEventListener("dragstart", function (e) {
+        e.dataTransfer.setData("text/plain", t.id); e.dataTransfer.effectAllowed = "move";
+        try {
+          var r = c.getBoundingClientRect(), g = c.cloneNode(true);
+          g.classList.add("drag-ghost"); g.style.width = r.width + "px";
+          document.body.appendChild(g);
+          e.dataTransfer.setDragImage(g, e.clientX - r.left, e.clientY - r.top);
+          setTimeout(function () { g.remove(); }, 0);
+        } catch (er) {}
+        c.classList.add("dragging"); document.body.classList.add("dragging-card");
+      });
+      c.addEventListener("dragend", function () { c.classList.remove("dragging"); document.body.classList.remove("dragging-card"); });
       /* drop files from the computer onto a card to attach them */
       c.addEventListener("dragover", function (e) { if (!isFileDrag(e)) return; e.preventDefault(); e.stopPropagation(); c.classList.add("filedrop"); });
       c.addEventListener("dragleave", function (e) { if (!c.contains(e.relatedTarget)) c.classList.remove("filedrop"); });
@@ -1779,8 +1943,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   }
   function renderMe() {
     var m = member(meKey()), btn = $("meBtn");
-    btn.hidden = !state.canWrite || !state.db;
-    btn.textContent = m ? "Tú: " + m.name : "¿Quién eres?";
+    btn.hidden = !state.canWrite || !state.db || !state.settingsLoaded;
+    btn.textContent = "";
+    if (m) { var av = avatarFor(m.key); av.classList.add("me-av"); btn.appendChild(av); btn.appendChild(el("span", "t", m.name)); btn.title = "Tú: " + m.name; }
+    else btn.appendChild(document.createTextNode("¿Quién eres?"));
     var strip = $("whoStrip");
     var show = !!(state.canWrite && state.db && state.loaded && !m);
     strip.hidden = !show;
@@ -2444,7 +2610,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
-    var show = !!(state.view !== "contacts" && state.view !== "home" && state.db && state.loaded && (state.labels.length || state.canWrite));
+    var place = state.view !== "contacts" && state.view !== "home" && state.db && state.loaded;
+    var show = !!(place && state.labels.length);
+    var lb = $("labelsBtn");
+    if (lb) lb.hidden = !(place && !state.labels.length && state.canWrite);
     bar.hidden = !show;
     if (!show) return;
     bar.className = "labelbar" + (state.labelFilter ? " filtering" : "");
@@ -2654,7 +2823,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   function greetingWord() { var h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; }
   function viewTitle() {
     if (state.view !== "home") return VIEW_TITLES[state.view] || "Tablero de tareas";
-    var m = member(meKey());
+    var m = state.settingsLoaded ? member(meKey()) : null;
     return greetingWord() + (m ? ", " + m.name.split(" ")[0] : "");
   }
   function widget(cls, ic, title, count, link) {
@@ -2745,7 +2914,15 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     var box = $("home");
     if (!box || state.view !== "home") return;
     box.textContent = "";
-    if (!state.loaded) { box.appendChild(el("div", "empty", "Cargando…")); return; }
+    if (!state.loaded) {
+      var sg = el("div", "home-grid");
+      ["w-today", "w-week", "", "", ""].forEach(function (c) {
+        var s = el("div", "wg skel skel-wg " + c);
+        ["w40", "w80", "w60", "w80", "w30"].forEach(function (w) { s.appendChild(el("div", "skel-line " + w)); });
+        sg.appendChild(s);
+      });
+      box.appendChild(sg); return;
+    }
     var today = todayStr();
     var meets = state.meetings || [];
     var open = state.tasks.filter(function (t) { return t.status !== "done"; });
@@ -3350,6 +3527,8 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   window.addEventListener("hashchange", function () { var v = viewFromHash(); if (v !== state.view) setView(v); });
   function applyView() {
     var v = state.view;
+    document.body.classList.toggle("compact", v !== "home");
+    Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v]"), function (b) { if (b.dataset.v === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     $("home").hidden = v !== "home";
     $("viewHome").setAttribute("aria-selected", String(v === "home"));
     document.querySelector(".toolbar .search").hidden = v === "home";
@@ -3379,7 +3558,10 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     try { localStorage.setItem("tb-view", v); } catch (e) {}
     try { if (location.hash.replace(/^#/, "") !== VIEW_HASH[v]) history.replaceState(null, "", "#" + VIEW_HASH[v]); } catch (e) {}
     calDir = 0;
-    renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderContacts();
+    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderContacts(); };
+    if (document.startViewTransition && !reduced() && state.loaded) { try { document.startViewTransition(paint); } catch (e) { paint(); } }
+    else paint();
+    if (window.scrollY > 200) window.scrollTo({ top: 0, behavior: "auto" });
   }
   function shiftMonth(n) {
     state.calMonth = new Date(state.calMonth.getFullYear(), state.calMonth.getMonth() + n, 1);
@@ -4002,7 +4184,11 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
       if (state.csort === "company") return (norm(a.company) || "~").localeCompare(norm(b.company) || "~", "es") || norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
       return norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
     });
-    if (!state.contactsLoaded) { box.appendChild(el("div", "empty", "Cargando contactos…")); return; }
+    if (!state.contactsLoaded) {
+      var cg = el("div", "skel-grid");
+      for (var ci = 0; ci < 6; ci++) { var sc = el("div", "skel skel-c"); ["w60", "w80", "w40", "w30"].forEach(function (w) { sc.appendChild(el("div", "skel-line " + w)); }); cg.appendChild(sc); }
+      box.appendChild(cg); return;
+    }
     if (!list.length) {
       var em = el("div", "empty cempty");
       if (!all.length) {
@@ -4898,7 +5084,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
-  $("fab").onclick = function () { if (state.view === "contacts") openContact(null); else openEditor(null); };
+  $("fab").onclick = function () { openAddMenu(); };
   $("viewContacts").onclick = function () { setView("contacts"); };
   $("teamBtn").onclick = openTeam;
   $("logBtn").onclick = openLog;
@@ -4909,6 +5095,34 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   $("viewHome").onclick = function () { setView("home"); };
   $("brandHome").onclick = function (e) { e.preventDefault(); setView("home"); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); };
   $("viewCal").onclick = function () { setView("cal"); };
+  Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v]"), function (b) { b.onclick = function () { setView(b.dataset.v); }; });
+  $("labelsBtn").onclick = function () { openLabels(); };
+  function closeAddMenu() { var m = $("addMenu"), s = $("addScrim"); if (m) m.remove(); if (s) s.remove(); }
+  /* the + button: straight to the form when there is only one sensible thing to add, a short menu otherwise */
+  function openAddMenu() {
+    if (!state.canWrite) return;
+    if (state.view === "board") { openEditor(null); return; }
+    if (state.view === "contacts") { openContact(null); return; }
+    closeAddMenu();
+    var items = [["plus", "Nueva tarea", function () { openEditor(null, state.view === "cal" ? { due: state.calSel } : null); }],
+      ["users", "Nueva reunión", function () { openMeeting(null, { date: state.view === "cal" ? state.calSel : todayStr() }); }]];
+    if (state.view === "home") items.push(["card", "Nuevo contacto", function () { openContact(null); }]);
+    if (window.ADD_EXTRA) window.ADD_EXTRA(items);
+    var sc = el("div", "add-scrim"); sc.id = "addScrim"; sc.onclick = closeAddMenu;
+    var m = el("div", "add-menu"); m.id = "addMenu"; m.setAttribute("role", "menu");
+    items.forEach(function (it) {
+      var b = el("button"); b.type = "button"; b.setAttribute("role", "menuitem");
+      var d = el("span", "am-ico"); d.appendChild(icon(it[0])); b.appendChild(d);
+      b.appendChild(document.createTextNode(it[1]));
+      b.onclick = function () { closeAddMenu(); it[2](); };
+      m.appendChild(b);
+    });
+    document.body.appendChild(sc); document.body.appendChild(m);
+    var first = m.querySelector("button"); if (first) first.focus();
+    var esc = function (e) { if (e.key === "Escape") { closeAddMenu(); document.removeEventListener("keydown", esc); } };
+    document.addEventListener("keydown", esc);
+  }
+  $("bnavAdd").onclick = openAddMenu;
   $("searchClear").onclick = function () { setSearch(""); $("search").focus(); };
   document.addEventListener("keydown", function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -5210,6 +5424,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
     render();
     db.doc("board/settings").onSnapshot(function (s) {
       state.settingsRaw = s.exists ? (s.data() || {}) : null;
+      state.settingsLoaded = true;
       state.labels = cleanLabels(state.settingsRaw && state.settingsRaw.labels);
       if (s.exists) {
         var v = s.data() || {};
