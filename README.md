@@ -36,3 +36,12 @@ Se puede ejecutar a mano desde la pestaña Actions de GitHub.
 
 Las tarjetas archivadas (o terminadas hace más de 30 días) salen del tablero y se ven en «Archivo».
 Las borradas van a la papelera y se eliminan solas a los 30 días.
+
+## Documentos
+
+La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo, fuera de las tarjetas.
+
+- Cada carpeta o archivo es una fila de la tabla `docs` (tipo, nombre, carpeta padre, color). Los archivos van al mismo almacenamiento privado `adjuntos`, bajo `docs/`, con un máximo de 50 MB cada uno.
+- Funciones: `doc_set` (crear, renombrar, mover), `doc_delete_many` (a la papelera), `doc_restore_many` y `doc_purge_many` (eliminar para siempre). Todas exigen la clave del equipo.
+- Lo borrado queda 30 días en la papelera de documentos; una carpeta se restaura con todo lo que tenía. Pasado ese plazo, la página elimina el archivo guardado la próxima vez que alguien la abre (`board_load` sigue enviando lo borrado hasta 45 días para eso).
+- El plan gratuito de Supabase da 1 GB de almacenamiento en total, compartido entre documentos y adjuntos de tarjetas.
