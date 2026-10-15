@@ -1798,6 +1798,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .agv-date span { font-size: 10px; letter-spacing: .06em; }
 }
 .ctask.hi .cdots::before { content: none; }
+
+.after-box { display: flex; flex-direction: column; gap: 8px; }
+.after-box .inline { flex-wrap: wrap; }
+.after-box select#f-anchor { flex: 1; min-width: 0; max-width: 100%; }
+.after-box input[type=number] { width: 72px; }
 </style>
 </head>
 <body>
@@ -2060,7 +2065,36 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function daysIn(y, m) { return new Date(y, m + 1, 0).getDate(); }
   function mIdx(wd) { return (wd + 6) % 7; }
   function ordinal(n) { return n === -1 ? "último" : (["", "primer", "segundo", "tercer", "cuarto"][n] || n + ".º"); }
-  function ruleValid(r) { return !!(r && typeof r === "object" && ["day","week","month","year"].indexOf(r.freq) >= 0); }
+  function ruleValid(r) { return !!(r && typeof r === "object" && (["day","week","month","year"].indexOf(r.freq) >= 0 || (r.freq === "after" && typeof r.anchor === "string" && r.anchor))); }
+  /* ---------- repeating "after another card": e.g. the Friday after «Producción…» is delivered ---------- */
+  function seriesKey(t) { return t ? (t.seriesId || t.id) : ""; }
+  function seriesTasks(key) { return (state.allTasks || state.tasks || []).filter(function (t) { return !t.trashed && seriesKey(t) === key; }); }
+  function plainTitle(title) { return String(title || "").replace(/\s*\[(Semana|Mes|Año|Trimestre)\]/g, "").trim(); }
+  function seriesName(key) {
+    var l = seriesTasks(key).sort(function (a, b) { return String(b.due || "").localeCompare(String(a.due || "")); });
+    return l.length ? plainTitle(l[0].title) || "otra tarjeta" : "una tarjeta que ya no existe";
+  }
+  /* the anchor's next delivery after `from`: its cards' own dates first, then its rule for the ones not created yet */
+  function anchorAfter(key, from, depth) {
+    var l = seriesTasks(key).filter(function (t) { return parseDay(t.due); });
+    var dues = l.map(function (t) { return parseDay(t.due); }).filter(function (d) { return d > from; }).sort(function (a, b) { return a - b; });
+    if (dues.length) return dues[0];
+    var last = l.sort(function (a, b) { return String(b.due).localeCompare(String(a.due)); })[0];
+    if (!last || !ruleValid(last.repeat) || (depth || 0) > 3) return null;
+    var base = parseDay(last.due) > from ? parseDay(last.due) : from;
+    return last.repeat.freq === "after" ? afterNext(last.repeat, base, (depth || 0) + 1) : nextAfter(last.repeat, base, false);
+  }
+  function afterOf(r, a) {
+    if (r.mode === "days") return addDays(a, Math.max(0, Math.min(365, parseInt(r.days, 10) || 0)));
+    var wd = Number(r.weekday); if (!(wd >= 0 && wd <= 6)) wd = 5;
+    return addDays(a, ((wd - a.getDay() + 7) % 7) || 7);
+  }
+  /* first date of this rule that falls after `from` */
+  function afterNext(r, from, depth) {
+    var a = anchorAfter(r.anchor, addDays(from, -45), depth), guard = 0;
+    while (a && guard++ < 80) { var d = afterOf(r, a); if (d > from) return d; a = anchorAfter(r.anchor, a, depth); }
+    return null;
+  }
   function nthWeekday(y, m, nth, wd) {
     var first = new Date(y, m, 1); y = first.getFullYear(); m = first.getMonth();
     if (nth === -1) {
@@ -2080,6 +2114,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function nextAfter(r, from, inclusive) {
     var n = Math.max(1, Math.min(99, parseInt(r.interval, 10) || 1)), i, c;
     var ok = function (x) { return x && (inclusive ? x >= from : x > from); };
+    if (r.freq === "after") return afterNext(r, inclusive ? addDays(from, -1) : from, 0);
     if (r.freq === "day") return inclusive ? from : addDays(from, n);
     if (r.freq === "week") {
       var wds = (Array.isArray(r.weekdays) && r.weekdays.length ? r.weekdays : [from.getDay()]).map(Number)
@@ -2113,6 +2148,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function ruleText(r) {
     if (!ruleValid(r)) return "";
+    if (r.freq === "after") {
+      var nm = "«" + seriesName(r.anchor) + "»";
+      if (r.mode === "days") { var dd = parseInt(r.days, 10) || 0; return dd ? plural(dd, "día", "días") + " después de la entrega de " + nm : "El mismo día de la entrega de " + nm; }
+      return "El " + WD_LONG[Number(r.weekday) >= 0 ? Number(r.weekday) : 5] + " siguiente a la entrega de " + nm;
+    }
     var n = Math.max(1, parseInt(r.interval, 10) || 1);
     var base = n === 1 ? { day: "Cada día", week: "Cada semana", month: "Cada mes", year: "Cada año" }[r.freq]
       : r.freq === "month" && n === 3 ? "Cada trimestre"
@@ -2739,6 +2779,20 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       return prev ? main.update(body) : main.set(body);
     };
     var spawn = merged.status === "done" && (!prev || prev.status !== "done") && ruleValid(merged.repeat) && !merged.spawnedNext;
+    if (prev && data.due !== undefined && (data.due || "") !== (prev.due || "")) {
+      var oldD = parseDay(prev.due), newD = parseDay(data.due), key = seriesKey(prev);
+      if (oldD && newD) setTimeout(function () {
+        (state.tasks || []).filter(function (o) { return o.id !== prev.id && o.status !== "done" && o.repeat && o.repeat.freq === "after" && o.repeat.anchor === key && o.due === fmt(afterOf(o.repeat, oldD)); })
+          .forEach(function (o) {
+            var nd = fmt(afterOf(o.repeat, newD));
+            if (nd === o.due) return;
+            persist(o, { due: nd, updatedAt: new Date().toISOString() }).then(function () {
+              logEntry({ action: "edit", taskId: o.id, title: o.title || "", from: o.status || "todo", to: o.status || "todo", changes: [{ f: "due", from: o.due, to: nd }] });
+              toast("«" + titleOf(o) + "» se movió al " + fmtShort(parseDay(nd)) + " porque va después de «" + plainTitle(prev.title) + "».");
+            }).catch(function () {});
+          });
+      }, 900);
+    }
     if (!spawn) return write().then(function () { return { id: main.id }; });
     var nextDue = nextDueAfterDone(merged.repeat, merged.due);
     if (!nextDue) return write().then(function () { return { id: main.id }; });
@@ -6701,7 +6755,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var isQuarter = function (r) { return ruleValid(r) && r.freq === "month" && Number(r.interval) === 3; };
       var repSel = select("f-rep", [
         { value: "", label: "No se repite" }, { value: "day", label: "Cada día" }, { value: "week", label: "Cada semana" },
-        { value: "month", label: "Cada mes" }, { value: "quarter", label: "Cada trimestre" }, { value: "year", label: "Cada año" }
+        { value: "month", label: "Cada mes" }, { value: "quarter", label: "Cada trimestre" }, { value: "year", label: "Cada año" },
+        { value: "after", label: "Después de la entrega de otra tarjeta" }
       ], ruleValid(t.repeat) ? (isQuarter(t.repeat) ? "quarter" : t.repeat.freq) : "");
       p.appendChild(field("Se repite", repSel, "Cuando una tarea que se repite se marca como Hecho, la siguiente se agrega sola."));
 
@@ -6759,6 +6814,35 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       qRow.appendChild(qSel);
       box.appendChild(qRow);
 
+      /* after another card: which one, and when after it */
+      var aRow = el("div", "after-box");
+      var myKey = isNew ? "" : seriesKey(t);
+      var anchors = {};
+      (state.allTasks || state.tasks).forEach(function (o) {
+        var k = seriesKey(o);
+        if (o.trashed || k === myKey || !(ruleValid(o.repeat) || o.status !== "done")) return;
+        if (o.repeat && o.repeat.freq === "after" && o.repeat.anchor === myKey && myKey) return; /* no loops */
+        if (!anchors[k] || String(o.due || "") > String(anchors[k].due || "")) anchors[k] = o;
+      });
+      var aOpts = Object.keys(anchors).map(function (k) { return { value: k, label: plainTitle(anchors[k].title) || "Tarea sin título", rep: ruleValid(anchors[k].repeat) }; })
+        .sort(function (a, b) { return (b.rep ? 1 : 0) - (a.rep ? 1 : 0) || a.label.localeCompare(b.label, "es"); });
+      if (work.anchor && !anchors[work.anchor]) aOpts.unshift({ value: work.anchor, label: seriesName(work.anchor) });
+      var anchorSel = select("f-anchor", [{ value: "", label: "Elige la tarjeta…" }].concat(aOpts.map(function (o) { return { value: o.value, label: o.label + (o.rep ? " ↻" : "") }; })), work.anchor || "");
+      anchorSel.setAttribute("aria-label", "Después de qué tarjeta");
+      var aLine1 = el("div", "inline"); aLine1.appendChild(el("span", null, "Después de la entrega de")); aLine1.appendChild(anchorSel);
+      var aModeSel = select("f-amode", [{ value: "weekday", label: "El siguiente" }, { value: "days", label: "A los" }], work.mode === "days" ? "days" : "weekday");
+      aModeSel.setAttribute("aria-label", "Cuándo después");
+      var aWdSel = select("f-awday", WEEK_ORDER.map(function (wd) { return { value: String(wd), label: WD_LONG[wd] }; }), String(work.freq === "after" && work.weekday != null ? work.weekday : 5));
+      aWdSel.setAttribute("aria-label", "Día de la semana");
+      var aDaysIn = input("f-adays", String(work.days != null && work.freq === "after" ? work.days : 4), "number"); aDaysIn.min = "0"; aDaysIn.max = "365";
+      aDaysIn.setAttribute("aria-label", "Días después");
+      var aDaysLbl = el("span", null, "días");
+      var aLine2 = el("div", "inline"); [aModeSel, aWdSel, aDaysIn, aDaysLbl].forEach(function (n) { aLine2.appendChild(n); });
+      aRow.appendChild(aLine1); aRow.appendChild(aLine2);
+      aRow.appendChild(el("div", "help", "Cada vez que se entrega esa tarjeta, esta queda para la fecha que elijas después. Si la otra cambia de fecha, esta se mueve con ella."));
+      box.appendChild(aRow);
+      [anchorSel, aModeSel, aWdSel, aDaysIn].forEach(function (c) { c.addEventListener("input", function () { update(); }); c.addEventListener("change", function () { update(); }); });
+
       var preview = el("div", "preview");
       box.appendChild(preview);
       p.appendChild(box);
@@ -6770,6 +6854,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         if (!f) return null;
         var quarter = f === "quarter";
         if (quarter) f = "month";
+        if (f === "after") {
+          if (!anchorSel.value) return null;
+          var ra = { freq: "after", anchor: anchorSel.value, mode: aModeSel.value, interval: 1 };
+          if (ra.mode === "days") ra.days = Math.max(0, Math.min(365, parseInt(aDaysIn.value, 10) || 0)); else ra.weekday = Number(aWdSel.value);
+          return ra;
+        }
         var r = { freq: f, interval: quarter ? 3 : Math.max(1, Math.min(99, parseInt(intIn.value, 10) || 1)) };
         if (quarter) r.startMonth = Number(qSel.value);
         if (f === "week") r.weekdays = wdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.wd); });
@@ -6788,6 +6878,23 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var quarter = f === "quarter";
         if (quarter && !qTouched) { var rd = parseDay(due.value); if (rd) qSel.value = String(rd.getMonth() % 3); }
         if (quarter) f = "month";
+        var aft = f === "after";
+        aRow.hidden = !aft;
+        aWdSel.hidden = aModeSel.value !== "weekday"; aDaysIn.hidden = aDaysLbl.hidden = aModeSel.value !== "days";
+        if (aft) {
+          intRow.hidden = true; qRow.hidden = true; wdRow.hidden = true; monRow.hidden = true;
+          var ra = buildRule();
+          preview.textContent = "";
+          if (!ra) { preview.appendChild(el("div", null, "Elige después de qué tarjeta va.")); return; }
+          preview.appendChild(el("div", null, ruleText(ra)));
+          var st0 = parseDay(due.value), ds0 = [], d0 = st0 || firstOnOrAfter(ra, parseDay(todayStr()));
+          for (var i0 = 0; i0 < 4 && d0; i0++) { ds0.push(d0); d0 = nextAfter(ra, d0, false); }
+          if (ds0.length) preview.appendChild(el("div", "dates", (st0 ? "Fechas: " : "Próximas fechas: ") + ds0.map(fmtShort).join(" · ")));
+          else preview.appendChild(el("div", "warn", "Esa tarjeta no tiene próximas entregas, así que no se puede calcular la fecha."));
+          if (!st0 && ds0[0]) preview.appendChild(el("div", null, "Al guardar, la fecha de entrega quedará para el " + fmtShort(ds0[0]) + "."));
+          if (st0) { var m0 = firstOnOrAfter(ra, st0); if (!m0 || fmt(m0) !== due.value) preview.appendChild(el("div", "warn", "La fecha de entrega no coincide con esta regla. Se usa una vez y luego sigue la regla" + (m0 ? " (la que tocaría es el " + fmtShort(m0) + ")" : "") + ".")); }
+          return;
+        }
         intRow.hidden = quarter;
         qRow.hidden = !quarter;
         var n = parseInt(intIn.value, 10) || 1;
