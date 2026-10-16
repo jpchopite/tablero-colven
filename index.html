@@ -178,7 +178,8 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .stats { display: grid; grid-template-columns: minmax(0, 1.35fr) repeat(4, minmax(0, 1fr)) minmax(0, 1.6fr); gap: 10px; }
 .tile { background: rgba(255,255,255,.05); border: 1px solid var(--hero-line); border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .tile .num { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; font-variant-numeric: tabular-nums; display: inline-block; transform-origin: left center; }
-.tile .lbl { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--hero-muted); font-weight: 700; }
+.tile .tlbl { font-size: 11.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--hero-muted); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.tile:not(.spark-tile) { justify-content: center; }
 .tile.late .num { color: var(--hero-late); }
 .tile.wait .num { color: var(--hero-wait); }
 .tile.zero .num { color: var(--hero-muted); }
@@ -405,7 +406,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
   .stats { gap: 8px; }
   .tile { padding: 10px 11px; border-radius: 12px; }
   .tile .num { font-size: 23px; }
-  .tile .lbl { font-size: 10px; letter-spacing: .04em; }
+  .tile .tlbl { font-size: 10px; letter-spacing: .04em; }
   .ring { width: 50px; height: 50px; }
   .ring-tile { gap: 10px; }
   .ring-txt .num { font-size: 21px; }
@@ -948,7 +949,7 @@ body { font-size: 15.5px; letter-spacing: .005em; }
 .wg-head h2 { font-weight: 700; font-size: 13.5px; text-transform: uppercase; letter-spacing: .12em; }
 .panel h2 { font-weight: 700; letter-spacing: 0; }
 .tile .num { font-weight: 700; }
-.tile .lbl, .flabel, .log-day, .hgroup-t, .lb-title, .ag-label { letter-spacing: .14em; }
+.tile .tlbl, .flabel, .log-day, .hgroup-t, .lb-title, .ag-label { letter-spacing: .14em; }
 .chead h2, .cal-head h2 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
 
 /* ================= logo ================= */
@@ -1042,7 +1043,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
   .stats > .tile { flex: none; min-width: 118px; scroll-snap-align: start; order: 0 !important; }
   .stats > .ring-tile { min-width: 200px; }
   .stats > .spark-tile { min-width: 210px; }
-  .tile .lbl { font-size: 10.5px; white-space: nowrap; }
+  .tile .tlbl { font-size: 10.5px; white-space: nowrap; }
   .wg-head h2 { font-size: 12.5px; letter-spacing: .07em; }
 }
 .hbtn .me-av { width: 22px; height: 22px; font-size: 9.5px; }
@@ -1881,6 +1882,54 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .tabs { border-radius: 10px; }
   .tab { border-radius: 7px; }
 }
+
+/* ================= Inicio: contenido alineado y textos que caben ================= */
+.ring-tile { justify-content: flex-start; }
+.hrow { align-items: flex-start; }
+.hrow.hcontact, .hrow.hfile { align-items: center; }
+.hdot { margin-top: 5.5px; }
+.htitle { line-height: 20px; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere; }
+.htime, .hmeta { line-height: 20px; }
+.htime { text-align: center; }
+.wg-body:has(.hmeet) .hrow:not(.hmeet) > .hdot { margin-inline: 17.5px; }
+@media (min-width: 681px) and (max-width: 1180px) {
+  .home-grid > .wg:last-child:nth-child(even) { grid-column: 1 / -1; }
+}
+
+/* ================= Textos que caben en su cuadro, en todas las secciones ================= */
+/* Tablero: el título de la columna, su punto y su número quedan alineados aunque el título ocupe dos líneas */
+.lane-head { align-items: flex-start; }
+.lane-head .dot { margin-top: 6px; }
+.lane-head h2 { line-height: 1.5; overflow-wrap: anywhere; }
+/* la fecha de una tarjeta se parte en dos líneas antes que salirse de la tarjeta */
+.card .due { white-space: normal; max-width: 100%; line-height: 1.35; }
+.card .due .ico { align-self: flex-start; margin-top: 1px; }
+/* los textos de ayuda de las cajas de texto terminan en «…» si no caben */
+.quick input, .search input, .field input { text-overflow: ellipsis; }
+/* Calendario: si el nombre de un evento es largo, la etiqueta «Evento» pasa debajo en vez de apretarlo */
+.mtitle-row { flex-wrap: wrap; row-gap: 5px; }
+.mtitle-row h3 { flex: 1 1 160px; min-width: 0; }
+/* Documentos: los nombres de cada tipo caben completos */
+.dsum-tx span { letter-spacing: .06em; }
+@media (max-width: 680px) {
+  /* encabezado compacto: el nombre de la sección ya no se mete debajo de los botones */
+  body.compact .hero-title { min-width: 0; overflow: hidden; }
+  body.compact .brand { display: none; }
+  body.compact .eyebrow { font-size: 10.5px; letter-spacing: .08em; flex-wrap: nowrap; white-space: nowrap; min-width: 0; }
+  body.compact .eyebrow .eb-sec { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  body.compact .hero-actions { gap: 4px; flex: none; }
+  body.compact .hbtn { padding: 7px; justify-content: center; }
+  body.compact .hero-top { column-gap: 8px; }
+  /* pestañas del tablero en una sola línea cada una */
+  .tab > span { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tab { min-width: 0; font-size: 11.5px; }
+  /* Calendario: los botones del día no se parten en dos líneas */
+  .agenda-acts .btn { white-space: nowrap; padding-inline: 10px; min-width: 0; }
+}
+@media (max-width: 680px) {
+  .hrow { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 10px; row-gap: 1px; }
+  .hrow > .hmeta { grid-column: 2; padding-left: 0; white-space: normal; line-height: 1.35; }
+}
 </style>
 </head>
 <body>
@@ -1928,14 +1977,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <section class="stats" aria-label="Resumen">
       <div class="tile ring-tile">
         <svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle class="track" cx="32" cy="32" r="26"/><circle class="prog" id="ringProg" cx="32" cy="32" r="26" transform="rotate(-90 32 32)" style="stroke-dasharray:163.36;stroke-dashoffset:163.36"/></svg>
-        <div class="ring-txt"><span class="lbl">Entregas de la semana</span><span class="num" id="ringPct">–</span><span class="sub" id="ringSub">Cargando…</span></div>
+        <div class="ring-txt"><span class="tlbl">Entregas de la semana</span><span class="num" id="ringPct">–</span><span class="sub" id="ringSub">Cargando…</span></div>
       </div>
-      <div class="tile" id="t-open"><span class="num" id="n-open">–</span><span class="lbl">Abiertas</span></div>
-      <div class="tile late" id="t-late"><span class="num" id="n-late">–</span><span class="lbl">Atrasadas</span></div>
-      <div class="tile wait" id="t-wait"><span class="num" id="n-wait">–</span><span class="lbl">En espera</span></div>
-      <div class="tile" id="t-soon"><span class="num" id="n-soon">–</span><span class="lbl">Vencen en 7 días</span></div>
+      <div class="tile" id="t-open"><span class="num" id="n-open">–</span><span class="tlbl">Abiertas</span></div>
+      <div class="tile late" id="t-late"><span class="num" id="n-late">–</span><span class="tlbl">Atrasadas</span></div>
+      <div class="tile wait" id="t-wait"><span class="num" id="n-wait">–</span><span class="tlbl">En espera</span></div>
+      <div class="tile" id="t-soon"><span class="num" id="n-soon">–</span><span class="tlbl">Vencen en 7 días</span></div>
       <div class="tile spark-tile" id="t-week">
-        <div class="spark-head"><span class="lbl">Hechas · 7 días</span><span class="num" id="n-week">–</span></div>
+        <div class="spark-head"><span class="tlbl">Hechas · 7 días</span><span class="num" id="n-week">–</span></div>
         <div class="bars" id="bars" aria-hidden="true"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar today"></span></div>
         <div class="days" id="days" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       </div>
