@@ -54,6 +54,8 @@
   --late-soft: #fde3d8;
   --wait: #9c6410;
   --wait-soft: #fbeed3;
+  --ready: #0b7488;
+  --ready-soft: #dcf0f4;
   --p1: #3d5afe;
   --p2: #d43a71;
   --p3: #0e9580;
@@ -67,10 +69,12 @@
   --lane-todo: #e8ebf4;
   --lane-doing: #e3e8fd;
   --lane-waiting: #f7edd9;
+  --lane-ready: #dceff3;
   --lane-done: #def1e7;
   --c-todo: #8a91b0;
   --c-doing: var(--p1);
   --c-waiting: var(--wait);
+  --c-ready: var(--ready);
   --c-done: var(--ok);
   --fill-done: rgba(29,134,87,.13);
   --meet: #6a3dd0;
@@ -84,12 +88,12 @@
     --bg: #0a0f2c; --surface: #161d46; --lane: #10173a; --ink: #edf0fb; --muted: #9ba3c9; --line: #252e60; --line-strong: #3a447e;
     --hero: #060a22; --hero-2: #111843;
     --accent-text: #ffd453; --accent-soft: #3a3318; --focus: #8ea0ff; --focus-ring: rgba(142,160,255,.25);
-    --ok: #55d39c; --ok-soft: #123629; --late: #ff8a5c; --late-soft: #41201a; --wait: #f2c14e; --wait-soft: #3a2f12;
+    --ok: #55d39c; --ok-soft: #123629; --late: #ff8a5c; --late-soft: #41201a; --wait: #f2c14e; --wait-soft: #3a2f12; --ready: #5cc9e0; --ready-soft: #10303d;
     --p1: #8b9cff; --p2: #ff7fa6; --p3: #4fd6bb; --avatar-ink: #0a0f2c;
     --shadow-sm: 0 1px 2px rgba(0,0,0,.35); --shadow-md: 0 10px 26px rgba(0,0,0,.4); --shadow-lg: 0 24px 70px rgba(0,0,0,.6);
     --scrim: rgba(0,0,0,.6);
     --grid-dot: rgba(255,255,255,.07);
-    --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-done: #182d46;
+    --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-ready: #11293f; --lane-done: #182d46;
     --c-todo: #6f78a3; --fill-done: rgba(85,211,156,.12);
     --meet: #b39bff; --meet-soft: #2b2456;
     color-scheme: dark;
@@ -99,12 +103,12 @@
   --bg: #0a0f2c; --surface: #161d46; --lane: #10173a; --ink: #edf0fb; --muted: #9ba3c9; --line: #252e60; --line-strong: #3a447e;
   --hero: #060a22; --hero-2: #111843;
   --accent-text: #ffd453; --accent-soft: #3a3318; --focus: #8ea0ff; --focus-ring: rgba(142,160,255,.25);
-  --ok: #55d39c; --ok-soft: #123629; --late: #ff8a5c; --late-soft: #41201a; --wait: #f2c14e; --wait-soft: #3a2f12;
+  --ok: #55d39c; --ok-soft: #123629; --late: #ff8a5c; --late-soft: #41201a; --wait: #f2c14e; --wait-soft: #3a2f12; --ready: #5cc9e0; --ready-soft: #10303d;
   --p1: #8b9cff; --p2: #ff7fa6; --p3: #4fd6bb; --avatar-ink: #0a0f2c;
   --shadow-sm: 0 1px 2px rgba(0,0,0,.35); --shadow-md: 0 10px 26px rgba(0,0,0,.4); --shadow-lg: 0 24px 70px rgba(0,0,0,.6);
   --scrim: rgba(0,0,0,.6);
   --grid-dot: rgba(255,255,255,.07);
-  --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-done: #182d46;
+  --lane-todo: #121a3f; --lane-doing: #1f2752; --lane-waiting: #2a2a3c; --lane-ready: #11293f; --lane-done: #182d46;
   --c-todo: #6f78a3; --fill-done: rgba(85,211,156,.12);
     --meet: #b39bff; --meet-soft: #2b2456;
   color-scheme: dark;
@@ -198,10 +202,11 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .tabs { display: none; }
 
 /* ---------- board ---------- */
-.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.board { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; align-items: start; }
 [data-status="todo"] { --lane-bg: var(--lane-todo); --lane-c: var(--c-todo); }
 [data-status="doing"] { --lane-bg: var(--lane-doing); --lane-c: var(--c-doing); }
 [data-status="waiting"] { --lane-bg: var(--lane-waiting); --lane-c: var(--c-waiting); }
+[data-status="ready"] { --lane-bg: var(--lane-ready); --lane-c: var(--c-ready); }
 [data-status="done"] { --lane-bg: var(--lane-done); --lane-c: var(--c-done); }
 .lane { --fill: 0%; position: relative; isolation: isolate; overflow: hidden; background: var(--lane-bg, var(--lane)); box-shadow: inset 0 4px 0 var(--lane-c, transparent); border-radius: 18px; padding: 15px 12px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 170px; transition: box-shadow .15s, transform .15s; }
 /* Hecho fills from the bottom with the week's progress, the same number as the ring */
@@ -210,7 +215,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .lane .count { color: var(--lane-c, var(--muted)); }
 .lane-head { display: flex; align-items: center; gap: 8px; padding: 2px 4px 0; }
 .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
-.s-todo { background: var(--muted); } .s-doing { background: var(--p1); } .s-waiting { background: var(--wait); } .s-done { background: var(--ok); }
+.s-todo { background: var(--muted); } .s-doing { background: var(--p1); } .s-waiting { background: var(--wait); } .s-ready { background: var(--ready); } .s-done { background: var(--ok); }
 .lane-head h2 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 17px; flex: 1; min-width: 0; }
 .count { font-family: var(--font-mono); font-size: 12px; font-weight: 600; background: var(--surface); color: var(--muted); border-radius: 999px; padding: 2px 9px; font-variant-numeric: tabular-nums; }
 .lane-hint { font-size: 12.5px; color: var(--muted); padding: 0 4px; margin-top: -6px; }
@@ -256,6 +261,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .due .ico { width: 13px; height: 13px; }
 .due.late { color: var(--late); background: var(--late-soft); }
 .due.soon { color: var(--wait); background: var(--wait-soft); }
+.due.ready { color: var(--ready); background: var(--ready-soft); }
 .spacer { flex: 1; }
 .mini { color: var(--muted); display: inline-flex; }
 .mini .ico { width: 16px; height: 16px; }
@@ -349,6 +355,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 /* ---------- responsive ---------- */
 @media (max-width: 1080px) {
   .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .board .lane[data-status="done"] { grid-column: 1 / -1; }
   .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .ring-tile { grid-column: span 2; order: 1; }
   .spark-tile { grid-column: span 2; order: 2; }
@@ -376,7 +383,7 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
   .people::-webkit-scrollbar { display: none; }
   .search { max-width: none; flex-basis: 100%; }
   .hint { display: none; }
-  .tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; background: var(--lane); padding: 4px; border-radius: 14px; width: 100%; }
+  .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; background: var(--lane); padding: 4px; border-radius: 14px; width: 100%; }
   .tab { border: none; background: transparent; border-radius: 10px; padding: 7px 2px; font-size: 12.5px; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; align-items: center; gap: 1px; line-height: 1.2; transition: background .15s, color .15s; }
   .tab .n { font-family: var(--font-mono); font-size: 12px; }
   .tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm), inset 0 -3px 0 var(--lane-c, var(--accent)); }
@@ -1925,7 +1932,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <section class="contacts" id="contacts" aria-label="Contactos" hidden></section>
   <section class="docs" id="docs" aria-label="Documentos" hidden></section>
 
-  <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
+  <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong> y entreguen lo que llegó a su fecha en <strong>Lista para entregar</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
 </div>
 
@@ -1951,6 +1958,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     { id: "todo", label: "Por hacer", short: "Por hacer", hint: "Acordadas, sin empezar." },
     { id: "doing", label: "En curso", short: "En curso", hint: "Alguien está trabajando en ellas." },
     { id: "waiting", label: "Esperando a alguien", short: "Espera", hint: "Bloqueadas por un cliente, un compañero o una respuesta." },
+    { id: "ready", label: "Lista para entregar", short: "Lista", hint: "Terminadas, a la espera de su fecha de entrega." },
     { id: "done", label: "Hecho", short: "Hecho", hint: "Terminadas. Las más recientes primero." }
   ];
   var PRIORITY = { high: { label: "Alta", rank: 0 }, normal: { label: "Normal", rank: 1 }, low: { label: "Baja", rank: 2 } };
@@ -2077,6 +2085,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var d = parseDay(task.due);
     var short = d.getDate() + " " + MONTHS[d.getMonth()];
     if (task.status === "done") return { text: short, cls: "" };
+    if (task.status === "ready") {
+      if (diff < 0) return { text: short + " · " + (-diff) + " d de atraso", cls: "late" };
+      if (diff === 0) return { text: "Entregar hoy", cls: "soon" };
+      if (diff === 1) return { text: "Entregar mañana", cls: "soon" };
+      return { text: short + " · en " + diff + " d", cls: "ready" };
+    }
     if (diff < 0) return { text: short + " · " + (-diff) + " d de atraso", cls: "late" };
     if (diff === 0) return { text: "Vence hoy", cls: "soon" };
     if (diff === 1) return { text: "Vence mañana", cls: "soon" };
