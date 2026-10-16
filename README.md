@@ -53,3 +53,8 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 - Accesos directos: filas `type: "link"` con `target` (el id del original). Si el original se borra, el acceso directo queda «roto» y ofrece restaurarlo o borrarse.
 - Acceso rápido: carpetas o archivos con `pinnedAt`; lo ven todos.
 - Copiar crea filas nuevas que apuntan al mismo archivo guardado; el archivo solo se elimina cuando ya nadie lo usa (`attachment_in_use`).
+
+## Opciones y tema
+
+El botón «Opciones» del encabezado reúne el tema (claro, oscuro o igual que el dispositivo), cambiar de persona, equipo y nombre del tablero, actualizar datos, instalar la app, atajos de teclado y «Acerca de».
+El botón de sol o luna cambia entre modo claro y oscuro. La elección se guarda en cada dispositivo (`tb-theme` en el navegador); sin elección, el tablero sigue el modo del dispositivo.
