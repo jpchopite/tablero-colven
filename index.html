@@ -2321,7 +2321,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* Everyone works on every task, so the board shows all of them; names only sign the activity log. */
   function byPerson(list) { return list; }
   function matchesSearch(t) {
-    if (state.labelFilter && labelById(state.labelFilter) && labelIds(t).indexOf(state.labelFilter) < 0) return false;
+    if (!labelFilterOk(labelIds(t))) return false;
     var q = norm(state.search);
     if (!q) return true;
     return norm([t.title, titleOf(t), t.client, t.notes, t.waitingOn].concat(filesOf(t).map(function (f) { return f.name; }), labelsOf(t).map(function (l) { return l.name; }), checklistOf(t).map(function (i) { return i.text; }), commentsOf(t).map(function (c) { return c.text; })).join(" ")).indexOf(q) >= 0;
@@ -2604,7 +2604,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var now = new Date().toISOString();
       var data = { title: title, people: [], owner: "", status: "todo", waitingOn: "", due: "", priority: "normal",
         client: "", notes: "", repeat: null, createdAt: now, updatedAt: now, doneAt: null,
-        labels: state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [] };
+        labels: presetLabels() };
       inp.value = "";
       persist(null, data).then(function (r) {
         logEntry({ action: "create", taskId: r.id, title: title, to: "todo" });
@@ -3674,8 +3674,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   ];
   state.labels = [];
   state.settingsRaw = null;
-  state.labelFilter = "";
-  try { state.labelFilter = localStorage.getItem("tb-label") || ""; } catch (e) {}
+  /* label filter: any number of labels; a card has to carry all of them */
+  state.labelFilter = [];
+  try { state.labelFilter = (localStorage.getItem("tb-label") || "").split(",").filter(Boolean); } catch (e) {}
   function colorKey(c) { return LABEL_COLORS.some(function (x) { return x.key === c; }) ? c : "gris"; }
   function cleanLabels(list) {
     var seen = {};
@@ -3688,6 +3689,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function labelIds(t) { return t && Array.isArray(t.labels) ? t.labels.filter(function (x) { return typeof x === "string"; }) : []; }
   /* a card's labels, in the order the team keeps them */
   function labelsOf(t) { var ids = labelIds(t); return state.labels.filter(function (l) { return ids.indexOf(l.id) >= 0; }); }
+  /* the labels being filtered on that still exist */
+  function activeLabels() { return state.labelFilter.filter(function (id) { return labelById(id); }); }
+  function labelFilterOk(ids) {
+    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; });
+  }
+  /* a new card or meeting made while filtering starts with the filtered labels */
+  function presetLabels() { return activeLabels(); }
   function labelPill(l) {
     var s = el("span", "lbl lb-" + colorKey(l.color), l.name);
     s.title = "Etiqueta: " + l.name;
@@ -3741,11 +3749,20 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     set(colorKey(current));
     return { el: row, set: set };
   }
-  function setLabelFilter(id) {
-    state.labelFilter = id || "";
-    try { if (state.labelFilter) localStorage.setItem("tb-label", state.labelFilter); else localStorage.removeItem("tb-label"); } catch (e) {}
+  function saveLabelFilter(ids) {
+    state.labelFilter = ids;
+    try { if (ids.length) localStorage.setItem("tb-label", ids.join(",")); else localStorage.removeItem("tb-label"); } catch (e) {}
+  }
+  function setLabelFilter(ids) {
+    saveLabelFilter(ids);
     renderLabelBar(); renderBoard(); renderCal();
   }
+  function toggleLabelFilter(id) {
+    var f = activeLabels(), i = f.indexOf(id);
+    if (i >= 0) f.splice(i, 1); else f.push(id);
+    setLabelFilter(f);
+  }
+  function joinList(xs, word) { return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " " + word + " " + xs[xs.length - 1]; }
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
@@ -3755,8 +3772,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (lb) lb.hidden = !(place && !state.labels.length && state.canWrite);
     bar.hidden = !show;
     if (!show) return;
-    bar.className = "labelbar" + (state.labelFilter ? " filtering" : "");
-    if (state.labelFilter && !labelById(state.labelFilter)) state.labelFilter = "";
+    state.labelFilter = activeLabels();
+    var picked = state.labelFilter;
+    bar.className = "labelbar" + (picked.length ? " filtering" : "");
     bar.textContent = "";
     var tl = el("span", "lb-title");
     tl.appendChild(icon("tag"));
@@ -3764,24 +3782,24 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bar.appendChild(tl);
     var chips = el("div", "lb-chips");
     state.labels.forEach(function (l) {
-      var on = state.labelFilter === l.id;
+      var on = picked.indexOf(l.id) >= 0;
       var b = el("button", "lbchip lb-" + colorKey(l.color));
       b.type = "button";
       b.setAttribute("aria-pressed", String(on));
-      b.title = on ? (state.view === "cal" ? "Ver todo el calendario" : "Ver todas las tarjetas") : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»");
+      b.title = on ? "Quitar «" + l.name + "» del filtro" : picked.length ? "Agregar «" + l.name + "» al filtro" : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»");
       b.appendChild(el("span", "lbdot"));
       b.appendChild(el("span", "lbname", l.name));
       var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
       if (state.view === "cal") n += (state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
       b.appendChild(el("span", "lbn", String(n)));
-      b.onclick = function () { setLabelFilter(on ? "" : l.id); };
+      b.onclick = function () { toggleLabelFilter(l.id); };
       chips.appendChild(b);
     });
     bar.appendChild(chips);
-    if (state.labelFilter) {
+    if (picked.length) {
       var clr = el("button", "linkbtn lb-clear", "Ver todas");
       clr.type = "button";
-      clr.onclick = function () { setLabelFilter(""); };
+      clr.onclick = function () { setLabelFilter([]); };
       bar.appendChild(clr);
     }
     if (state.canWrite) {
@@ -4195,7 +4213,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         nums.appendChild(el("b", null, String(r.n)));
         if (r.late) nums.appendChild(el("span", "late", r.late + " atras."));
         b.appendChild(nums);
-        b.onclick = function () { state.labelFilter = r.l.id; try { localStorage.setItem("tb-label", r.l.id); } catch (e) {} goBoard(); };
+        b.onclick = function () { saveLabelFilter([r.l.id]); goBoard(); };
         w5.body.appendChild(b);
       });
     }
@@ -6872,7 +6890,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function openEditor(t, preset) {
     var isNew = !t;
-    t = t || Object.assign({ status: "todo", priority: "normal", labels: state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [] }, preset || {});
+    t = t || Object.assign({ status: "todo", priority: "normal", labels: presetLabels() }, preset || {});
     var ro = !state.canWrite;
     openPanel(function (p) {
       p.setAttribute("aria-label", isNew ? "Nueva tarea" : "Editar tarea");
@@ -7644,8 +7662,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     ag.appendChild(ah);
     var items = map[sel] || [], mitems = mmap[sel] || [];
-    var lf = state.labelFilter && labelById(state.labelFilter);
-    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : lf ? "Nada con «" + lf.name + "» este día." : "No hay reuniones, eventos ni tareas este día."));
+    var lf = activeLabels().map(function (id) { return "«" + labelById(id).name + "»"; });
+    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : lf.length ? "Nada con " + joinList(lf, "y") + " este día." : "No hay reuniones, eventos ni tareas este día."));
     if (mitems.length) {
       var evs = mitems.filter(isEvent), mts = mitems.filter(function (x) { return !isEvent(x); });
       if (evs.length) {
@@ -9009,7 +9027,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function meetingTitle(m) { return m.title || "Reunión"; }
   function meetingLabels(m) { return (Array.isArray(m && m.labels) ? m.labels : []).filter(function (id) { return labelById(id); }); }
   function matchesMeeting(m) {
-    if (state.labelFilter && labelById(state.labelFilter) && meetingLabels(m).indexOf(state.labelFilter) < 0) return false;
+    if (!labelFilterOk(meetingLabels(m))) return false;
     var q = norm(state.search);
     if (!q) return true;
     return norm([m.title, m.place, m.link, m.others, m.agenda, m.minutes,
@@ -9237,7 +9255,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       titleIn.placeholder = "p. ej. Presentación de la propuesta";
       var titleF = field("Reunión", titleIn);
       p.appendChild(titleF);
-      var mLabels = labelsField(isNew ? (m.labels || (state.labelFilter && labelById(state.labelFilter) ? [state.labelFilter] : [])) : meetingLabels(m), ro);
+      var mLabels = labelsField(isNew ? (m.labels || presetLabels()) : meetingLabels(m), ro);
       mLabels.el.querySelector(".flabel").id = "m-labels-lbl";
       p.appendChild(mLabels.el);
 
