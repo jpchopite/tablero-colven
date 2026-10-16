@@ -1811,6 +1811,30 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 .md:active { transform: scale(.92); }
 .md[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--surface); }
 .md.last { grid-column: span 4; font-size: 12.5px; }
+
+/* ================= Bordes finos y esquinas suaves (al estilo de shadcn/ui) =================
+   Solo cambia el grosor de los bordes y el redondeo de las esquinas; colores, tipografía y modos claro/oscuro quedan igual. */
+:root { --radius: 10px; }
+.card, .ccard, .mcard, .skel, .notice, .empty, .quick, .frow, .fdrop, .pbox, .repeat-box, .ocr, .dupwarn { border-radius: var(--radius); }
+.lane { border-radius: 12px; border: 1px solid var(--line); }
+.cal { border-radius: 12px; }
+.tile { border-radius: var(--radius); }
+.quick, .empty, .pbox, .fdrop { border-width: 1px; }
+.cell { border-radius: 8px; border-width: 1px; }
+.hbtn, .btn, .tbtn, .csort, .navbtn, .gate-eye, .seg button, .chip, .wd, .cact { border-radius: 8px; }
+.quick button { border-radius: 6px; }
+.search input, .field input, .field select, .field textarea, .gate-row input, .cpick > input, .inline select, .inline input { border-radius: 8px; }
+.viewswitch { border-radius: 10px; }
+.viewswitch button { border-radius: 7px; }
+.xbtn { border-radius: 8px; }
+.tag, .waiting-on { border-radius: 6px; }
+.gate-card { border-radius: 14px; }
+.toast { border-radius: var(--radius); }
+@media (max-width: 680px) {
+  .panel { border-radius: 14px 14px 0 0; }
+  .tabs { border-radius: 10px; }
+  .tab { border-radius: 7px; }
+}
 </style>
 </head>
 <body>
