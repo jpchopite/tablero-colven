@@ -19,6 +19,38 @@
   .cal-grid .cell.sel .ctask.cmeet { background: var(--meet); }
   .cal-grid .cell.sel .ctask.late { background: var(--late); }
 }
+
+/* ================= cards: every label in full, and a summary on mouse hover ================= */
+/* labels and the client keep their whole name on the card; a name too long for the card wraps instead of being cut */
+.card .lbl { max-width: 100%; white-space: normal; overflow: visible; overflow-wrap: anywhere; text-align: left; flex: 0 1 auto; border-radius: 7px; }
+.card .lbl::before { align-self: center; }
+.card .tag { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+.card-foot { flex-wrap: wrap; row-gap: 6px; }
+/* the summary that shows next to a card while the mouse rests on it (computers only) */
+.peek { position: fixed; z-index: 60; width: 320px; max-width: calc(100vw - 24px); background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 12px 14px; font-size: 13px; line-height: 1.45;
+  pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity .14s ease, transform .14s ease; }
+.peek.on { opacity: 1; transform: none; }
+.peek h4 { margin: 0 0 6px; font-size: 14px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.peek .pk-row { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+.peek .pk-row > span { display: inline-flex; align-items: center; gap: 4px; }
+.peek .pk-row .ico { width: 13px; height: 13px; flex: none; }
+.peek .pk-row .late { color: var(--late); font-weight: 600; }
+.peek .pk-labels { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+.peek .pk-labels .lbl { max-width: 100%; white-space: normal; overflow: visible; border-radius: 7px; }
+.peek .pk-sec { border-top: 1px solid var(--line); padding-top: 7px; margin-top: 7px; }
+.peek .pk-k { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.peek .pk-notes { white-space: pre-line; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.peek ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.peek li { display: flex; gap: 6px; align-items: baseline; overflow-wrap: anywhere; }
+.peek li .mk { flex: none; width: 13px; height: 13px; border: 1px solid var(--line-strong); border-radius: 4px; position: relative; top: 2px; }
+.peek li.ok { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.peek li.ok .mk { background: var(--ok); border-color: var(--ok); }
+.peek .pk-more { color: var(--muted); font-size: 12px; }
+.peek .pk-quote { color: var(--ink); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.peek .pk-quote b { font-weight: 600; }
+.peek .pk-hint { margin-top: 9px; font-size: 11.5px; color: var(--muted); }
+@media (hover: none), (pointer: coarse) { .peek { display: none !important; } }
 </style>
 <script>try { var th = localStorage.getItem("tb-theme"); if (th === "light" || th === "dark") document.documentElement.setAttribute("data-theme", th); } catch (e) {}</script>
 <title>Colven · Tablero del equipo</title>
@@ -2602,6 +2634,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
 
   function renderBoard() {
+    hidePeek();
     var list = byPerson(state.tasks).filter(matchesSearch);
     var prev = state.prevLane;
     STATUSES.forEach(function (s) {
@@ -2635,6 +2668,86 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       state.prevLane = pl;
     }
   }
+
+  /* ---------- card summary on hover ----------
+     Resting the mouse on a card for a moment shows what is inside it (labels, dates, notes, steps, files, last comment)
+     without opening it. Only on computers with a mouse; on phones a tap still opens the card. */
+  var peekBox = null, peekTimer = 0, peekCard = null;
+  var canPeek = !!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  function hidePeek() {
+    clearTimeout(peekTimer); peekTimer = 0; peekCard = null;
+    if (peekBox) peekBox.classList.remove("on");
+  }
+  function schedulePeek(t, c) {
+    if (!canPeek || document.body.classList.contains("dragging-card")) return;
+    clearTimeout(peekTimer);
+    peekCard = c;
+    peekTimer = setTimeout(function () { if (peekCard === c && c.isConnected) showPeek(t, c); }, 450);
+  }
+  function peekBody(t) {
+    var box = el("div");
+    var done = t.status === "done";
+    box.appendChild(el("h4", null, titleOf(t) || "Tarea sin título"));
+    var row = el("div", "pk-row");
+    row.appendChild(el("span", null, statusLabel(t.status || "todo")));
+    var di = dueInfo(t);
+    if (di) { var du = el("span", di.cls === "late" ? "late" : null); du.appendChild(icon("clock")); du.appendChild(document.createTextNode(di.text)); row.appendChild(du); }
+    if (t.priority === "high" && !done) { var pr = el("span", "late"); pr.appendChild(icon("flag")); pr.appendChild(document.createTextNode("Prioridad alta")); row.appendChild(pr); }
+    if (ruleValid(t.repeat) && !done) { var rp = el("span"); rp.appendChild(icon("repeat")); rp.appendChild(document.createTextNode(ruleText(t.repeat))); row.appendChild(rp); }
+    box.appendChild(row);
+    var ls = labelsOf(t);
+    if (ls.length) { var lr = el("div", "pk-labels"); ls.forEach(function (l) { lr.appendChild(labelPill(l)); }); box.appendChild(lr); }
+    function sec(k) { var d = el("div", "pk-sec"); d.appendChild(el("div", "pk-k", k)); box.appendChild(d); return d; }
+    if (t.client) sec("Cliente").appendChild(el("div", null, t.client));
+    if (t.status === "waiting" && t.waitingOn) sec("Esperando").appendChild(el("div", null, t.waitingOn));
+    var ppl = peopleOf(t);
+    if (ppl.length) sec("Personas").appendChild(el("div", null, ppl.map(function (k) { return member(k).name; }).join(", ")));
+    if (t.notes) sec("Notas").appendChild(el("div", "pk-notes", t.notes));
+    var ck = checklistOf(t);
+    if (ck.length) {
+      var cs = sec("Pasos · " + ck.filter(function (i) { return i.done; }).length + " de " + ck.length);
+      var ul = el("ul");
+      ck.slice(0, 5).forEach(function (i) { var li = el("li", i.done ? "ok" : null); li.appendChild(el("span", "mk")); li.appendChild(el("span", null, i.text)); ul.appendChild(li); });
+      cs.appendChild(ul);
+      if (ck.length > 5) cs.appendChild(el("div", "pk-more", "y " + (ck.length - 5) + " más"));
+    }
+    var fs = filesOf(t);
+    if (fs.length) {
+      var fsec = sec(plural(fs.length, "Adjunto", "Adjuntos"));
+      var fl = el("ul");
+      fs.slice(0, 3).forEach(function (f) { fl.appendChild(el("li", null, f.name || "Archivo")); });
+      fsec.appendChild(fl);
+      if (fs.length > 3) fsec.appendChild(el("div", "pk-more", "y " + (fs.length - 3) + " más"));
+    }
+    var cm = commentsOf(t);
+    if (cm.length) {
+      var last = cm[cm.length - 1], who = member(last.by);
+      var csec = sec(plural(cm.length, "Comentario", "Comentarios"));
+      var q = el("div", "pk-quote");
+      if (who) { q.appendChild(el("b", null, who.name.split(" ")[0] + ": ")); }
+      q.appendChild(document.createTextNode(last.text));
+      csec.appendChild(q);
+    }
+    box.appendChild(el("div", "pk-hint", "Haz clic para abrir la tarea"));
+    return box;
+  }
+  function showPeek(t, c) {
+    if (!peekBox) { peekBox = el("div", "peek"); peekBox.setAttribute("aria-hidden", "true"); document.body.appendChild(peekBox); }
+    peekBox.textContent = "";
+    peekBox.appendChild(peekBody(t));
+    peekBox.style.left = "0px"; peekBox.style.top = "0px";
+    var r = c.getBoundingClientRect(), w = peekBox.offsetWidth, h = peekBox.offsetHeight;
+    var vw = window.innerWidth, vh = window.innerHeight, gap = 10;
+    var x = r.right + gap;
+    if (x + w > vw - 8) x = r.left - gap - w;
+    if (x < 8) x = Math.max(8, Math.min(vw - w - 8, r.left));
+    var y = Math.max(8, Math.min(r.top, vh - h - 8));
+    peekBox.style.left = Math.round(x) + "px"; peekBox.style.top = Math.round(y) + "px";
+    peekBox.classList.add("on");
+  }
+  window.addEventListener("scroll", hidePeek, true);
+  document.addEventListener("dragstart", hidePeek, true);
+  document.addEventListener("keydown", hidePeek, true);
 
   function card(t) {
     var done = t.status === "done";
@@ -2736,7 +2849,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     c.appendChild(foot);
 
-    c.addEventListener("click", function () { openEditor(t); });
+    c.addEventListener("click", function () { hidePeek(); openEditor(t); });
+    c.addEventListener("mouseenter", function () { schedulePeek(t, c); });
+    c.addEventListener("mouseleave", hidePeek);
     c.addEventListener("keydown", function (e) {
       if (e.target !== c) return;
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openEditor(t); }
