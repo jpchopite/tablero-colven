@@ -801,10 +801,6 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 .lb-empty { font-size: 13px; color: var(--muted); }
 .lb-manage { margin-left: auto; }
 .lb-clear { font-size: 13px; }
-.seg.lb-mode { gap: 0; flex-wrap: nowrap; flex: none; }
-.seg.lb-mode button { padding: 4px 10px; font-size: 12.5px; white-space: nowrap; }
-.seg.lb-mode button:first-child { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-.seg.lb-mode button:last-child { border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: -1px; }
 
 /* editor */
 .lbpick { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -3678,13 +3674,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   ];
   state.labels = [];
   state.settingsRaw = null;
-  /* label filter: any number of labels; by default a card needs all of them, "alguna" shows cards with any of them */
+  /* label filter: any number of labels; a card has to carry all of them */
   state.labelFilter = [];
-  state.labelAny = false;
-  try {
-    state.labelFilter = (localStorage.getItem("tb-label") || "").split(",").filter(Boolean);
-    state.labelAny = localStorage.getItem("tb-label-any") === "1";
-  } catch (e) {}
+  try { state.labelFilter = (localStorage.getItem("tb-label") || "").split(",").filter(Boolean); } catch (e) {}
   function colorKey(c) { return LABEL_COLORS.some(function (x) { return x.key === c; }) ? c : "gris"; }
   function cleanLabels(list) {
     var seen = {};
@@ -3700,13 +3692,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* the labels being filtered on that still exist */
   function activeLabels() { return state.labelFilter.filter(function (id) { return labelById(id); }); }
   function labelFilterOk(ids) {
-    var f = activeLabels();
-    if (!f.length) return true;
-    var has = function (id) { return ids.indexOf(id) >= 0; };
-    return state.labelAny ? f.some(has) : f.every(has);
+    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; });
   }
-  /* labels a new card or meeting starts with while filtering: all of them, or the only one */
-  function presetLabels() { var f = activeLabels(); return state.labelAny && f.length > 1 ? [] : f; }
+  /* a new card or meeting made while filtering starts with the filtered labels */
+  function presetLabels() { return activeLabels(); }
   function labelPill(l) {
     var s = el("span", "lbl lb-" + colorKey(l.color), l.name);
     s.title = "Etiqueta: " + l.name;
@@ -3762,10 +3751,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function saveLabelFilter(ids) {
     state.labelFilter = ids;
-    try {
-      if (ids.length) localStorage.setItem("tb-label", ids.join(",")); else localStorage.removeItem("tb-label");
-      if (state.labelAny) localStorage.setItem("tb-label-any", "1"); else localStorage.removeItem("tb-label-any");
-    } catch (e) {}
+    try { if (ids.length) localStorage.setItem("tb-label", ids.join(",")); else localStorage.removeItem("tb-label"); } catch (e) {}
   }
   function setLabelFilter(ids) {
     saveLabelFilter(ids);
@@ -3810,20 +3796,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       chips.appendChild(b);
     });
     bar.appendChild(chips);
-    if (picked.length > 1) {
-      /* with two or more labels: cards that have all of them, or any of them */
-      var mode = el("div", "seg lb-mode");
-      mode.setAttribute("role", "group"); mode.setAttribute("aria-label", "Cómo combinar las etiquetas");
-      [[false, "Con todas"], [true, "Con alguna"]].forEach(function (o) {
-        var mb = el("button", null, o[1]);
-        mb.type = "button";
-        mb.setAttribute("aria-pressed", String(state.labelAny === o[0]));
-        mb.title = o[0] ? "Ver lo que tiene al menos una de las etiquetas elegidas" : "Ver solo lo que tiene todas las etiquetas elegidas";
-        mb.onclick = function () { state.labelAny = o[0]; setLabelFilter(picked); };
-        mode.appendChild(mb);
-      });
-      bar.appendChild(mode);
-    }
     if (picked.length) {
       var clr = el("button", "linkbtn lb-clear", "Ver todas");
       clr.type = "button";
@@ -7691,7 +7663,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     ag.appendChild(ah);
     var items = map[sel] || [], mitems = mmap[sel] || [];
     var lf = activeLabels().map(function (id) { return "«" + labelById(id).name + "»"; });
-    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : lf.length ? "Nada con " + joinList(lf, state.labelAny ? "o" : "y") + " este día." : "No hay reuniones, eventos ni tareas este día."));
+    if (!items.length && !mitems.length) ag.appendChild(el("div", "empty", state.search ? "Nada de este día coincide con la búsqueda." : lf.length ? "Nada con " + joinList(lf, "y") + " este día." : "No hay reuniones, eventos ni tareas este día."));
     if (mitems.length) {
       var evs = mitems.filter(isEvent), mts = mitems.filter(function (x) { return !isEvent(x); });
       if (evs.length) {
