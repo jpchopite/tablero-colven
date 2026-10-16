@@ -32,6 +32,11 @@ El plan gratuito de Supabase pausa un proyecto tras unos 7 días sin actividad.
 `.github/workflows/mantener-activa.yml` llama cada 3 días a `public.ping()`, una función que no lee nada del tablero.
 Se puede ejecutar a mano desde la pestaña Actions de GitHub.
 
+## Columnas
+
+Por hacer, En curso, Esperando a alguien, Lista para entregar y Hecho.
+«Lista para entregar» (estado `ready`) es para trabajo terminado cuya fecha de entrega aún no llega: se ordena por fecha y muestra «Entregar hoy» o el atraso cuando llega el día. Sigue contando como tarea abierta; al entregarla se marca como hecha.
+
 ## Archivo y papelera
 
 Las tarjetas archivadas (o terminadas hace más de 30 días) salen del tablero y se ven en «Archivo».
