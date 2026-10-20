@@ -579,6 +579,9 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .mpill { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; background: var(--meet-soft); color: var(--meet); flex: none; }
 .mpill.done { background: var(--ok-soft); color: var(--ok); }
 .mpill.cancelled { background: var(--late-soft); color: var(--late); }
+.ctask .crep { width: 11px; height: 11px; flex: none; margin-right: 3px; opacity: .75; }
+.until-row input[type=date] { width: auto; }
+.scope-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .row3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; }
 .m-timehelp { margin-top: -8px; }
 .cpick { position: relative; display: flex; flex-direction: column; gap: 8px; }
@@ -676,7 +679,7 @@ button.pchip-s:hover { border-color: var(--line-strong); }
   .cell.has-late .dnum::after { top: 4px; left: auto; right: 4px; }
   .ctasks { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; }
   .ctask { width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%; background: var(--lane-c, var(--muted)); pointer-events: none; }
-  .ctask span { display: none; }
+  .ctask span, .ctask .crep { display: none; }
   .ctask.late { background: var(--late); }
   .ctask.done { opacity: .5; }
   .cmore, .cell-add { display: none; }
@@ -1834,7 +1837,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .cell { min-height: 56px; padding: 5px 2px 8px; gap: 3px; }
   .ctasks { gap: 2px; max-width: 100%; }
   .ctask { width: 6px; height: 6px; }
-  .ctask .cdots, .ctask .mtime { display: none; }
+  .ctask .cdots, .ctask .mtime, .ctask .crep { display: none; }
   .cmore { font-size: 9.5px; font-weight: 800; color: var(--muted); line-height: 6px; }
   .cbars { display: flex; flex-direction: column; gap: 2px; position: absolute; left: 0; right: 0; bottom: 3px; pointer-events: none; }
   .cbar { display: block; height: 3px; background: var(--event); margin: 0 -3px; }
@@ -3272,7 +3275,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (e.action !== "settings") {
         if (opts.hideTitle) line.appendChild(document.createTextNode("esta tarjeta"));
         else if (e.meetingId) {
-          var mt = (state.meetings || []).filter(function (x) { return x.id === e.meetingId; })[0];
+          var mt = findMeeting(e.meetingId);
           var mtt = "«" + (e.title || "reunión") + "»";
           if (mt && e.action !== "meeting_delete") {
             var ma = el("button", "log-task", mtt); ma.type = "button";
@@ -3839,7 +3842,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       b.appendChild(el("span", "lbdot"));
       b.appendChild(el("span", "lbname", l.name));
       var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
-      if (state.view === "cal") n += (state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
+      if (state.view === "cal") n += onePerSeries(state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
       b.appendChild(el("span", "lbn", String(n)));
       b.onclick = function () { toggleLabelFilter(l.id); };
       chips.appendChild(b);
@@ -4785,7 +4788,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         commentsOf(t).forEach(function (c) { var ss = score(c.text, qq); if (ss) add("Comentarios", "chat", c.text.slice(0, 90), (member(c.by) ? member(c.by).name.split(" ")[0] : "Alguien") + " en «" + (titleOf(t) || "tarea") + "»", ss, function () { openEditor(t); }); });
         filesOf(t).forEach(function (f) { var ss = score(f.name, qq); if (ss) add("Archivos", "clip", f.name, "En «" + (titleOf(t) || "tarea") + "» · " + fmtSize(f.size), ss, function () { openFile(f, false); }); });
       });
-      (state.meetings || []).forEach(function (m) {
+      onePerSeries(state.meetings || []).forEach(function (m) {
         var s = Math.max(score(meetingTitle(m), qq) * 3, score([m.place, m.others, m.agenda, m.minutes, meetingContacts(m).map(contactTitle).join(" ")].join(" "), qq));
         add(isEvent(m) ? "Eventos" : "Reuniones", isEvent(m) ? "flag" : "users", meetingTitle(m), (isMultiDay(m) ? rangeLabel(m) : longDate(m.date) + (m.start ? " · " + m.start : "")) + (m.place ? " · " + m.place : ""), s, function () { openMeeting(m); });
       });
@@ -6937,6 +6940,223 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var imgs = items.filter(function (d) { return isFileDoc(d) && dKind(d) === "img" && !urlFor(asFile(d)); }).map(asFile);
     if (imgs.length && state.dview === "grid") signFiles(imgs.slice(0, 40)).then(function () { if (state.view === "docs" && imgs.some(urlFor)) renderDocs(); });
   }
+  /* "Se repite": the repeat picker shared by tasks and meetings. `dateIn` is the date field the pattern starts from. */
+  function repeatField(rule0, dateIn, o) {
+    var refDate = function () { return parseDay(dateIn.value) || parseDay(todayStr()); };
+    var defaults = function () {
+      var d = refDate(), nth = Math.ceil(d.getDate() / 7);
+      return { interval: 1, weekdays: [d.getDay()], monthMode: "date", monthDay: d.getDate(),
+        nth: nth > 4 ? -1 : nth, weekday: d.getDay(), month: d.getMonth(), startMonth: d.getMonth() % 3 };
+    };
+    var work = Object.assign(defaults(), ruleValid(rule0) ? JSON.parse(JSON.stringify(rule0)) : {});
+    var isQuarter = function (r) { return ruleValid(r) && r.freq === "month" && Number(r.interval) === 3; };
+    var repSel = select(o.id + "-rep", [
+      { value: "", label: "No se repite" }, { value: "day", label: "Cada día" }, { value: "week", label: "Cada semana" },
+      { value: "month", label: "Cada mes" }, { value: "quarter", label: "Cada trimestre" }, { value: "year", label: "Cada año" }
+    ].concat(o.after ? [{ value: "after", label: "Después de la entrega de otra tarjeta" }] : []), ruleValid(rule0) ? (isQuarter(rule0) ? "quarter" : rule0.freq) : "");
+    var fieldEl = field("Se repite", repSel, o.help);
+
+    var box = el("div", "repeat-box");
+    var intRow = el("div", "inline");
+    intRow.appendChild(el("span", null, "Cada"));
+    var intIn = input(o.id + "-int", String(work.interval || 1), "number");
+    intIn.min = "1"; intIn.max = "99"; intIn.setAttribute("aria-label", "Intervalo de repetición");
+    intRow.appendChild(intIn);
+    var unit = el("span");
+    intRow.appendChild(unit);
+    box.appendChild(intRow);
+
+    var wdRow = el("div", "wd-row");
+    wdRow.setAttribute("role", "group"); wdRow.setAttribute("aria-label", "Repetir estos días");
+    var wdBtns = WEEK_ORDER.map(function (wd) {
+      var b = el("button", "wd", WD_SHORT[wd]);
+      b.type = "button"; b.dataset.wd = wd; b.setAttribute("aria-label", cap(WD_LONG[wd]));
+      b.onclick = function () {
+        var on = b.getAttribute("aria-pressed") === "true";
+        var cur = wdBtns.filter(function (x) { return x.getAttribute("aria-pressed") === "true"; });
+        if (on && cur.length === 1) return; /* keep at least one day */
+        b.setAttribute("aria-pressed", String(!on)); update();
+      };
+      wdRow.appendChild(b);
+      return b;
+    });
+    box.appendChild(wdRow);
+
+    var monRow = el("div", "inline");
+    var modeSel = select(o.id + "-mmode", [{ value: "date", label: "El día" }, { value: "days", label: "Varios días" }, { value: "nth", label: "El" }], work.monthMode === "nth" || work.monthMode === "days" ? work.monthMode : "date");
+    modeSel.setAttribute("aria-label", "Patrón mensual");
+    var dayOpts = []; for (var di2 = 1; di2 <= 31; di2++) dayOpts.push({ value: String(di2), label: String(di2) });
+    dayOpts.push({ value: "-1", label: "último día" });
+    var daySel = select(o.id + "-mday", dayOpts, String(work.monthDay));
+    daySel.setAttribute("aria-label", "Día del mes");
+    var nthSel = select(o.id + "-nth", [{ value: "1", label: "primer" }, { value: "2", label: "segundo" }, { value: "3", label: "tercer" }, { value: "4", label: "cuarto" }, { value: "-1", label: "último" }], String(work.nth));
+    nthSel.setAttribute("aria-label", "Qué semana");
+    var wdSel = select(o.id + "-wday", WEEK_ORDER.map(function (wd) { return { value: String(wd), label: cap(WD_LONG[wd]) }; }), String(work.weekday));
+    wdSel.setAttribute("aria-label", "Día de la semana");
+    var ofLabel = el("span", null, "de");
+    var monSel = select(o.id + "-month", MONTHS_LONG.map(function (m, i) { return { value: String(i), label: cap(m) }; }), String(work.month));
+    monSel.setAttribute("aria-label", "Mes");
+    [modeSel, daySel, nthSel, wdSel, ofLabel, monSel].forEach(function (n) { monRow.appendChild(n); });
+    box.appendChild(monRow);
+
+    /* several days of each month (e.g. the 15th and the 30th) */
+    var mdRow = el("div", "md-box");
+    var mdGrid = el("div", "md-grid"); mdGrid.setAttribute("role", "group"); mdGrid.setAttribute("aria-label", "Días del mes");
+    var mdSel = (Array.isArray(work.monthDays) && work.monthDays.length ? work.monthDays : [Number(work.monthDay) || refDate().getDate()]).map(Number);
+    var mdBtns = [];
+    for (var md = 1; md <= 31; md++) mdBtns.push(md);
+    mdBtns.push(-1);
+    mdBtns = mdBtns.map(function (d) {
+      var b = el("button", "md" + (d === -1 ? " last" : ""), d === -1 ? "Último" : String(d));
+      b.type = "button"; b.dataset.d = d;
+      b.setAttribute("aria-label", d === -1 ? "Último día del mes" : "Día " + d);
+      b.setAttribute("aria-pressed", String(mdSel.indexOf(d) >= 0));
+      b.onclick = function () {
+        var on = b.getAttribute("aria-pressed") === "true";
+        if (on && mdBtns.filter(function (x) { return x.getAttribute("aria-pressed") === "true"; }).length === 1) return; /* keep at least one */
+        b.setAttribute("aria-pressed", String(!on)); update();
+      };
+      mdGrid.appendChild(b);
+      return b;
+    });
+    mdRow.appendChild(mdGrid);
+    mdRow.appendChild(el("div", "help", o.mdHelp + " Si un mes no tiene ese día (por ejemplo, el 30 en febrero), se usa el último día de ese mes."));
+    box.appendChild(mdRow);
+
+    /* quarterly: which three-month cycle (the month of each quarter it falls in) */
+    var qRow = el("div", "inline");
+    qRow.appendChild(el("span", null, "En los meses"));
+    var qSel = select(o.id + "-qmonths", [0, 1, 2].map(function (k) { return { value: String(k), label: quarterMonths(k) }; }),
+      String(((Number(work.startMonth) || 0) % 3 + 3) % 3));
+    qSel.setAttribute("aria-label", "Meses de cada trimestre");
+    var qTouched = isQuarter(rule0) && rule0.startMonth != null;
+    qSel.addEventListener("change", function () { qTouched = true; });
+    qRow.appendChild(qSel);
+    box.appendChild(qRow);
+
+    /* after another card: which one, and when after it */
+    var aRow = el("div", "after-box");
+    var myKey = o.myKey || "";
+    var anchors = {};
+    (state.allTasks || state.tasks).forEach(function (o) {
+      var k = seriesKey(o);
+      if (o.trashed || k === myKey || !(ruleValid(o.repeat) || o.status !== "done")) return;
+      if (o.repeat && o.repeat.freq === "after" && o.repeat.anchor === myKey && myKey) return; /* no loops */
+      if (!anchors[k] || String(o.dateIn || "") > String(anchors[k].dateIn || "")) anchors[k] = o;
+    });
+    var aOpts = Object.keys(anchors).map(function (k) { return { value: k, label: plainTitle(anchors[k].title) || "Tarea sin título", rep: ruleValid(anchors[k].repeat) }; })
+      .sort(function (a, b) { return (b.rep ? 1 : 0) - (a.rep ? 1 : 0) || a.label.localeCompare(b.label, "es"); });
+    if (work.anchor && !anchors[work.anchor]) aOpts.unshift({ value: work.anchor, label: seriesName(work.anchor) });
+    var anchorSel = select(o.id + "-anchor", [{ value: "", label: "Elige la tarjeta…" }].concat(aOpts.map(function (o) { return { value: o.value, label: o.label + (o.rep ? " ↻" : "") }; })), work.anchor || "");
+    anchorSel.setAttribute("aria-label", "Después de qué tarjeta");
+    var aLine1 = el("div", "inline"); aLine1.appendChild(el("span", null, "Después de la entrega de")); aLine1.appendChild(anchorSel);
+    var aModeSel = select(o.id + "-amode", [{ value: "weekday", label: "El siguiente" }, { value: "days", label: "A los" }], work.mode === "days" ? "days" : "weekday");
+    aModeSel.setAttribute("aria-label", "Cuándo después");
+    var aWdSel = select(o.id + "-awday", WEEK_ORDER.map(function (wd) { return { value: String(wd), label: WD_LONG[wd] }; }), String(work.freq === "after" && work.weekday != null ? work.weekday : 5));
+    aWdSel.setAttribute("aria-label", "Día de la semana");
+    var aDaysIn = input(o.id + "-adays", String(work.days != null && work.freq === "after" ? work.days : 4), "number"); aDaysIn.min = "0"; aDaysIn.max = "365";
+    aDaysIn.setAttribute("aria-label", "Días después");
+    var aDaysLbl = el("span", null, "días");
+    var aLine2 = el("div", "inline"); [aModeSel, aWdSel, aDaysIn, aDaysLbl].forEach(function (n) { aLine2.appendChild(n); });
+    aRow.appendChild(aLine1); aRow.appendChild(aLine2);
+    aRow.appendChild(el("div", "help", "Cada vez que se entrega esa tarjeta, esta queda para la fecha que elijas después. Si la otra cambia de fecha, esta se mueve con ella."));
+    box.appendChild(aRow);
+    [anchorSel, aModeSel, aWdSel, aDaysIn].forEach(function (c) { c.addEventListener("input", function () { update(); }); c.addEventListener("change", function () { update(); }); });
+
+    var preview = el("div", "preview");
+    box.appendChild(preview);
+
+    wdBtns.forEach(function (b) { b.setAttribute("aria-pressed", String((work.weekdays || []).map(Number).indexOf(Number(b.dataset.wd)) >= 0)); });
+
+    function buildRule() {
+      var f = repSel.value;
+      if (!f) return null;
+      var quarter = f === "quarter";
+      if (quarter) f = "month";
+      if (f === "after") {
+        if (!anchorSel.value) return null;
+        var ra = { freq: "after", anchor: anchorSel.value, mode: aModeSel.value, interval: 1 };
+        if (ra.mode === "days") ra.days = Math.max(0, Math.min(365, parseInt(aDaysIn.value, 10) || 0)); else ra.weekday = Number(aWdSel.value);
+        return ra;
+      }
+      var r = { freq: f, interval: quarter ? 3 : Math.max(1, Math.min(99, parseInt(intIn.value, 10) || 1)) };
+      if (quarter) r.startMonth = Number(qSel.value);
+      if (f === "week") r.weekdays = wdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.wd); });
+      if (f === "month" || f === "year") {
+        r.monthMode = f === "year" && modeSel.value === "days" ? "date" : modeSel.value;
+        if (r.monthMode === "nth") { r.nth = Number(nthSel.value); r.weekday = Number(wdSel.value); }
+        else if (r.monthMode === "days") r.monthDays = mdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.d); }).sort(function (a, b) { return (a === -1 ? 99 : a) - (b === -1 ? 99 : b); });
+        else r.monthDay = Number(daySel.value);
+        if (f === "year") r.month = Number(monSel.value);
+      }
+      return r;
+    }
+    function update() {
+      var f = repSel.value;
+      box.hidden = !f;
+      if (!f) return;
+      var quarter = f === "quarter";
+      if (quarter && !qTouched) { var rd = parseDay(dateIn.value); if (rd) qSel.value = String(rd.getMonth() % 3); }
+      if (quarter) f = "month";
+      var aft = f === "after";
+      aRow.hidden = !aft;
+      aWdSel.hidden = aModeSel.value !== "weekday"; aDaysIn.hidden = aDaysLbl.hidden = aModeSel.value !== "days";
+      if (aft) {
+        intRow.hidden = true; qRow.hidden = true; wdRow.hidden = true; monRow.hidden = true; mdRow.hidden = true;
+        var ra = buildRule();
+        preview.textContent = "";
+        if (!ra) { preview.appendChild(el("div", null, "Elige después de qué tarjeta va.")); return; }
+        preview.appendChild(el("div", null, ruleText(ra)));
+        var st0 = parseDay(dateIn.value), ds0 = [], d0 = st0 || firstOnOrAfter(ra, parseDay(todayStr()));
+        for (var i0 = 0; i0 < 4 && d0; i0++) { ds0.push(d0); d0 = nextAfter(ra, d0, false); }
+        if (ds0.length) preview.appendChild(el("div", "dates", (st0 ? "Fechas: " : "Próximas fechas: ") + ds0.map(fmtShort).join(" · ")));
+        else preview.appendChild(el("div", "warn", "Esa tarjeta no tiene próximas entregas, así que no se puede calcular la fecha."));
+        if (!st0 && ds0[0]) preview.appendChild(el("div", null, o.firstText + fmtShort(ds0[0]) + "."));
+        if (st0) { var m0 = firstOnOrAfter(ra, st0); if (!m0 || fmt(m0) !== dateIn.value) preview.appendChild(el("div", "warn", "La fecha de entrega no coincide con esta regla. Se usa una vez y luego sigue la regla" + (m0 ? " (la que tocaría es el " + fmtShort(m0) + ")" : "") + ".")); }
+        return;
+      }
+      intRow.hidden = quarter;
+      qRow.hidden = !quarter;
+      var n = parseInt(intIn.value, 10) || 1;
+      unit.textContent = { day: ["día", "días"], week: ["semana", "semanas"], month: ["mes", "meses"], year: ["año", "años"] }[f][n === 1 ? 0 : 1];
+      wdRow.hidden = f !== "week";
+      monRow.hidden = !(f === "month" || f === "year");
+      if (f === "year" && modeSel.value === "days") modeSel.value = "date";
+      modeSel.querySelector('option[value="days"]').hidden = f === "year";
+      var nthMode = modeSel.value === "nth", daysMode = modeSel.value === "days";
+      daySel.hidden = nthMode || daysMode; nthSel.hidden = !nthMode; wdSel.hidden = !nthMode;
+      mdRow.hidden = !daysMode || !(f === "month");
+      ofLabel.hidden = monSel.hidden = f !== "year";
+
+      var r = buildRule();
+      preview.textContent = "";
+      preview.appendChild(el("div", null, ruleText(r)));
+      var start = parseDay(dateIn.value), dates = [];
+      var d = start || firstOnOrAfter(r, parseDay(todayStr()));
+      for (var i = 0; i < 4 && d; i++) { dates.push(d); d = nextAfter(r, d, false); }
+      preview.appendChild(el("div", "dates", (start ? "Fechas: " : "Próximas fechas: ") + dates.map(fmtShort).join(" · ")));
+      if (!start && dates[0]) preview.appendChild(el("div", null, o.firstText + fmtShort(dates[0]) + "."));
+      if (start) {
+        var m = firstOnOrAfter(r, start);
+        if (!m || fmt(m) !== dateIn.value) preview.appendChild(el("div", "warn", o.offText));
+      }
+      if (f !== "day" && f !== "week" && !nthMode && !daysMode && Number(daySel.value) > 28) preview.appendChild(el("div", null, "Los meses que no tienen ese día usan su último día."));
+      if (o.extra) o.extra(preview, r, dates);
+    }
+    repSel.addEventListener("change", function () {
+      if (repSel.value && !ruleValid(rule0)) {
+        var dd = defaults();
+        daySel.value = String(dd.monthDay); nthSel.value = String(dd.nth); wdSel.value = String(dd.weekday); monSel.value = String(dd.month);
+        if (!qTouched) qSel.value = String(dd.startMonth);
+        wdBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(Number(b.dataset.wd) === dd.weekdays[0])); });
+      }
+      update();
+    });
+    [intIn, modeSel, daySel, nthSel, wdSel, monSel, qSel, dateIn].forEach(function (c) { c.addEventListener("input", update); c.addEventListener("change", update); });
+    update();
+    return { el: fieldEl, box: box, sel: repSel, get: buildRule, update: update };
+  }
+
   function openEditor(t, preset) {
     var isNew = !t;
     t = t || Object.assign({ status: "todo", priority: "normal", labels: presetLabels() }, preset || {});
@@ -7010,231 +7230,27 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       updTitlePreview();
 
       /* --- repeat --- */
-      var refDate = function () { return parseDay(due.value) || parseDay(todayStr()); };
-      var defaults = function () {
-        var d = refDate(), nth = Math.ceil(d.getDate() / 7);
-        return { interval: 1, weekdays: [d.getDay()], monthMode: "date", monthDay: d.getDate(),
-          nth: nth > 4 ? -1 : nth, weekday: d.getDay(), month: d.getMonth(), startMonth: d.getMonth() % 3 };
-      };
-      var work = Object.assign(defaults(), ruleValid(t.repeat) ? JSON.parse(JSON.stringify(t.repeat)) : {});
-      var isQuarter = function (r) { return ruleValid(r) && r.freq === "month" && Number(r.interval) === 3; };
-      var repSel = select("f-rep", [
-        { value: "", label: "No se repite" }, { value: "day", label: "Cada día" }, { value: "week", label: "Cada semana" },
-        { value: "month", label: "Cada mes" }, { value: "quarter", label: "Cada trimestre" }, { value: "year", label: "Cada año" },
-        { value: "after", label: "Después de la entrega de otra tarjeta" }
-      ], ruleValid(t.repeat) ? (isQuarter(t.repeat) ? "quarter" : t.repeat.freq) : "");
-      p.appendChild(field("Se repite", repSel, "Cuando una tarea que se repite se marca como Hecho, la siguiente se agrega sola."));
-
-      var box = el("div", "repeat-box");
-      var intRow = el("div", "inline");
-      intRow.appendChild(el("span", null, "Cada"));
-      var intIn = input("f-int", String(work.interval || 1), "number");
-      intIn.min = "1"; intIn.max = "99"; intIn.setAttribute("aria-label", "Intervalo de repetición");
-      intRow.appendChild(intIn);
-      var unit = el("span");
-      intRow.appendChild(unit);
-      box.appendChild(intRow);
-
-      var wdRow = el("div", "wd-row");
-      wdRow.setAttribute("role", "group"); wdRow.setAttribute("aria-label", "Repetir estos días");
-      var wdBtns = WEEK_ORDER.map(function (wd) {
-        var b = el("button", "wd", WD_SHORT[wd]);
-        b.type = "button"; b.dataset.wd = wd; b.setAttribute("aria-label", cap(WD_LONG[wd]));
-        b.onclick = function () {
-          var on = b.getAttribute("aria-pressed") === "true";
-          var cur = wdBtns.filter(function (x) { return x.getAttribute("aria-pressed") === "true"; });
-          if (on && cur.length === 1) return; /* keep at least one day */
-          b.setAttribute("aria-pressed", String(!on)); update();
-        };
-        wdRow.appendChild(b);
-        return b;
-      });
-      box.appendChild(wdRow);
-
-      var monRow = el("div", "inline");
-      var modeSel = select("f-mmode", [{ value: "date", label: "El día" }, { value: "days", label: "Varios días" }, { value: "nth", label: "El" }], work.monthMode === "nth" || work.monthMode === "days" ? work.monthMode : "date");
-      modeSel.setAttribute("aria-label", "Patrón mensual");
-      var dayOpts = []; for (var di2 = 1; di2 <= 31; di2++) dayOpts.push({ value: String(di2), label: String(di2) });
-      dayOpts.push({ value: "-1", label: "último día" });
-      var daySel = select("f-mday", dayOpts, String(work.monthDay));
-      daySel.setAttribute("aria-label", "Día del mes");
-      var nthSel = select("f-nth", [{ value: "1", label: "primer" }, { value: "2", label: "segundo" }, { value: "3", label: "tercer" }, { value: "4", label: "cuarto" }, { value: "-1", label: "último" }], String(work.nth));
-      nthSel.setAttribute("aria-label", "Qué semana");
-      var wdSel = select("f-wday", WEEK_ORDER.map(function (wd) { return { value: String(wd), label: cap(WD_LONG[wd]) }; }), String(work.weekday));
-      wdSel.setAttribute("aria-label", "Día de la semana");
-      var ofLabel = el("span", null, "de");
-      var monSel = select("f-month", MONTHS_LONG.map(function (m, i) { return { value: String(i), label: cap(m) }; }), String(work.month));
-      monSel.setAttribute("aria-label", "Mes");
-      [modeSel, daySel, nthSel, wdSel, ofLabel, monSel].forEach(function (n) { monRow.appendChild(n); });
-      box.appendChild(monRow);
-
-      /* several days of each month (e.g. the 15th and the 30th) */
-      var mdRow = el("div", "md-box");
-      var mdGrid = el("div", "md-grid"); mdGrid.setAttribute("role", "group"); mdGrid.setAttribute("aria-label", "Días del mes");
-      var mdSel = (Array.isArray(work.monthDays) && work.monthDays.length ? work.monthDays : [Number(work.monthDay) || refDate().getDate()]).map(Number);
-      var mdBtns = [];
-      for (var md = 1; md <= 31; md++) mdBtns.push(md);
-      mdBtns.push(-1);
-      mdBtns = mdBtns.map(function (d) {
-        var b = el("button", "md" + (d === -1 ? " last" : ""), d === -1 ? "Último" : String(d));
-        b.type = "button"; b.dataset.d = d;
-        b.setAttribute("aria-label", d === -1 ? "Último día del mes" : "Día " + d);
-        b.setAttribute("aria-pressed", String(mdSel.indexOf(d) >= 0));
-        b.onclick = function () {
-          var on = b.getAttribute("aria-pressed") === "true";
-          if (on && mdBtns.filter(function (x) { return x.getAttribute("aria-pressed") === "true"; }).length === 1) return; /* keep at least one */
-          b.setAttribute("aria-pressed", String(!on)); update();
-        };
-        mdGrid.appendChild(b);
-        return b;
-      });
-      mdRow.appendChild(mdGrid);
-      mdRow.appendChild(el("div", "help", "Toca los días en que toca entregar. Si un mes no tiene ese día (por ejemplo, el 30 en febrero), se usa el último día de ese mes."));
-      box.appendChild(mdRow);
-
-      /* quarterly: which three-month cycle (the month of each quarter it falls in) */
-      var qRow = el("div", "inline");
-      qRow.appendChild(el("span", null, "En los meses"));
-      var qSel = select("f-qmonths", [0, 1, 2].map(function (k) { return { value: String(k), label: quarterMonths(k) }; }),
-        String(((Number(work.startMonth) || 0) % 3 + 3) % 3));
-      qSel.setAttribute("aria-label", "Meses de cada trimestre");
-      var qTouched = isQuarter(t.repeat) && t.repeat.startMonth != null;
-      qSel.addEventListener("change", function () { qTouched = true; });
-      qRow.appendChild(qSel);
-      box.appendChild(qRow);
-
-      /* after another card: which one, and when after it */
-      var aRow = el("div", "after-box");
-      var myKey = isNew ? "" : seriesKey(t);
-      var anchors = {};
-      (state.allTasks || state.tasks).forEach(function (o) {
-        var k = seriesKey(o);
-        if (o.trashed || k === myKey || !(ruleValid(o.repeat) || o.status !== "done")) return;
-        if (o.repeat && o.repeat.freq === "after" && o.repeat.anchor === myKey && myKey) return; /* no loops */
-        if (!anchors[k] || String(o.due || "") > String(anchors[k].due || "")) anchors[k] = o;
-      });
-      var aOpts = Object.keys(anchors).map(function (k) { return { value: k, label: plainTitle(anchors[k].title) || "Tarea sin título", rep: ruleValid(anchors[k].repeat) }; })
-        .sort(function (a, b) { return (b.rep ? 1 : 0) - (a.rep ? 1 : 0) || a.label.localeCompare(b.label, "es"); });
-      if (work.anchor && !anchors[work.anchor]) aOpts.unshift({ value: work.anchor, label: seriesName(work.anchor) });
-      var anchorSel = select("f-anchor", [{ value: "", label: "Elige la tarjeta…" }].concat(aOpts.map(function (o) { return { value: o.value, label: o.label + (o.rep ? " ↻" : "") }; })), work.anchor || "");
-      anchorSel.setAttribute("aria-label", "Después de qué tarjeta");
-      var aLine1 = el("div", "inline"); aLine1.appendChild(el("span", null, "Después de la entrega de")); aLine1.appendChild(anchorSel);
-      var aModeSel = select("f-amode", [{ value: "weekday", label: "El siguiente" }, { value: "days", label: "A los" }], work.mode === "days" ? "days" : "weekday");
-      aModeSel.setAttribute("aria-label", "Cuándo después");
-      var aWdSel = select("f-awday", WEEK_ORDER.map(function (wd) { return { value: String(wd), label: WD_LONG[wd] }; }), String(work.freq === "after" && work.weekday != null ? work.weekday : 5));
-      aWdSel.setAttribute("aria-label", "Día de la semana");
-      var aDaysIn = input("f-adays", String(work.days != null && work.freq === "after" ? work.days : 4), "number"); aDaysIn.min = "0"; aDaysIn.max = "365";
-      aDaysIn.setAttribute("aria-label", "Días después");
-      var aDaysLbl = el("span", null, "días");
-      var aLine2 = el("div", "inline"); [aModeSel, aWdSel, aDaysIn, aDaysLbl].forEach(function (n) { aLine2.appendChild(n); });
-      aRow.appendChild(aLine1); aRow.appendChild(aLine2);
-      aRow.appendChild(el("div", "help", "Cada vez que se entrega esa tarjeta, esta queda para la fecha que elijas después. Si la otra cambia de fecha, esta se mueve con ella."));
-      box.appendChild(aRow);
-      [anchorSel, aModeSel, aWdSel, aDaysIn].forEach(function (c) { c.addEventListener("input", function () { update(); }); c.addEventListener("change", function () { update(); }); });
-
-      var preview = el("div", "preview");
-      box.appendChild(preview);
-      p.appendChild(box);
-
-      wdBtns.forEach(function (b) { b.setAttribute("aria-pressed", String((work.weekdays || []).map(Number).indexOf(Number(b.dataset.wd)) >= 0)); });
-
-      function buildRule() {
-        var f = repSel.value;
-        if (!f) return null;
-        var quarter = f === "quarter";
-        if (quarter) f = "month";
-        if (f === "after") {
-          if (!anchorSel.value) return null;
-          var ra = { freq: "after", anchor: anchorSel.value, mode: aModeSel.value, interval: 1 };
-          if (ra.mode === "days") ra.days = Math.max(0, Math.min(365, parseInt(aDaysIn.value, 10) || 0)); else ra.weekday = Number(aWdSel.value);
-          return ra;
-        }
-        var r = { freq: f, interval: quarter ? 3 : Math.max(1, Math.min(99, parseInt(intIn.value, 10) || 1)) };
-        if (quarter) r.startMonth = Number(qSel.value);
-        if (f === "week") r.weekdays = wdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.wd); });
-        if (f === "month" || f === "year") {
-          r.monthMode = f === "year" && modeSel.value === "days" ? "date" : modeSel.value;
-          if (r.monthMode === "nth") { r.nth = Number(nthSel.value); r.weekday = Number(wdSel.value); }
-          else if (r.monthMode === "days") r.monthDays = mdBtns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return Number(b.dataset.d); }).sort(function (a, b) { return (a === -1 ? 99 : a) - (b === -1 ? 99 : b); });
-          else r.monthDay = Number(daySel.value);
-          if (f === "year") r.month = Number(monSel.value);
-        }
-        return r;
-      }
-      function update() {
-        var f = repSel.value;
-        box.hidden = !f;
-        if (!f) return;
-        var quarter = f === "quarter";
-        if (quarter && !qTouched) { var rd = parseDay(due.value); if (rd) qSel.value = String(rd.getMonth() % 3); }
-        if (quarter) f = "month";
-        var aft = f === "after";
-        aRow.hidden = !aft;
-        aWdSel.hidden = aModeSel.value !== "weekday"; aDaysIn.hidden = aDaysLbl.hidden = aModeSel.value !== "days";
-        if (aft) {
-          intRow.hidden = true; qRow.hidden = true; wdRow.hidden = true; monRow.hidden = true; mdRow.hidden = true;
-          var ra = buildRule();
-          preview.textContent = "";
-          if (!ra) { preview.appendChild(el("div", null, "Elige después de qué tarjeta va.")); return; }
-          preview.appendChild(el("div", null, ruleText(ra)));
-          var st0 = parseDay(due.value), ds0 = [], d0 = st0 || firstOnOrAfter(ra, parseDay(todayStr()));
-          for (var i0 = 0; i0 < 4 && d0; i0++) { ds0.push(d0); d0 = nextAfter(ra, d0, false); }
-          if (ds0.length) preview.appendChild(el("div", "dates", (st0 ? "Fechas: " : "Próximas fechas: ") + ds0.map(fmtShort).join(" · ")));
-          else preview.appendChild(el("div", "warn", "Esa tarjeta no tiene próximas entregas, así que no se puede calcular la fecha."));
-          if (!st0 && ds0[0]) preview.appendChild(el("div", null, "Al guardar, la fecha de entrega quedará para el " + fmtShort(ds0[0]) + "."));
-          if (st0) { var m0 = firstOnOrAfter(ra, st0); if (!m0 || fmt(m0) !== due.value) preview.appendChild(el("div", "warn", "La fecha de entrega no coincide con esta regla. Se usa una vez y luego sigue la regla" + (m0 ? " (la que tocaría es el " + fmtShort(m0) + ")" : "") + ".")); }
-          return;
-        }
-        intRow.hidden = quarter;
-        qRow.hidden = !quarter;
-        var n = parseInt(intIn.value, 10) || 1;
-        unit.textContent = { day: ["día", "días"], week: ["semana", "semanas"], month: ["mes", "meses"], year: ["año", "años"] }[f][n === 1 ? 0 : 1];
-        wdRow.hidden = f !== "week";
-        monRow.hidden = !(f === "month" || f === "year");
-        if (f === "year" && modeSel.value === "days") modeSel.value = "date";
-        modeSel.querySelector('option[value="days"]').hidden = f === "year";
-        var nthMode = modeSel.value === "nth", daysMode = modeSel.value === "days";
-        daySel.hidden = nthMode || daysMode; nthSel.hidden = !nthMode; wdSel.hidden = !nthMode;
-        mdRow.hidden = !daysMode || !(f === "month");
-        ofLabel.hidden = monSel.hidden = f !== "year";
-
-        var r = buildRule();
-        preview.textContent = "";
-        preview.appendChild(el("div", null, ruleText(r)));
-        var start = parseDay(due.value), dates = [];
-        var d = start || firstOnOrAfter(r, parseDay(todayStr()));
-        for (var i = 0; i < 4 && d; i++) { dates.push(d); d = nextAfter(r, d, false); }
-        preview.appendChild(el("div", "dates", (start ? "Fechas: " : "Próximas fechas: ") + dates.map(fmtShort).join(" · ")));
-        if (!start && dates[0]) preview.appendChild(el("div", null, "Al guardar, la fecha de entrega quedará para el " + fmtShort(dates[0]) + "."));
-        if (start) {
-          var m = firstOnOrAfter(r, start);
-          if (!m || fmt(m) !== due.value) preview.appendChild(el("div", "warn", "La fecha de entrega no cae en este patrón. Se usa una vez y luego sigue el patrón."));
-        }
-        if (f !== "day" && f !== "week" && !nthMode && !daysMode && Number(daySel.value) > 28) preview.appendChild(el("div", null, "Los meses que no tienen ese día usan su último día."));
-        var tv = title.value.trim(), cur0 = parseDay(due.value) || dates[0];
-        if (tv && cur0) {
+      var rep = repeatField(t.repeat, due, {
+        id: "f", after: true, myKey: isNew ? "" : seriesKey(t),
+        help: "Cuando una tarea que se repite se marca como Hecho, la siguiente se agrega sola.",
+        mdHelp: "Toca los días en que toca entregar.",
+        firstText: "Al guardar, la fecha de entrega quedará para el ",
+        offText: "La fecha de entrega no cae en este patrón. Se usa una vez y luego sigue el patrón.",
+        extra: function (preview, r, dates) {
+          var tv = title.value.trim(), cur0 = parseDay(due.value) || dates[0];
+          if (!tv || !cur0) return;
           var nd = parseDay(nextDueAfterDone(r, fmt(cur0)));
-          if (nd) {
-            var nx = el("div", "next-name");
-            nx.appendChild(document.createTextNode("Al marcarla como hecha se agrega "));
-            nx.appendChild(el("b", null, "«" + renderTitle(nameForNext(tv, fmt(cur0)), fmt(nd)) + "»"));
-            nx.appendChild(document.createTextNode(" para el " + fmtShort(nd) + "."));
-            preview.appendChild(nx);
-          }
+          if (!nd) return;
+          var nx = el("div", "next-name");
+          nx.appendChild(document.createTextNode("Al marcarla como hecha se agrega "));
+          nx.appendChild(el("b", null, "«" + renderTitle(nameForNext(tv, fmt(cur0)), fmt(nd)) + "»"));
+          nx.appendChild(document.createTextNode(" para el " + fmtShort(nd) + "."));
+          preview.appendChild(nx);
         }
-      }
-      title.addEventListener("input", function () { if (repSel.value) update(); });
-      repSel.addEventListener("change", function () {
-        if (repSel.value && !ruleValid(t.repeat)) {
-          var dd = defaults();
-          daySel.value = String(dd.monthDay); nthSel.value = String(dd.nth); wdSel.value = String(dd.weekday); monSel.value = String(dd.month);
-          if (!qTouched) qSel.value = String(dd.startMonth);
-          wdBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(Number(b.dataset.wd) === dd.weekdays[0])); });
-        }
-        update();
       });
-      [intIn, modeSel, daySel, nthSel, wdSel, monSel, qSel, due].forEach(function (c) { c.addEventListener("input", update); c.addEventListener("change", update); });
-      update();
+      var buildRule = rep.get;
+      p.appendChild(rep.el); p.appendChild(rep.box);
+      title.addEventListener("input", function () { if (rep.sel.value) rep.update(); });
 
 
       var client = input("f-client", t.client);
@@ -8510,6 +8526,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function linkContactToMeeting(meetingId, contactIds) {
     var m = findMeeting(meetingId); if (!m || !state.db) return Promise.resolve();
+    if (m._series) {
+      var all = (m.contactIds || []).slice();
+      (contactIds || []).forEach(function (id) { if (all.indexOf(id) < 0) all.push(id); });
+      return detachOccurrence(m, { contactIds: all });
+    }
     var ids = (m.contactIds || []).slice();
     contactIds.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
     if (ids.length === (m.contactIds || []).length) return Promise.resolve();
@@ -9061,7 +9082,63 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   var MSTATUS = [{ value: "scheduled", label: "Programada" }, { value: "done", label: "Realizada" }, { value: "cancelled", label: "Cancelada" }];
   var MODE_ICON = { presencial: "pin", video: "video", llamada: "phone" };
 
-  function findMeeting(id) { for (var i = 0; i < state.meetings.length; i++) if (state.meetings[i].id === id) return state.meetings[i]; return null; }
+  /* A recurring meeting is one saved row with `repeat` (the same rules as tasks), `until` (last day, or "") and `skip` (dates
+     taken out). The calendar sees one meeting per date, with id "<row id>@<date>" and `_series`. Changing a single date
+     saves it as its own row with `seriesId` and `occ` (the date it replaced) and adds that date to `skip`. */
+  state.meetingDocs = [];
+  function isSeries(m) { return !!(m && ruleValid(m.repeat) && m.repeat.freq !== "after"); }
+  function expandMeetings(docs) {
+    var out = [], today = parseDay(todayStr()), from = fmt(addDays(today, -400)), to = fmt(addDays(today, 730));
+    docs.forEach(function (m) {
+      if (!isSeries(m)) { out.push(m); return; }
+      var d = parseDay(m.date); if (!d) return;
+      var skip = Array.isArray(m.skip) ? m.skip : [], last = m.until && m.until >= m.date ? m.until : to;
+      var span = isMultiDay(m) ? Math.round((parseDay(mEnd(m)) - d) / 86400000) : 0;
+      for (var n = 0; d && n < 3000; n++) {
+        var ds = fmt(d);
+        if (ds > last || ds > to) break;
+        if (ds >= from && skip.indexOf(ds) < 0) {
+          var o = Object.assign({}, m, { id: m.id + "@" + ds, date: ds, _series: m.id });
+          if (span) o.endDate = fmt(addDays(d, span));
+          out.push(o);
+        }
+        d = nextAfter(m.repeat, d, false);
+      }
+    });
+    return out;
+  }
+  function findMeetingDoc(id) { for (var i = 0; i < state.meetingDocs.length; i++) if (state.meetingDocs[i].id === id) return state.meetingDocs[i]; return null; }
+  /* only the next date of each recurring meeting (or its latest one), for lists and search */
+  function onePerSeries(list) {
+    var pick = {};
+    list.forEach(function (m) {
+      if (!m._series) return;
+      var p = pick[m._series], up = isUpcoming(m), pu = p && isUpcoming(p);
+      if (!p || (up && (!pu || whenKey(m) < whenKey(p))) || (!up && !pu && whenKey(m) > whenKey(p))) pick[m._series] = m;
+    });
+    return list.filter(function (m) { return !m._series || pick[m._series] === m; });
+  }
+  function findMeeting(id) {
+    for (var i = 0; i < state.meetings.length; i++) if (state.meetings[i].id === id) return state.meetings[i];
+    var s = onePerSeries(state.meetings.filter(function (m) { return m._series === id; }))[0];
+    return s || findMeetingDoc(id);
+  }
+  function meetingData(m) { var d = Object.assign({}, m); delete d.id; delete d._series; delete d._deleted; return d; }
+  /* one date of a recurring meeting becomes its own row; the series skips that date */
+  function detachOccurrence(m, data) {
+    var s = findMeetingDoc(m._series);
+    if (!s) return Promise.reject(new Error("serie no encontrada"));
+    var own = Object.assign(meetingData(m), data || {}, { seriesId: s.id, occ: m.date, updatedAt: new Date().toISOString() });
+    delete own.repeat; delete own.until; delete own.skip;
+    var id = state.db.collection("meetings").doc().id;
+    var sd = meetingData(s); sd.skip = (Array.isArray(s.skip) ? s.skip : []).concat([m.date]);
+    return saveMeeting(id, own).then(function () { return saveMeeting(s.id, sd); }).then(function () { return id; });
+  }
+  function seriesText(m) {
+    if (isSeries(m)) return ruleText(m.repeat) + (m.until ? ", hasta el " + fmtShort(parseDay(m.until)) : "");
+    var s = m && m.seriesId && findMeetingDoc(m.seriesId);
+    return s && isSeries(s) ? "Cambiada solo esta vez (" + ruleText(s.repeat).charAt(0).toLowerCase() + ruleText(s.repeat).slice(1) + ")" : "";
+  }
   function byStart(a, b) { return String(a.start || "99:99").localeCompare(String(b.start || "99:99")); }
   function whenKey(m) { return (m.date || "") + " " + (m.start || "99:99"); }
   function nowHM() { var d = new Date(); return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
@@ -9104,7 +9181,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       .sort(function (a, b) { return whenKey(a).localeCompare(whenKey(b)); })[0] || null;
   }
   function meetingsFor(cid) {
-    return state.meetings.filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0; })
+    return onePerSeries(state.meetings).filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0; })
       .sort(function (a, b) { return whenKey(b).localeCompare(whenKey(a)); });
   }
   function inviteText(m) {
@@ -9124,6 +9201,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var mls = meetingLabels(m).map(labelById).filter(Boolean);
     if (mls.length) { var dts = el("span", "cdots"); mls.slice(0, 3).forEach(function (l) { dts.appendChild(el("i", "cdot lb-" + colorKey(l.color))); }); c.appendChild(dts); }
     if (m.start && (!multi || ds === m.date)) c.appendChild(el("b", "mtime", m.start));
+    if (m._series) { var ri = icon("repeat"); ri.classList.add("crep"); c.appendChild(ri); c.title += " · " + seriesText(m); }
     c.appendChild(el("span", null, meetingTitle(m)));
     c.addEventListener("click", function (e) { if (isPhone()) return; e.stopPropagation(); openMeeting(m); });
     if (state.canWrite) {
@@ -9171,6 +9249,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var where = m.mode === "video" ? (m.link ? "Videollamada · " + m.link.replace(/^https?:\/\//, "") : "Videollamada") : m.mode === "llamada" ? "Llamada" : (m.place || "Presencial");
     var row = el("div", "mrow"); row.appendChild(icon(MODE_ICON[m.mode] || "pin")); row.appendChild(el("span", null, where));
     body.appendChild(row);
+    var stx = seriesText(m);
+    if (stx) { var rr = el("div", "mrow"); rr.appendChild(icon("repeat")); rr.appendChild(el("span", null, stx)); body.appendChild(rr); }
     var ppl = meetingContacts(m);
     var team = (m.team || []).filter(function (k) { return member(k); });
     if (ppl.length || team.length || m.others) {
@@ -9237,6 +9317,21 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var data = Object.assign({}, m, { date: ds, updatedAt: new Date().toISOString() }); delete data.id;
     if (isMultiDay(m)) { var shift = Math.round((parseDay(ds) - parseDay(m.date)) / 86400000); data.endDate = fmt(addDays(parseDay(mEnd(m)), shift)); }
     if (newStart !== m.start) { var len = m.end ? minutesBetween(m.start, m.end) : 60; data.start = newStart; data.end = m.end ? addMinutes(newStart, len > 0 ? len : 60) : ""; }
+    if (m._series) {
+      /* dragging one date of a recurring meeting moves only that date */
+      detachOccurrence(m, { date: data.date, endDate: data.endDate || "", start: data.start, end: data.end }).then(function (nid) {
+        logEntry({ action: "meeting_edit", meetingId: nid, title: meetingTitle(m), changes: [{ f: "mdate", from: from, to: ds }] });
+        toast("Solo esta reunión se movió al " + fmtShort(parseDay(ds)), function () {
+          var s = findMeetingDoc(m._series);
+          state.db.doc("meetings/" + nid).delete().then(function () {
+            if (!s) return;
+            var sd = meetingData(s); sd.skip = (sd.skip || []).filter(function (x) { return x !== from; });
+            return saveMeeting(s.id, sd);
+          }).then(function () { toast("Deshecho"); }).catch(handleWriteError);
+        });
+      }).catch(handleWriteError);
+      return;
+    }
     saveMeeting(m.id, data).then(function () {
       logEntry({ action: "meeting_edit", meetingId: m.id, title: meetingTitle(m), changes: [{ f: "mdate", from: from, to: ds }] });
       toast("Reunión movida al " + fmtShort(parseDay(ds)), function () {
@@ -9257,6 +9352,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ro = !state.canWrite;
     var chosen = (m.contactIds || []).filter(function (id) { return findContact(id); });
     var conflictArmed = false;
+    var series = m._series ? findMeetingDoc(m._series) : null;
     openPanel(function (p) {
       var startKind = isEvent(m) ? "event" : "meeting";
       p.setAttribute("aria-label", isNew ? (startKind === "event" ? "Nuevo evento" : "Nueva reunión") : meetingTitle(m));
@@ -9327,6 +9423,26 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var timeHelp = el("div", "help m-timehelp", "Deja la hora vacía si dura todo el día. Al cambiar el inicio, el final se mueve con él.");
       p.appendChild(timeHelp);
       if (isNew && startKind === "event" && !(preset && preset.start)) { startIn.value = ""; endIn.value = ""; }
+
+      /* repeat: the same choices as tasks; a date changed on its own stays out of it */
+      var mrep = null, untilIn = null;
+      if (m.seriesId && findMeetingDoc(m.seriesId)) {
+        p.appendChild(el("div", "help", seriesText(m) + ". Lo que cambies aquí no toca las demás fechas."));
+      } else {
+        mrep = repeatField(series ? series.repeat : m.repeat, dateIn, {
+          id: "m", help: "Para reuniones fijas, como la semanal del equipo. Se ven en todas sus fechas del calendario.",
+          mdHelp: "Toca los días en que hay reunión.",
+          firstText: "Empieza el ",
+          offText: "La fecha no cae en este patrón. Esa reunión se hace igual y luego sigue el patrón."
+        });
+        untilIn = input("m-until", (series || m).until || "", "date");
+        untilIn.setAttribute("aria-label", "Repetir hasta");
+        var untilRow = el("div", "inline until-row");
+        untilRow.appendChild(el("span", null, "Hasta el")); untilRow.appendChild(untilIn);
+        untilRow.appendChild(el("span", "help", "Vacío: sigue sin fecha de fin."));
+        mrep.box.insertBefore(untilRow, mrep.box.lastChild);
+        p.appendChild(mrep.el); p.appendChild(mrep.box);
+      }
       dateIn.addEventListener("change", function () { if (endDateIn.value && endDateIn.value < dateIn.value) endDateIn.value = dateIn.value; endDateIn.min = dateIn.value; });
       endDateIn.min = dateIn.value;
       function syncKind() {
@@ -9432,6 +9548,26 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
       var warn = el("div", "dupwarn"); warn.hidden = true; warn.setAttribute("role", "alert");
       p.appendChild(warn);
+      /* a recurring meeting asks whether a change is for this date only or from here on */
+      var scope = el("div", "dupwarn"); scope.hidden = true; scope.setAttribute("role", "alert");
+      p.appendChild(scope);
+      function askScope(q, onPick) {
+        scope.textContent = "";
+        scope.appendChild(el("span", null, q));
+        var row = el("div", "scope-btns");
+        [["one", "Solo esta", "btn primary"], ["following", "Esta y las siguientes", "btn"]].forEach(function (o) {
+          var b = el("button", o[2], o[1]); b.type = "button";
+          b.onclick = function () { scope.hidden = true; onPick(o[0]); };
+          row.appendChild(b);
+        });
+        var back = el("button", "btn", "Volver"); back.type = "button";
+        back.onclick = function () { scope.hidden = true; };
+        row.appendChild(back);
+        scope.appendChild(row);
+        scope.hidden = false;
+        scope.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "nearest" });
+        row.firstChild.focus();
+      }
 
       if (ro) Array.prototype.forEach.call(p.querySelectorAll("input, select, textarea, .seg button"), function (x) { x.disabled = true; });
 
@@ -9483,14 +9619,43 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
               return;
             }
           }
-          save.disabled = true;
-          var id = isNew ? state.db.collection("meetings").doc().id : m.id;
-          saveMeeting(id, data).then(function () {
+          var rule = mrep ? mrep.get() : null;
+          if (rule && rule.freq !== "after") {
+            data.repeat = rule; data.until = untilIn.value && untilIn.value >= data.date ? untilIn.value : ""; data.skip = [];
+          }
+          if (m.seriesId) { data.seriesId = m.seriesId; data.occ = m.occ || m.date; }
+          var after = function (id) {
             logEntry({ action: isNew ? "meeting_create" : "meeting_edit", meetingId: id, title: title });
             closePanel();
             if (state.view === "cal") { state.calSel = data.date; var dd = parseDay(data.date); state.calMonth = new Date(dd.getFullYear(), dd.getMonth(), 1); renderCal(); }
-            toast(isNew ? (isEv ? "Evento guardado: " + rangeLabel(data) : "Reunión agendada para el " + fmtShort(parseDay(data.date)) + (st ? " a las " + st : "")) : "Cambios guardados");
-          }).catch(function (e) { save.disabled = false; handleWriteError(e); });
+            toast(isNew ? (isEv ? "Evento guardado: " + rangeLabel(data) : (data.repeat ? "Reunión agendada: " + ruleText(data.repeat).charAt(0).toLowerCase() + ruleText(data.repeat).slice(1) : "Reunión agendada para el " + fmtShort(parseDay(data.date))) + (st ? " a las " + st : "")) : "Cambios guardados");
+          };
+          var fail = function (e) { save.disabled = false; handleWriteError(e); };
+          if (!series) {
+            if (!isNew && isSeries(m) && data.repeat) data.skip = (m.skip || []).slice();
+            save.disabled = true;
+            var id = isNew ? state.db.collection("meetings").doc().id : m.id;
+            saveMeeting(id, data).then(function () { after(id); }).catch(fail);
+            return;
+          }
+          /* one date of a recurring meeting */
+          var ruleChanged = JSON.stringify(data.repeat || null) !== JSON.stringify(series.repeat) || (data.until || "") !== (series.until || "");
+          var following = function () {
+            save.disabled = true;
+            if (data.repeat) data.skip = (series.skip || []).filter(function (x) { return x >= m.date; });
+            if (m.date === series.date) { data.createdAt = series.createdAt || now; saveMeeting(series.id, data).then(function () { after(series.id); }).catch(fail); return; }
+            var nid = state.db.collection("meetings").doc().id;
+            data.createdAt = now;
+            var old = meetingData(series); old.until = fmt(addDays(parseDay(m.date), -1)); old.updatedAt = now;
+            saveMeeting(nid, data).then(function () { return saveMeeting(series.id, old); }).then(function () { after(nid); }).catch(fail);
+          };
+          if (ruleChanged) { following(); return; }
+          askScope("«" + meetingTitle(series) + "» se repite. ¿Guardas el cambio solo para el " + fmtShort(parseDay(m.date)) + " o también para las siguientes?", function (k) {
+            if (k === "following") { following(); return; }
+            save.disabled = true;
+            var one = Object.assign({}, data); delete one.repeat; delete one.until; delete one.skip;
+            detachOccurrence(m, one).then(after).catch(fail);
+          });
         };
         acts.appendChild(save);
       }
@@ -9505,6 +9670,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
             setTimeout(function () { if (del.isConnected) { del.classList.remove("armed"); del.textContent = "Borrar"; } }, 4000);
             return;
           }
+          if (series) {
+            del.classList.remove("armed"); del.textContent = "Borrar";
+            askScope("¿Borras solo la del " + fmtShort(parseDay(m.date)) + " o también las siguientes?", function (k) { del.disabled = true; deleteFromSeries(k); });
+            return;
+          }
           del.disabled = true;
           var copy = Object.assign({}, m); delete copy.id; delete copy._deleted;
           state.db.doc("meetings/" + m.id).delete().then(function () {
@@ -9514,6 +9684,31 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
               saveMeeting(m.id, copy).then(function () {
                 logEntry({ action: "meeting_restore", meetingId: m.id, title: meetingTitle(m) });
                 toast("Reunión restaurada");
+              }).catch(handleWriteError);
+            });
+          }).catch(function (e) { del.disabled = false; handleWriteError(e); });
+        };
+        /* "one": the series skips this date. "following": the series ends the day before (or goes, if this is its first date),
+           along with dates of it that were changed on their own from here on. Undo puts every row back as it was. */
+        var deleteFromSeries = function (k) {
+          var before = meetingData(series), gone = [], job;
+          if (k === "one") {
+            var sd = meetingData(series); sd.skip = (series.skip || []).concat([m.date]);
+            job = saveMeeting(series.id, sd);
+          } else {
+            gone = state.meetingDocs.filter(function (x) { return x.seriesId === series.id && (x.occ || x.date) >= m.date; });
+            var drop = gone.map(function (x) { return state.db.doc("meetings/" + x.id).delete(); });
+            if (m.date === series.date) drop.push(state.db.doc("meetings/" + series.id).delete());
+            else { var sd2 = meetingData(series); sd2.until = fmt(addDays(parseDay(m.date), -1)); drop.push(saveMeeting(series.id, sd2)); }
+            job = Promise.all(drop);
+          }
+          job.then(function () {
+            logEntry({ action: "meeting_delete", meetingId: series.id, title: meetingTitle(m) });
+            closePanel();
+            toast(k === "one" ? "Se borró la reunión del " + fmtShort(parseDay(m.date)) : "Se borraron las reuniones desde el " + fmtShort(parseDay(m.date)), function () {
+              Promise.all([saveMeeting(series.id, before)].concat(gone.map(function (x) { return saveMeeting(x.id, meetingData(x)); }))).then(function () {
+                logEntry({ action: "meeting_restore", meetingId: series.id, title: meetingTitle(m) });
+                toast("Reuniones restauradas");
               }).catch(handleWriteError);
             });
           }).catch(function (e) { del.disabled = false; handleWriteError(e); });
@@ -10046,7 +10241,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       render();
     });
     db.collection("meetings").onSnapshot(function (snap) {
-      state.meetings = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.meetingDocs = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
+      state.meetings = expandMeetings(state.meetingDocs);
       renderHero(); renderCal(); renderContacts(); renderHome();
     });
     db.collection("docs").onSnapshot(function (snap) {
