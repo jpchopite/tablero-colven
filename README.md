@@ -58,3 +58,12 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 
 El botón «Opciones» del encabezado reúne el tema (claro, oscuro o igual que el dispositivo), cambiar de persona, equipo y nombre del tablero, actualizar datos, instalar la app, atajos de teclado y «Acerca de».
 El botón de sol o luna cambia entre modo claro y oscuro. La elección se guarda en cada dispositivo (`tb-theme` en el navegador); sin elección, el tablero sigue el modo del dispositivo.
+
+## Reuniones que se repiten
+
+Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: cada día, semana, mes (también «Varios días» o «el cuarto lunes»), trimestre o año, con una fecha final opcional.
+
+- Se guarda una sola fila en `meetings` con `repeat` (la regla), `until` (último día o vacío) y `skip` (fechas quitadas). La página muestra una reunión por fecha.
+- Al cambiar o borrar una fecha se pregunta «Solo esta» o «Esta y las siguientes». «Solo esta» guarda esa fecha como fila propia con `seriesId` y `occ` (la fecha original) y la agrega a `skip`; así cada fecha puede tener sus propios acuerdos. «Esta y las siguientes» cierra la serie el día anterior (`until`) y empieza una nueva.
+- Arrastrar una fecha en el calendario mueve solo esa fecha.
+- No hizo falta cambiar Supabase: todo vive en el JSON de cada reunión.
