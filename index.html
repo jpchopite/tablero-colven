@@ -2392,10 +2392,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- name placeholders: [Semana], [Mes], [Año], [Trimestre] take their value from the due date ---------- */
   var TOKEN_TEST = /\[(semana|mes|a[ñn]o|trimestre)\]/i;
-  /* week of the month as the calendar shows it: rows that start on Monday */
-  function weekOfMonth(d) {
-    var first = new Date(d.getFullYear(), d.getMonth(), 1);
-    return Math.floor((d.getDate() - 1 + mIdx(first.getDay())) / 7) + 1;
+  /* week of the year, ISO 8601: weeks start on Monday and week 1 is the one with the year's first Thursday */
+  function weekOfYear(d) {
+    var thu = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 3 - mIdx(d.getDay()));
+    return Math.floor(Math.round((thu - new Date(thu.getFullYear(), 0, 1)) / 864e5) / 7) + 1;
   }
   function renderTitle(raw, dueStr) {
     raw = String(raw || "");
@@ -2403,7 +2403,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (!d || !TOKEN_TEST.test(raw)) return raw;
     return raw.replace(/\[(semana|mes|a[ñn]o|trimestre)\]/gi, function (_, k) {
       k = k.toLowerCase();
-      if (k === "semana") return String(weekOfMonth(d));
+      if (k === "semana") return String(weekOfYear(d));
       if (k === "mes") return cap(MONTHS_LONG[d.getMonth()]);
       if (k === "trimestre") return String(Math.floor(d.getMonth() / 3) + 1);
       return String(d.getFullYear());
@@ -2413,7 +2413,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function quarterMonths(sm) { return [0, 3, 6, 9].map(function (k) { return MONTHS[(Number(sm) + k) % 12]; }).join(", "); }
   /* Name for the next card of a repeating series. Placeholders are kept as they are. A name written
      without them, like "Cierre Octubre" or "Informe Semana 3", has the parts that match the finished
-     card's due date (its month, week of the month, quarter or year) turned into placeholders, so the
+     card's due date (its month, week of the year, quarter or year) turned into placeholders, so the
      next card shows its own month or week instead of repeating the old one. */
   var LETTER = "A-Za-zÀ-ÖØ-öø-ÿ";
   function nameForNext(raw, dueStr) {
@@ -2424,7 +2424,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var mName = MONTHS_LONG[d.getMonth()], alts = mName === "septiembre" ? "septiembre|setiembre" : mName;
     out = out.replace(new RegExp(nb + "(" + alts + ")" + na, "i"), function (_, pre) { return pre + "[Mes]"; });
     out = out.replace(new RegExp(nb + "(" + MONTHS[d.getMonth()] + "\\.?)(?=\\s*(?:\\d{4}|$))", "i"), function (_, pre) { return pre + "[Mes]"; });
-    out = out.replace(new RegExp(nb + "(semana|sem\\.?)(\\s*)" + weekOfMonth(d) + "(?!\\d)", "i"), function (_, pre, w, sp) { return pre + w + sp + "[Semana]"; });
+    out = out.replace(new RegExp(nb + "(semana|sem\\.?)(\\s*)" + weekOfYear(d) + "(?!\\d)", "i"), function (_, pre, w, sp) { return pre + w + sp + "[Semana]"; });
     var q = Math.floor(d.getMonth() / 3) + 1;
     out = out.replace(new RegExp(nb + "(trimestre)(\\s*)" + q + "(?!\\d)", "i"), function (_, pre, w, sp) { return pre + w + sp + "[Trimestre]"; });
     out = out.replace(new RegExp(nb + "([TQ])" + q + "(?!\\d)"), function (_, pre, w) { return pre + w + "[Trimestre]"; });
@@ -7173,7 +7173,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       /* placeholders: tap to insert, with a live preview of the name the card will show */
       var tokRow = el("div", "tokrow");
       tokRow.appendChild(el("span", "toklbl", "Agregar al nombre:"));
-      [["[Semana]", "número de semana del mes"], ["[Mes]", "mes de entrega"], ["[Año]", "año"], ["[Trimestre]", "trimestre (1 a 4)"]].forEach(function (tk) {
+      [["[Semana]", "número de semana del año"], ["[Mes]", "mes de entrega"], ["[Año]", "año"], ["[Trimestre]", "trimestre (1 a 4)"]].forEach(function (tk) {
         var b = el("button", "tok", tk[0]); b.type = "button"; b.title = "Se reemplaza por el " + tk[1];
         b.disabled = ro;
         b.onclick = function () {
