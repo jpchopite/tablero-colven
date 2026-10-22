@@ -67,3 +67,11 @@ Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: 
 - Al cambiar o borrar una fecha se pregunta «Solo esta» o «Esta y las siguientes». «Solo esta» guarda esa fecha como fila propia con `seriesId` y `occ` (la fecha original) y la agrega a `skip`; así cada fecha puede tener sus propios acuerdos. «Esta y las siguientes» cierra la serie el día anterior (`until`) y empieza una nueva.
 - Arrastrar una fecha en el calendario mueve solo esa fecha.
 - No hizo falta cambiar Supabase: todo vive en el JSON de cada reunión.
+
+## Notas y pedidos
+
+La sección «Notas» (`#notas`) guarda lo que pide el director y lo que hay que recordar, para que no se pierda en el chat.
+
+- Se apunta desde la misma sección, desde «Pedidos y notas» en Inicio, con el botón + («Apuntar nota o pedido») o con la tecla <kbd>A</kbd> en cualquier sección.
+- Cada nota es «Pedido del director» o «Nota», y está pendiente o resuelta. «Convertir en tarea» abre una tarea nueva con el texto; al guardarla, la nota queda resuelta y muestra el enlace a la tarea y su estado.
+- No hizo falta cambiar Supabase: cada nota es una fila de `meetings` con `kind: "note"` y sin fecha (así el calendario y la suscripción al calendario no la muestran). La página las separa de las reuniones al cargar.
