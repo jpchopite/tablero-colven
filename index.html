@@ -4261,8 +4261,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var bits = [];
         if (done) bits.push("Entregado" + (t.doneAt && !isNaN(new Date(t.doneAt)) ? " el " + fmtShort(new Date(t.doneAt)) : ""));
         else bits.push(dayDiff(t.due) === 0 ? "Vence hoy" : "Vence el " + fmtShort(parseDay(t.due)));
-        var who = peopleOf(t);
-        bits.push(who.length ? namesOf(who) : "Sin responsable");
         var ck = checkProgress(t);
         if (ck.total && !done) bits.push("pasos " + ck.done + " de " + ck.total);
         var nf = filesOf(t).length;
