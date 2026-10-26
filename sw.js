@@ -32,3 +32,28 @@ self.addEventListener("fetch", function (e) {
     return hit || net;
   }));
 });
+
+/* Meeting reminders: the function `recordatorios` in Supabase sends { title, body, tag, url } a few minutes before each meeting. */
+self.addEventListener("push", function (e) {
+  var d = {};
+  try { d = e.data ? e.data.json() : {}; } catch (err) { d = { body: e.data ? e.data.text() : "" }; }
+  e.waitUntil(self.registration.showNotification(d.title || "Reunión", {
+    body: d.body || "",
+    tag: d.tag || undefined,
+    icon: "assets/app-icon-192.png",
+    badge: "assets/favicon-32.png",
+    data: { url: d.url || "./#calendario" },
+    renotify: !!d.tag
+  }));
+});
+self.addEventListener("notificationclick", function (e) {
+  e.notification.close();
+  var url = new URL((e.notification.data && e.notification.data.url) || "./#calendario", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (list) {
+    for (var i = 0; i < list.length; i++) {
+      var c = list[i];
+      if (c.url.indexOf(self.registration.scope) === 0 && "focus" in c) { if ("navigate" in c) c.navigate(url).catch(function () {}); return c.focus(); }
+    }
+    return self.clients.openWindow(url);
+  }));
+});

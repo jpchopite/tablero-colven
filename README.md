@@ -67,3 +67,13 @@ Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: 
 - Al cambiar o borrar una fecha se pregunta «Solo esta» o «Esta y las siguientes». «Solo esta» guarda esa fecha como fila propia con `seriesId` y `occ` (la fecha original) y la agrega a `skip`; así cada fecha puede tener sus propios acuerdos. «Esta y las siguientes» cierra la serie el día anterior (`until`) y empieza una nueva.
 - Arrastrar una fecha en el calendario mueve solo esa fecha.
 - No hizo falta cambiar Supabase: todo vive en el JSON de cada reunión.
+
+## Recordatorios de reuniones
+
+Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o computadora: 5, 10, 15, 30 o 60 minutos antes, de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.
+
+- Android: Chrome. iPhone y iPad: solo con el tablero agregado a la pantalla de inicio (iOS 16.4 o más reciente).
+- Cada dispositivo es una fila de `push_subs` (la página la guarda con `push_sub_set`, que exige la clave del equipo). `push_sent` evita avisar dos veces la misma fecha.
+- La función `recordatorios` (código en `supabase/functions/recordatorios/`) corre cada minuto con un trabajo de `pg_cron`, calcula las fechas de las reuniones que se repiten igual que la página y envía los avisos (web push con claves VAPID; la privada está solo en los secretos de la función). `sw.js` los muestra y al tocarlos abre el calendario.
+- Avisan reuniones y eventos con hora; no los de todo el día, ni los cancelados o realizados. La hora es la de Caracas (UTC-4).
+- La configuración de Supabase está en `supabase/recordatorios.sql`.
