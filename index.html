@@ -435,6 +435,11 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.fx-out, .fx-out * { animation: none !important; pointer-events: none !important; }
+.card.fx-flip { transition: none; }
+/* while a card flies in from another column, its new column lets it show outside its edges */
+.lane.fx-over { overflow: visible; z-index: 3; }
+.lane.fx-over::before { border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; }
 
 /* ---------- team key screen (GitHub version) ---------- */
 body.locked { overflow: hidden; }
@@ -2117,6 +2122,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 <div id="panelRoot"></div>
 <div id="toast" class="toast" role="status" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/motion@12.43.0/dist/motion.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function () {
@@ -2235,6 +2241,86 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     return s;
   }
   function reduced() { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+
+  /* ---------- motion (motion.dev) ----------
+     Springs for things that move, short fades for things that leave. Everything here is optional:
+     with reduced motion, or before the library has loaded, the page just changes at once. */
+  var fx = (function () {
+    var SPRING = { type: "spring", visualDuration: 0.38, bounce: 0.14 };
+    var OUT = { duration: 0.16, ease: [0.4, 0, 1, 1] };
+    function M() { return !reduced() && window.Motion && window.Motion.animate ? window.Motion : null; }
+    function base(node) { var t = getComputedStyle(node).transform; return t && t !== "none" ? t + " " : ""; }
+    /* fade a node out, nudged by dy and shrunk a touch, then remove it (or run done) */
+    function leave(node, o, done) {
+      o = o || {};
+      var finish = function () { if (done) done(); else if (node.parentNode) node.parentNode.removeChild(node); };
+      var m = M();
+      if (!m || !node || !node.isConnected) { finish(); return; }
+      var from = base(node);
+      node.classList.add("fx-out");
+      /* both ends spell out the same functions, so the in-between is a plain blend */
+      var to = from + "translate(" + (o.x || 0) + "px," + (o.y || 0) + "px) scale(" + (o.scale || 1) + ")";
+      var a = m.animate(node, { opacity: [getComputedStyle(node).opacity, 0], transform: [from + "translate(0px,0px) scale(1)", to] }, o.dur ? { duration: o.dur, ease: OUT.ease } : OUT);
+      a.then(finish, finish);
+      return a;
+    }
+    /* where every card on the board sits right now */
+    function snap(root) {
+      var out = {};
+      if (!M()) return out;
+      Array.prototype.forEach.call(root.querySelectorAll(".card[data-id]"), function (c) {
+        /* a glide that has not painted yet (two redraws in one go) still counts from where it started */
+        var r = c._fxFrom && !c.getAnimations().length ? c._fxFrom : c.getBoundingClientRect();
+        if (r.width) out[c.dataset.id] = r;
+      });
+      return out;
+    }
+    /* cards glide from where they were to where they are now; new ones grow in */
+    function flip(root, before, o) {
+      var m = M(); if (!m) return false;
+      o = o || {};
+      var moved = 0, added = [], vh = window.innerHeight;
+      Array.prototype.forEach.call(root.querySelectorAll(".card[data-id]"), function (c) {
+        var now = c.getBoundingClientRect();
+        if (!now.width || now.bottom < -40 || now.top > vh + 40) return;
+        var was = before[c.dataset.id];
+        if (!was) { if (o.enter) { c._fxFrom = null; added.push(c); } return; }
+        var dx = was.left - now.left, dy = was.top - now.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+        moved++;
+        c._fxFrom = was;
+        c.classList.remove("landed");
+        c.classList.add("fx-flip");
+        var lift = Math.abs(dx) > 40, lane = lift && c.closest(".lane");
+        if (lane) { lane._fx = (lane._fx || 0) + 1; lane.classList.add("fx-over"); }
+        var kf = { transform: ["translate(" + dx + "px," + dy + "px) scale(" + (lift ? 1.03 : 1) + ")", "translate(0px,0px) scale(1)"] };
+        if (lift) kf.boxShadow = ["var(--shadow-lg)", "var(--shadow-sm)"];
+        c.style.transform = kf.transform[0];
+        var end = function () {
+          c.classList.remove("fx-flip"); c.style.transform = ""; c.style.boxShadow = "";
+          if (lane && !--lane._fx) lane.classList.remove("fx-over");
+        };
+        m.animate(c, kf, SPRING).then(end, end);
+      });
+      added.forEach(function (c, i) {
+        c.classList.remove("landed");
+        m.animate(c, { opacity: [0, 1], transform: ["translate(0px,8px) scale(.97)", "translate(0px,0px) scale(1)"] }, { type: "spring", visualDuration: 0.32, bounce: 0.1, delay: Math.min(i, 8) * 0.03 })
+          .then(function () { c.style.transform = ""; c.style.opacity = ""; });
+      });
+      return moved > 0 || added.length > 0;
+    }
+    /* first paint after loading, or a lane switch on the phone: cards rise in one after another */
+    function cascade(nodes, o) {
+      var m = M(); if (!m || !nodes.length) return;
+      o = o || {};
+      var list = Array.prototype.slice.call(nodes, 0, 14);
+      list.forEach(function (c) { c.classList.remove("landed"); });
+      m.animate(list, { opacity: [0, 1], transform: ["translate(" + (o.x || 0) + "px," + (o.y == null ? 10 : o.y) + "px)", "translate(0px,0px)"] },
+        { type: "spring", visualDuration: 0.36, bounce: 0.08, delay: m.stagger(0.035) })
+        .then(function () { list.forEach(function (c) { c.style.transform = ""; c.style.opacity = ""; }); });
+    }
+    return { leave: leave, snap: snap, flip: flip, cascade: cascade, on: function () { return !!M(); } };
+  })();
   function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
 
   /* ---------- dates ---------- */
@@ -2763,6 +2849,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   function renderBoard() {
     hidePeek();
+    var boardEl = lanes.todo.lane.parentNode;
+    var wasLoading = !!boardEl.querySelector(".skel");
+    var before = fx.snap(boardEl), tabWas = renderBoard.tab;
+    renderBoard.tab = state.tab;
     var list = byPerson(state.tasks).filter(matchesSearch);
     var prev = state.prevLane;
     STATUSES.forEach(function (s) {
@@ -2794,6 +2884,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var pl = {};
       state.tasks.forEach(function (t) { pl[t.id] = t.status || "todo"; });
       state.prevLane = pl;
+    }
+    if (state.loaded && state.view === "board") {
+      var order = STATUSES.map(function (s) { return s.id; });
+      if (wasLoading) fx.cascade(boardEl.querySelectorAll(".lane:not(.off) .card"));
+      else if (tabWas && tabWas !== state.tab && isPhone()) fx.cascade(lanes[state.tab].cards.children, { x: order.indexOf(state.tab) > order.indexOf(tabWas) ? 24 : -24, y: 0 });
+      else fx.flip(boardEl, before, { enter: true });
     }
   }
 
@@ -3061,18 +3157,28 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* ---------- writes ---------- */
   function toast(msg, undo, label) {
     var t = $("toast");
+    if (hideToast.a) { try { hideToast.a.cancel(); } catch (e) {} hideToast.a = null; }
+    t.classList.remove("fx-out"); t.style.opacity = ""; t.style.transform = "";
     t.textContent = "";
     t.appendChild(el("span", null, msg));
     if (undo) {
       var b = el("button", "undo", label || "Deshacer");
       b.type = "button";
-      b.onclick = function () { t.hidden = true; clearTimeout(toast._t); undo(); };
+      b.onclick = function () { hideToast(); clearTimeout(toast._t); undo(); };
       t.appendChild(b);
     }
     t.hidden = false;
     t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () { t.hidden = true; }, undo ? 6000 : 2600);
+    toast._t = setTimeout(hideToast, undo ? 6000 : 2600);
+  }
+  function hideToast() {
+    var t = $("toast"), shown = t.textContent;
+    hideToast.a = fx.leave(t, { y: 10, dur: 0.18 }, function () {
+      t.classList.remove("fx-out"); t.style.opacity = ""; t.style.transform = "";
+      if (t.textContent === shown) t.hidden = true;
+      hideToast.a = null;
+    });
   }
   function handleWriteError(err) {
     var code = err && err.code;
@@ -3448,7 +3554,19 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     fns.forEach(function (fn) { try { fn(); } catch (e) {} });
   }
   function onPanelClose(fn) { state.cleanups.push(fn); }
-  function closePanel() { runCleanups(); $("panelRoot").textContent = ""; document.removeEventListener("keydown", escClose); }
+  function closePanel() {
+    runCleanups();
+    document.removeEventListener("keydown", escClose);
+    var root = $("panelRoot"), sc = root.firstChild;
+    if (sc && fx.on()) {
+      /* step out of panelRoot at once so the page counts the panel as closed while it slides away */
+      sc.classList.add("fx-out"); document.body.appendChild(sc);
+      var p = sc.querySelector(".panel");
+      if (p) fx.leave(p, isPhone() ? { y: 60, dur: 0.2 } : { x: 32, dur: 0.18 }, function () {});
+      fx.leave(sc, { dur: 0.2 });
+    }
+    root.textContent = "";
+  }
   function escClose(e) { if (e.key === "Escape") closePanel(); }
   function openPanel(build) {
     runCleanups();
@@ -9929,7 +10047,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ok = btn("Listo", "primary"); ok.onclick = function () { dg.close(); };
     dlgActs(dg.box, [ok]); ok.focus();
   }
-  function closeAddMenu() { var m = $("addMenu"), s = $("addScrim"); if (m) m.remove(); if (s) s.remove(); }
+  function closeAddMenu() {
+    var m = $("addMenu"), s = $("addScrim");
+    if (m) { m.removeAttribute("id"); fx.leave(m, { y: m.classList.contains("pop-menu") ? -4 : 8, scale: 0.97, dur: 0.13 }); }
+    if (s) { s.removeAttribute("id"); fx.leave(s, { dur: 0.13 }); }
+  }
   /* the + button: straight to the form when there is only one sensible thing to add, a short menu otherwise */
   function openAddMenu() {
     if (!state.canWrite) return;
