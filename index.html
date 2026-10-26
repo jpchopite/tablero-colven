@@ -1955,6 +1955,16 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .side-add:hover { background: rgba(255,212,83,.1); }
   .side-foot { margin-top: auto; border-top: 1px solid #2a3160; padding: 14px 8px 0; color: #aab2cc; font-size: 12.5px; line-height: 1.4; }
   .viewswitch, .hero .brand, #addBtn { display: none !important; }
+  /* on the board the menu tucks away to a thin rail and slides out over the page, so the five columns get the full width */
+  body.side-tuck { padding-left: 14px; }
+  body.side-tuck .wrap { max-width: 1840px; }
+  body.side-tuck .side { transform: translateX(-218px); box-shadow: none; overflow: hidden; }
+  body.side-tuck .side.open { transform: translateX(0px); box-shadow: 0 0 0 1px rgba(18,26,65,.08), 0 24px 60px rgba(18,26,65,.32); overflow-y: auto; }
+  body.side-tuck .side > * { transition: opacity .18s; }
+  body.side-tuck .side:not(.open) > * { opacity: 0; pointer-events: none; }
+  body.side-tuck .side::after { content: ""; position: absolute; right: 4px; top: 50%; width: 4px; height: 44px; margin-top: -22px; border-radius: 4px; background: rgba(255,212,83,.75); transition: opacity .18s; }
+  body.side-tuck .side.open::after { opacity: 0; }
+  body.side-tuck .side:not(.open) { cursor: e-resize; }
   /* the header turns light: the navy now lives in the side menu */
   .hero { --hero: transparent; --hero-2: transparent; --hero-ink: var(--ink); --hero-muted: var(--muted); --hero-line: var(--line); --hero-late: var(--late); --hero-wait: var(--wait); background: transparent; }
   .hero::before { display: none; }
@@ -7693,9 +7703,49 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     if (v !== state.view) setView(v);
   });
+  /* ---------- side menu on the board: a thin rail that slides out over the page ----------
+     Mouse: rest on the left edge to open, leave the menu to close. Keyboard: tabbing into it opens it, Esc closes.
+     Touch screens wide enough for the menu: tap the rail to open, tap outside to close. */
+  var sideT = 0;
+  function sideOpen(open) {
+    var side = $("side");
+    if (!side || side.classList.contains("open") === open) return;
+    side.classList.toggle("open", open);
+    var m = !reduced() && window.Motion && window.Motion.animate;
+    if (m) window.Motion.animate(side, { transform: open ? "translateX(0px)" : "translateX(-218px)" }, { type: "spring", visualDuration: 0.3, bounce: open ? 0.1 : 0 });
+  }
+  function sideTuck(on) {
+    var side = $("side");
+    clearTimeout(sideT);
+    document.body.classList.toggle("side-tuck", on);
+    if (!side) return;
+    side.classList.remove("open");
+    side.getAnimations().forEach(function (a) { a.cancel(); });
+    side.style.transform = "";
+  }
+  (function () {
+    var side = $("side"); if (!side) return;
+    var tucked = function () { return document.body.classList.contains("side-tuck"); };
+    side.addEventListener("pointerenter", function (e) {
+      if (!tucked() || e.pointerType === "touch") return;
+      clearTimeout(sideT); sideT = setTimeout(function () { sideOpen(true); }, 90);
+    });
+    side.addEventListener("pointerleave", function (e) {
+      if (!tucked() || e.pointerType === "touch" || side.querySelector(":focus-visible")) return;
+      clearTimeout(sideT); sideT = setTimeout(function () { sideOpen(false); }, 220);
+    });
+    side.addEventListener("click", function (e) {
+      if (tucked() && !side.classList.contains("open")) { e.preventDefault(); e.stopPropagation(); sideOpen(true); }
+    }, true);
+    side.addEventListener("focusin", function () { if (tucked()) { clearTimeout(sideT); sideOpen(true); } });
+    side.addEventListener("focusout", function (e) { if (tucked() && !side.contains(e.relatedTarget) && !side.matches(":hover")) sideOpen(false); });
+    side.addEventListener("keydown", function (e) { if (e.key === "Escape" && tucked() && side.classList.contains("open")) { e.stopPropagation(); if (document.activeElement) document.activeElement.blur(); sideOpen(false); } });
+    document.addEventListener("pointerdown", function (e) { if (tucked() && side.classList.contains("open") && !side.contains(e.target)) sideOpen(false); });
+  })();
   function applyView() {
     var v = state.view;
     document.body.classList.toggle("compact", v !== "home");
+    sideTuck(v === "board");
     Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v], #side [data-v]"), function (b) { if (b.dataset.v === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     $("home").hidden = v !== "home";
     $("archiveBtn").hidden = v !== "board" || !state.db;
