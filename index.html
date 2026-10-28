@@ -810,6 +810,11 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 .lb-empty { font-size: 13px; color: var(--muted); }
 .lb-manage { margin-left: auto; }
 .lb-clear { font-size: 13px; }
+.lbchip.lb-off { background: transparent; border: 1px dashed var(--line-strong, var(--line)); color: var(--muted); font-weight: 600; }
+.lbchip.lb-off .lbname { text-decoration: line-through; }
+.lbchip.lb-off .lbn { background: transparent; color: var(--muted); }
+.lbchip.lb-off .ico { width: 14px; height: 14px; }
+.lbchip { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 
 /* editor */
 .lbpick { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -2195,6 +2200,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     rows: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
     trash: '<path d="M4.5 7h15M9.5 7V4.8h5V7M6.5 7l1 12.4a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12.4"/><path d="M10 11v5.5M14 11v5.5"/>',
     eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+    eyeoff: '<path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.2 3.2"/><path d="M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/>',
     unlink: '<path d="M10.5 6.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2M13.5 17.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"/><path d="M4 4l16 16"/>',
     shortcut: '<path d="M8 16.5V13a4.5 4.5 0 0 1 4.5-4.5H17"/><path d="M14 5.5l3 3-3 3"/>',
     pin: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5"/>',
@@ -3930,9 +3936,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   ];
   state.labels = [];
   state.settingsRaw = null;
-  /* label filter: any number of labels; a card has to carry all of them */
+  /* label filter: any number of labels; a card has to carry all of them.
+     Hidden labels (right-click or long-press a chip) work the other way: a card with any of them is left out. */
   state.labelFilter = [];
+  state.labelHide = [];
   try { state.labelFilter = (localStorage.getItem("tb-label") || "").split(",").filter(Boolean); } catch (e) {}
+  try { state.labelHide = (localStorage.getItem("tb-label-x") || "").split(",").filter(Boolean); } catch (e) {}
   function colorKey(c) { return LABEL_COLORS.some(function (x) { return x.key === c; }) ? c : "gris"; }
   function cleanLabels(list) {
     var seen = {};
@@ -3947,8 +3956,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function labelsOf(t) { var ids = labelIds(t); return state.labels.filter(function (l) { return ids.indexOf(l.id) >= 0; }); }
   /* the labels being filtered on that still exist */
   function activeLabels() { return state.labelFilter.filter(function (id) { return labelById(id); }); }
+  function hiddenLabels() { return state.labelHide.filter(function (id) { return labelById(id); }); }
   function labelFilterOk(ids) {
-    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; });
+    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; }) &&
+      !hiddenLabels().some(function (id) { return ids.indexOf(id) >= 0; });
   }
   /* a new card or meeting made while filtering starts with the filtered labels */
   function presetLabels() { return activeLabels(); }
@@ -4005,18 +4016,28 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     set(colorKey(current));
     return { el: row, set: set };
   }
-  function saveLabelFilter(ids) {
+  function saveLabelFilter(ids, hide) {
     state.labelFilter = ids;
+    if (hide) state.labelHide = hide;
     try { if (ids.length) localStorage.setItem("tb-label", ids.join(",")); else localStorage.removeItem("tb-label"); } catch (e) {}
+    try { if (state.labelHide.length) localStorage.setItem("tb-label-x", state.labelHide.join(",")); else localStorage.removeItem("tb-label-x"); } catch (e) {}
   }
-  function setLabelFilter(ids) {
-    saveLabelFilter(ids);
+  function setLabelFilter(ids, hide) {
+    saveLabelFilter(ids, hide);
     renderLabelBar(); renderBoard(); renderCal();
   }
+  /* click: a hidden label comes back; otherwise it goes in or out of the "must have" filter */
   function toggleLabelFilter(id) {
-    var f = activeLabels(), i = f.indexOf(id);
-    if (i >= 0) f.splice(i, 1); else f.push(id);
-    setLabelFilter(f);
+    var f = activeLabels(), h = hiddenLabels(), i = f.indexOf(id), j = h.indexOf(id);
+    if (j >= 0) h.splice(j, 1);
+    else if (i >= 0) f.splice(i, 1); else f.push(id);
+    setLabelFilter(f, h);
+  }
+  /* right-click or long-press: hide every card with this label, or show them again */
+  function toggleLabelHide(id) {
+    var f = activeLabels().filter(function (x) { return x !== id; }), h = hiddenLabels(), j = h.indexOf(id);
+    if (j >= 0) h.splice(j, 1); else h.push(id);
+    setLabelFilter(f, h);
   }
   function joinList(xs, word) { return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " " + word + " " + xs[xs.length - 1]; }
   function renderLabelBar() {
@@ -4029,7 +4050,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bar.hidden = !show;
     if (!show) return;
     state.labelFilter = activeLabels();
-    var picked = state.labelFilter;
+    state.labelHide = hiddenLabels();
+    var picked = state.labelFilter, hid = state.labelHide;
     bar.className = "labelbar" + (picked.length ? " filtering" : "");
     bar.textContent = "";
     var tl = el("span", "lb-title");
@@ -4038,24 +4060,46 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bar.appendChild(tl);
     var chips = el("div", "lb-chips");
     state.labels.forEach(function (l) {
-      var on = picked.indexOf(l.id) >= 0;
-      var b = el("button", "lbchip lb-" + colorKey(l.color));
+      var on = picked.indexOf(l.id) >= 0, off = hid.indexOf(l.id) >= 0;
+      var b = el("button", "lbchip lb-" + colorKey(l.color) + (off ? " lb-off" : ""));
       b.type = "button";
       b.setAttribute("aria-pressed", String(on));
-      b.title = on ? "Quitar «" + l.name + "» del filtro" : picked.length ? "Agregar «" + l.name + "» al filtro" : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»");
-      b.appendChild(el("span", "lbdot"));
+      b.title = off ? "Volver a mostrar lo que tiene «" + l.name + "»" :
+        (on ? "Quitar «" + l.name + "» del filtro" : picked.length ? "Agregar «" + l.name + "» al filtro" : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»")) +
+        "\nClic derecho o mantener presionado: ocultar lo que tiene «" + l.name + "»";
+      if (off) b.setAttribute("aria-label", l.name + ", oculta");
+      b.appendChild(off ? icon("eyeoff") : el("span", "lbdot"));
       b.appendChild(el("span", "lbname", l.name));
       var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
       if (state.view === "cal") n += onePerSeries(state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
       b.appendChild(el("span", "lbn", String(n)));
-      b.onclick = function () { toggleLabelFilter(l.id); };
+      var held = false, holdT = null, x0 = 0, y0 = 0;
+      function unhold() { clearTimeout(holdT); holdT = null; }
+      b.addEventListener("pointerdown", function (e) {
+        held = false;
+        if (e.pointerType !== "touch") return;
+        x0 = e.clientX; y0 = e.clientY;
+        holdT = setTimeout(function () { holdT = null; held = true; buzz(15); toggleLabelHide(l.id); }, 500);
+      });
+      b.addEventListener("pointermove", function (e) { if (holdT && Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > 10) unhold(); });
+      b.addEventListener("pointerup", unhold);
+      b.addEventListener("pointercancel", unhold);
+      b.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        if (lastPtr === "touch") return; /* the long-press timer handles touch */
+        toggleLabelHide(l.id);
+      });
+      b.onclick = function () { if (held) { held = false; return; } toggleLabelFilter(l.id); };
       chips.appendChild(b);
     });
     bar.appendChild(chips);
-    if (picked.length) {
-      var clr = el("button", "linkbtn lb-clear", "Ver todas");
+    if (picked.length || hid.length) {
+      var clr = el("button", "btn small lb-clear");
       clr.type = "button";
-      clr.onclick = function () { setLabelFilter([]); };
+      clr.title = "Quitar el filtro y volver a mostrar todas las etiquetas";
+      clr.appendChild(icon("refresh"));
+      clr.appendChild(document.createTextNode("Ver todas"));
+      clr.onclick = function () { setLabelFilter([], []); };
       bar.appendChild(clr);
     }
     if (state.canWrite) {
