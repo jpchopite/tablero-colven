@@ -669,6 +669,12 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .sub-main { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; padding: 12px 16px; font-size: 15px; }
 .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px; font-size: 14px; }
 .steps b { font-weight: 700; }
+.rem-body { display: flex; flex-direction: column; gap: 16px; }
+.rem-status { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 14px; font-weight: 600; color: var(--muted); }
+.rem-status .ico { width: 18px; height: 18px; flex: none; }
+.rem-status.on { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
+.rem-note { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
+.rem-note.warn { color: var(--late); background: var(--late-soft); border-color: transparent; }
 @media (max-width: 680px) {
   .viewswitch { width: 100%; }
   .viewswitch button { flex: 1; justify-content: center; }
@@ -2216,6 +2222,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     userplus: '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.6-3.6 3.2-5.5 6.5-5.5 1.5 0 2.9.4 4 1.2M18 14v6M15 17h6"/>',
     sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
     moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+    bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
+    belloff: '<path d="M8.5 5.6A6 6 0 0 1 18 11v4M6 11v5l-1.5 2H17"/><path d="M10 20.5a2 2 0 0 0 4 0M4 4l16 16"/>',
     monitor: '<rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/>',
     refresh: '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8"/><path d="M4 3.5V8h4.5"/><path d="M4 13a8 8 0 0 0 14.6 4.5L20 16"/><path d="M20 20.5V16h-4.5"/>',
     keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M6.5 14h11"/>',
@@ -3307,6 +3315,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function setMe(k) {
     state.me.key = k;
     try { localStorage.setItem("tb-me", k); } catch (e) {}
+    syncPush();
     if (state.db && state.me.id) state.db.doc("data/users/" + state.me.id + "/prefs").set({ memberKey: k }).catch(function () {});
     render();
     var m = member(k);
@@ -10104,6 +10113,148 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   if (darkMq) { var onMq = function () { if (!themePref()) renderThemeBtn(); }; if (darkMq.addEventListener) darkMq.addEventListener("change", onMq); else if (darkMq.addListener) darkMq.addListener(onMq); }
   renderThemeBtn();
 
+  /* ---------- meeting reminders on this device (web push) ---------- */
+  /* Each phone or computer turns reminders on for itself. The browser gives a subscription; the page saves it in Supabase
+     (push_sub_set) with who is using the device, which meetings and how early. The function `recordatorios` checks every
+     minute and sends the notification; sw.js shows it. */
+  var PUSH_LEADS = [{ min: 60, label: "1 hora antes" }, { min: 30, label: "30 min antes" }, { min: 10, label: "10 min antes" }];
+  function pushPrefs() {
+    var p = {};
+    try { p = JSON.parse(localStorage.getItem("tb-push") || "{}") || {}; } catch (e) {}
+    var leads = Array.isArray(p.leads) ? p.leads.map(Number).filter(function (n) { return n === 60 || n === 30 || n === 10; }) : [60, 30, 10];
+    return { leads: leads, morning: p.morning !== false, scope: p.scope === "all" ? "all" : "mine" };
+  }
+  function savePushPrefs(p) { try { localStorage.setItem("tb-push", JSON.stringify(p)); } catch (e) {} }
+  function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  function isStandalone() { try { return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; } }
+  function pushSupported() { return "serviceWorker" in navigator && "PushManager" in window && "Notification" in window; }
+  function pushReg() {
+    if (!pushSupported()) return Promise.resolve(null);
+    return navigator.serviceWorker.getRegistration().then(function (r) { return r || navigator.serviceWorker.register("sw.js"); })
+      .then(function () { return navigator.serviceWorker.ready; });
+  }
+  function currentSub() { return pushReg().then(function (r) { return r ? r.pushManager.getSubscription() : null; }).catch(function () { return null; }); }
+  function b64url(s) {
+    var b = atob(s.replace(/-/g, "+").replace(/_/g, "/") + "===".slice((s.length + 3) % 4)), a = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+    return a;
+  }
+  function saveSub(sub) {
+    var j = sub.toJSON(), p = pushPrefs();
+    return state.db.pushSubSet({ p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_member: meKey() || "", p_scope: p.scope, p_leads: p.leads, p_morning: p.morning });
+  }
+  function pushOn() {
+    return Notification.requestPermission().then(function (perm) {
+      if (perm !== "granted") { var e = new Error("denied"); e.code = "denied"; throw e; }
+      return pushReg();
+    }).then(function (r) {
+      return r.pushManager.getSubscription().then(function (s) {
+        return s || state.db.pushPublicKey().then(function (k) { return r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64url(k) }); });
+      });
+    }).then(function (sub) { return saveSub(sub).then(function () { return sub; }); });
+  }
+  function pushOff() {
+    return currentSub().then(function (sub) {
+      if (!sub) return;
+      var ep = sub.endpoint;
+      return sub.unsubscribe().catch(function () {}).then(function () { return state.db.pushSubDelete(ep).catch(function () {}); });
+    });
+  }
+  /* keeps the saved row in step with the device: a browser can renew its subscription, and the person can change */
+  function syncPush() {
+    if (!state.db || !state.db.pushSubSet || !pushSupported() || Notification.permission !== "granted") return;
+    currentSub().then(function (sub) { if (sub) return saveSub(sub); }).catch(function () {});
+  }
+  function openReminders() {
+    openPanel(function (p) {
+      p.setAttribute("aria-label", "Recordatorios de reuniones");
+      p.appendChild(el("h2", null, "Recordatorios de reuniones"));
+      p.appendChild(el("div", "help-line", "Avisos en este dispositivo con las reuniones del día y antes de cada una, aunque el tablero esté cerrado. Se activa en cada teléfono o computadora por separado."));
+      var body = el("div", "rem-body");
+      p.appendChild(body);
+      var acts = el("div", "panel-actions");
+      var close = el("button", "btn", "Cerrar"); close.type = "button"; close.onclick = closePanel;
+      p.appendChild(acts);
+
+      function note(text, cls) { var n = el("div", "rem-note" + (cls ? " " + cls : "")); n.textContent = text; return n; }
+      function draw(sub) {
+        body.textContent = ""; acts.textContent = "";
+        if (!pushSupported()) {
+          if (isIOS() && !isStandalone()) {
+            body.appendChild(note("En iPhone y iPad los avisos llegan solo a la app instalada."));
+            var ol = el("ol", "steps");
+            ["En Safari, toca el botón Compartir.", "Elige «Agregar a inicio» y confirma.", "Abre Colven desde el ícono nuevo y vuelve a Opciones → Recordatorios de reuniones."]
+              .forEach(function (s) { ol.appendChild(el("li", null, s)); });
+            body.appendChild(ol);
+            body.appendChild(el("p", "help", "Necesita iOS 16.4 o más reciente."));
+          } else body.appendChild(note("Este navegador no permite avisos. En Android usa Chrome; en computadora, Chrome, Edge o Firefox."));
+          acts.appendChild(close); return;
+        }
+        var on = !!sub, denied = Notification.permission === "denied", prefs = pushPrefs(), me = member(meKey());
+        var st = el("div", "rem-status" + (on ? " on" : ""));
+        st.appendChild(icon(on ? "bell" : "belloff"));
+        st.appendChild(el("span", null, on ? "Activados en este dispositivo" : "Desactivados en este dispositivo"));
+        body.appendChild(st);
+        if (denied && !on) body.appendChild(note("Los avisos están bloqueados para el tablero en este navegador. Permítelos en los ajustes del navegador (Notificaciones del sitio) y vuelve a intentar.", "warn"));
+
+        /* each kind of reminder is a chip that turns on or off: the 7:00 summary, and 1 h / 30 min / 10 min before */
+        function chipToggle(label, on) {
+          var b = el("button", "chip", label); b.type = "button";
+          b.setAttribute("aria-pressed", String(!!on));
+          b.onclick = function () { b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); change(); };
+          return b;
+        }
+        var isOn = function (b) { return b.getAttribute("aria-pressed") === "true"; };
+        var morning = chipToggle("Resumen a las 7:00", prefs.morning);
+        var mbox = el("div", "people-pick"); mbox.appendChild(morning);
+        body.appendChild(field("Cada mañana", mbox, "A las 7:00 (hora de Caracas), un aviso con las reuniones y eventos de ese día. Si no hay ninguno, no llega nada."));
+        var leadBtns = PUSH_LEADS.map(function (l) { var b = chipToggle(l.label, prefs.leads.indexOf(l.min) >= 0); b.dataset.min = l.min; return b; });
+        var lbox = el("div", "people-pick"); leadBtns.forEach(function (b) { lbox.appendChild(b); });
+        body.appendChild(field("Antes de cada reunión", lbox, "Elige uno, varios o ninguno."));
+        var current = function () {
+          return { morning: isOn(morning), leads: leadBtns.filter(isOn).map(function (b) { return Number(b.dataset.min); }), scope: scope.get() };
+        };
+        var scope = segmented("rem-scope", [{ value: "mine", label: "Las mías" }, { value: "all", label: "Todas" }], prefs.scope);
+        body.appendChild(field("De qué reuniones", scope.el, me
+          ? "«Las mías» son las que tienen a " + me.name.split(" ")[0] + " en «Del equipo». Las que no tienen a nadie marcado avisan a todos."
+          : "Para «Las mías», elige quién eres en Opciones → ¿Quién eres?. Mientras tanto avisa de todas."));
+        body.appendChild(el("p", "help", "Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
+        var change = function () {
+          savePushPrefs(current());
+          if (on) saveSub(sub).then(function () { toast("Recordatorios guardados."); }, function () { toast("No se pudo guardar. Revisa la conexión."); });
+        };
+        scope.onChange(change);
+
+        if (on) {
+          var test = btn("Enviar una prueba");
+          test.onclick = function () {
+            test.disabled = true;
+            state.db.pushTest(sub.endpoint).then(function () { toast("Prueba enviada: debería llegar en unos segundos."); },
+              function () { toast("No se pudo enviar la prueba."); }).then(function () { test.disabled = false; });
+          };
+          var off = btn("Desactivar", "danger");
+          off.onclick = function () { off.disabled = true; pushOff().then(function () { toast("Recordatorios desactivados en este dispositivo."); draw(null); }); };
+          acts.appendChild(off); acts.appendChild(test); acts.appendChild(close);
+        } else {
+          var go = btn("Activar recordatorios", "primary");
+          go.disabled = denied;
+          go.onclick = function () {
+            go.disabled = true;
+            savePushPrefs(current());
+            pushOn().then(function (s) { toast("Listo: los recordatorios quedaron activados."); draw(s); }, function (e) {
+              go.disabled = false;
+              toast(e && e.code === "denied" ? "El navegador no dio permiso para avisos." : "No se pudieron activar. Revisa la conexión e inténtalo de nuevo.");
+              if (e && e.code === "denied") draw(null);
+            });
+          };
+          acts.appendChild(close); acts.appendChild(go);
+        }
+      }
+      body.appendChild(el("div", "empty", "Revisando este dispositivo…"));
+      currentSub().then(draw);
+    });
+  }
+
   /* ---------- options menu ---------- */
   function openOptions() {
     var t = themePref(), me = member(meKey());
@@ -10114,6 +10265,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       "-",
       state.canWrite && state.db ? ["users", me ? "Cambiar de persona (eres " + me.name + ")" : "¿Quién eres?", openMe] : null,
       state.canWrite ? ["pencil", "Equipo y nombre del tablero", openTeam] : null,
+      state.db ? ["bell", "Recordatorios de reuniones", openReminders] : null,
       state.db ? ["refresh", "Actualizar datos", function () {
         Promise.resolve(state.db.reload()).then(function () { toast("Tablero actualizado."); });
       }] : null,
@@ -10431,6 +10583,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       doc: function (path) { return docRef(path); },
       collection: function (c) { return query(c, [], null, null); },
       reload: load,
+      pushSubSet: function (a) { return rpc("push_sub_set", a); },
+      pushSubDelete: function (endpoint) { return rpc("push_sub_delete", { p_endpoint: endpoint }); },
+      pushPublicKey: function () {
+        return sb.functions.invoke("recordatorios", { body: { publicKey: true } }).then(function (r) { if (r.error || !r.data || !r.data.publicKey) throw r.error || new Error("sin clave"); return r.data.publicKey; });
+      },
+      pushTest: function (endpoint) {
+        return sb.functions.invoke("recordatorios", { body: { test: true, key: key, endpoint: endpoint } }).then(function (r) { if (r.error) throw r.error; return r.data; });
+      },
       calendarToken: function () { return rpc("calendar_token"); },
       calendarTokenReset: function () { return rpc("calendar_token_reset"); },
       contactPhoto: function (id) { return rpc("contact_photo_get", { p_id: id }); },
@@ -10557,6 +10717,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("logoutBtn").hidden = !!OPEN_KEY;
     try { var storedMe = localStorage.getItem("tb-me"); if (storedMe) state.me.key = storedMe; } catch (e) {}
     render();
+    syncPush();
     db.doc("board/settings").onSnapshot(function (s) {
       state.settingsRaw = s.exists ? (s.data() || {}) : null;
       state.settingsLoaded = true;
