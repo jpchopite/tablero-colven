@@ -10117,7 +10117,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* Each phone or computer turns reminders on for itself. The browser gives a subscription; the page saves it in Supabase
      (push_sub_set) with who is using the device, which meetings and how early. The function `recordatorios` checks every
      minute and sends the notification; sw.js shows it. */
-  var VAPID_PUBLIC = "BJq5JFgnYTL4HXruxdQVpxHatGcfIL69BSKEX0nB6UoPalRVtMpcr2Ix5X3czd6ajYSainQrkvhRJs6gViY1vkI";
   var PUSH_LEADS = [{ min: 60, label: "1 hora antes" }, { min: 30, label: "30 min antes" }, { min: 10, label: "10 min antes" }];
   function pushPrefs() {
     var p = {};
@@ -10149,7 +10148,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (perm !== "granted") { var e = new Error("denied"); e.code = "denied"; throw e; }
       return pushReg();
     }).then(function (r) {
-      return r.pushManager.getSubscription().then(function (s) { return s || r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64url(VAPID_PUBLIC) }); });
+      return r.pushManager.getSubscription().then(function (s) {
+        return s || state.db.pushPublicKey().then(function (k) { return r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64url(k) }); });
+      });
     }).then(function (sub) { return saveSub(sub).then(function () { return sub; }); });
   }
   function pushOff() {
@@ -10584,6 +10585,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       reload: load,
       pushSubSet: function (a) { return rpc("push_sub_set", a); },
       pushSubDelete: function (endpoint) { return rpc("push_sub_delete", { p_endpoint: endpoint }); },
+      pushPublicKey: function () {
+        return sb.functions.invoke("recordatorios", { body: { publicKey: true } }).then(function (r) { if (r.error || !r.data || !r.data.publicKey) throw r.error || new Error("sin clave"); return r.data.publicKey; });
+      },
       pushTest: function (endpoint) {
         return sb.functions.invoke("recordatorios", { body: { test: true, key: key, endpoint: endpoint } }).then(function (r) { if (r.error) throw r.error; return r.data; });
       },

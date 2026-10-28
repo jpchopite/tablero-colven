@@ -25,7 +25,7 @@ create table if not exists public.push_sent (
 alter table public.push_sent enable row level security;
 
 -- the VAPID key pair for web push: one row, readable only with the service key (RLS on, no policies).
--- The public half is also in index.html (VAPID_PUBLIC); the row is inserted once by hand, never in a migration.
+-- The function `recordatorios` creates it on its first call and gives the public half to the page ({ publicKey: true }).
 create table if not exists public.push_keys (
   id int primary key default 1 check (id = 1),
   public_key text not null,
@@ -69,6 +69,7 @@ grant execute on function public.push_sub_delete(text, text) to anon;
 -- every minute: ask the function to send the reminders that are due (it does nothing when none are)
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
+select cron.unschedule('recordatorios-reuniones') where exists (select 1 from cron.job where jobname = 'recordatorios-reuniones');
 select cron.schedule('recordatorios-reuniones', '* * * * *', $$
   select net.http_post(
     url := 'https://twtenusvpnqntkeiejvk.supabase.co/functions/v1/recordatorios',

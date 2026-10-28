@@ -74,7 +74,7 @@ Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o co
 
 - Android: Chrome. iPhone y iPad: solo con el tablero agregado a la pantalla de inicio (iOS 16.4 o más reciente).
 - Cada dispositivo es una fila de `push_subs` (la página la guarda con `push_sub_set`, que exige la clave del equipo). `push_sent` evita avisar dos veces la misma fecha.
-- La función `recordatorios` (código en `supabase/functions/recordatorios/`) corre cada minuto con un trabajo de `pg_cron`, calcula las fechas de las reuniones que se repiten igual que la página y envía los avisos (web push con claves VAPID; el par está en la tabla `push_keys`, que solo la función puede leer con la clave de servicio, y la pública también en index.html). `sw.js` los muestra y al tocarlos abre el calendario.
+- La función `recordatorios` (código en `supabase/functions/recordatorios/`) corre cada minuto con un trabajo de `pg_cron`, calcula las fechas de las reuniones que se repiten igual que la página y envía los avisos (web push con claves VAPID; la función crea el par en su primera llamada y lo guarda en la tabla `push_keys`, que solo ella puede leer con la clave de servicio; la página le pide la pública). `sw.js` los muestra y al tocarlos abre el calendario.
 - Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de las 7:00, que no se envía si ese día no hay nada. Lo cancelado o realizado no avisa. La hora es la de Caracas (UTC-4).
 - Cada dispositivo guarda `leads` (60, 30, 10) y `morning` en `push_subs`. Si alguien activa los avisos 25 minutos antes de una reunión, recibe solo el aviso más reciente (30 min), no todos los atrasados.
 - La configuración de Supabase está en `supabase/recordatorios.sql`.
