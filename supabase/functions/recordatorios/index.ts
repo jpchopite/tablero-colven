@@ -1,6 +1,7 @@
 // Meeting reminders on phones (web push) for the team board.
-// A job in the database calls this every minute with an empty body: it looks at the meetings that start soon and sends each
-// device that turned reminders on (table push_subs) one notification per meeting date, `lead_min` minutes before the start.
+// A job in the database calls this every minute with an empty body. For each device that turned reminders on (table push_subs)
+// it sends a notification 60, 30 and/or 10 minutes before each meeting (`leads`), and, if `morning` is on, one at 7:00 with
+// that day's meetings and events.
 // The page calls it with { test: true, key, endpoint } to send a test notification to one device; that needs the team key.
 import webpush from "npm:web-push@3.6.7";
 
@@ -17,9 +18,10 @@ const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers
 
 type Rule = { freq?: string; interval?: number | string; weekdays?: number[]; monthMode?: string; monthDay?: number | string;
   monthDays?: number[]; nth?: number | string; weekday?: number | string; month?: number | string; startMonth?: number | string | null };
-type Meeting = { title?: string; kind?: string; date?: string; start?: string; end?: string; mode?: string; place?: string;
+type Meeting = { title?: string; kind?: string; date?: string; endDate?: string; start?: string; end?: string; mode?: string; place?: string;
   status?: string; team?: string[]; repeat?: Rule; until?: string; skip?: string[]; _deleted?: boolean };
-type Sub = { endpoint: string; p256dh: string; auth: string; member_key: string; scope: string; lead_min: number };
+type Sub = { endpoint: string; p256dh: string; auth: string; member_key: string; scope: string; leads: number[]; morning: boolean };
+const MORNING_HOUR = 7; // the day's summary goes out from 7:00 to 7:59, Caracas time, on the first run that sees it
 
 /* ---------- dates: a "day" is a Date at UTC midnight, so no time zone gets in the way ---------- */
 function parseDay(s?: string): Date | null {
@@ -117,30 +119,64 @@ function inText(min: number): string {
   return "Empieza en " + h + " h" + (r ? " " + r + " min" : "");
 }
 
-/* everything that should go out now: one entry per device and meeting date */
+const live = (m: Meeting) => !(m._deleted || m.kind === "note" || m.status === "cancelled" || m.status === "done");
+// "las mías": meetings with this person in the team; a meeting with nobody marked is for everyone
+const forSub = (s: Sub, m: Meeting) => {
+  const team = Array.isArray(m.team) ? m.team : [];
+  return s.scope === "all" || !s.member_key || !team.length || team.includes(s.member_key);
+};
+const titleOf = (m: Meeting) => m.title || (m.kind === "event" ? "Evento" : "Reunión");
+
+/* everything that should go out now: before each meeting date, the most recent lead (60, 30 or 10 min) that has been reached
+   and not sent yet, so a device that turns reminders on 25 minutes before a meeting gets one notice, not two */
 export function dueReminders(meetings: { id: string; data: Meeting }[], subs: Sub[], sent: Set<string>, now: number) {
   const today = new Date(now - UTC_OFFSET_HOURS * 3600000);
   const lo = fmt(addDays(today, -1)), hi = fmt(addDays(today, 2));
   const out: { sub: Sub; occ: string; payload: Record<string, unknown> }[] = [];
   for (const row of meetings) {
     const m = row.data || {};
-    if (m._deleted || m.kind === "note" || m.status === "cancelled" || m.status === "done") continue;
+    if (!live(m)) continue;
     const st = hm(m.start);
     if (!st) continue; // all-day events have no time to count back from
-    const team = Array.isArray(m.team) ? m.team : [];
     for (const day of datesBetween(m, lo, hi)) {
       const at = startMs(day, st);
       if (now >= at) continue;
       const occ = row.id + "@" + day + "@" + m.start;
       for (const s of subs) {
-        if (s.scope !== "all" && s.member_key && team.length && !team.includes(s.member_key)) continue;
-        if (now < at - s.lead_min * 60000 || sent.has(s.endpoint + " " + occ)) continue;
+        if (!forSub(s, m)) continue;
+        const reached = (s.leads || []).filter((l) => now >= at - l * 60000);
+        if (!reached.length) continue;
+        const lead = Math.min(...reached);
+        if (sent.has(s.endpoint + " " + occ + "@" + lead)) continue;
         const en = hm(m.end);
         const where = m.mode === "video" ? "Videollamada" : m.place || (m.mode && m.mode !== "presencial" ? MODE[m.mode] : "");
         const body = [inText(Math.round((at - now) / 60000)), m.start + (en ? " a " + m.end : ""), where].filter(Boolean).join(" · ");
-        out.push({ sub: s, occ, payload: { title: m.title || (m.kind === "event" ? "Evento" : "Reunión"), body, tag: occ, url: BOARD + "#calendario" } });
+        // same tag for every lead of a meeting date, so the newer notice replaces the older one on the phone
+        out.push({ sub: s, occ: occ + "@" + lead, payload: { title: titleOf(m), body, tag: occ, url: BOARD + "#calendario" } });
       }
     }
+  }
+  return out;
+}
+
+/* the 7:00 summary: each device with `morning` on gets the day's meetings and events (all-day ones too), once a day */
+export function morningSummaries(meetings: { id: string; data: Meeting }[], subs: Sub[], sent: Set<string>, now: number) {
+  const local = new Date(now - UTC_OFFSET_HOURS * 3600000);
+  const out: { sub: Sub; occ: string; payload: Record<string, unknown> }[] = [];
+  if (local.getUTCHours() !== MORNING_HOUR) return out;
+  const day = fmt(local), occ = "dia@" + day;
+  // what happens today: a date of a meeting or series, or an event of several days that covers today
+  const todays = meetings.map((r) => r.data || {}).filter((m) => live(m) && (datesBetween(m, day, day).length > 0
+    || (!isSeries(m) && !!m.date && m.date < day && !!m.endDate && m.endDate >= day)));
+  for (const s of subs) {
+    if (!s.morning || sent.has(s.endpoint + " " + occ)) continue;
+    const list = todays.filter((m) => forSub(s, m)).sort((a, b) => (hm(a.start) ? a.start! : "") < (hm(b.start) ? b.start! : "") ? -1 : 1);
+    if (!list.length) continue;
+    const meets = list.filter((m) => m.kind !== "event").length, evs = list.length - meets;
+    const title = "Hoy: " + [meets ? meets + (meets === 1 ? " reunión" : " reuniones") : "", evs ? evs + (evs === 1 ? " evento" : " eventos") : ""].filter(Boolean).join(" y ");
+    const lines = list.slice(0, 6).map((m) => (hm(m.start) ? m.start : "Todo el día") + " · " + titleOf(m));
+    if (list.length > 6) lines.push("y " + (list.length - 6) + " más");
+    out.push({ sub: s, occ, payload: { title, body: lines.join("\n"), tag: occ, url: BOARD + "#calendario" } });
   }
   return out;
 }
@@ -186,7 +222,7 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
     if (!ck.ok || (await ck.json()) !== true) return json({ error: "clave" }, 403);
     const rows = await rest("push_subs?select=*&endpoint=eq." + encodeURIComponent(body.endpoint || "")) as Sub[];
     if (!rows.length) return json({ error: "sin-dispositivo" }, 404);
-    const alive = await send(rows[0], { title: "Recordatorios activados", body: "Así se verá el aviso de cada reunión, " + rows[0].lead_min + " min antes.", tag: "prueba", url: BOARD + "#calendario" });
+    const alive = await send(rows[0], { title: "Recordatorios activados", body: "Así se verán los avisos de tus reuniones en este dispositivo.", tag: "prueba", url: BOARD + "#calendario" });
     if (!alive) { await forget(rows[0].endpoint); return json({ error: "dispositivo-caducado" }, 410); }
     return json({ ok: true });
   }
@@ -198,7 +234,7 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
   const since = new Date(now - 3 * 86400000).toISOString();
   const sentRows = await rest("push_sent?select=endpoint,occ&sent_at=gte." + since) as { endpoint: string; occ: string }[];
   const sent = new Set(sentRows.map((r) => r.endpoint + " " + r.occ));
-  const due = dueReminders(meetings, subs, sent, now);
+  const due = morningSummaries(meetings, subs, sent, now).concat(dueReminders(meetings, subs, sent, now));
   const gone = new Set<string>();
   let n = 0;
   for (const d of due) {

@@ -10118,11 +10118,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
      (push_sub_set) with who is using the device, which meetings and how early. The function `recordatorios` checks every
      minute and sends the notification; sw.js shows it. */
   var VAPID_PUBLIC = "BH3qVpboPrbNKLJigZXIA8SgX8cK7ZHNP_3v0jlXDrD2Xe8EqgTERNpD8MtTuO1mQOOJRXedPSaYnXIBWrDIxUM";
-  var PUSH_LEADS = [{ value: "5", label: "5 min" }, { value: "10", label: "10 min" }, { value: "15", label: "15 min" }, { value: "30", label: "30 min" }, { value: "60", label: "1 hora" }];
+  var PUSH_LEADS = [{ min: 60, label: "1 hora antes" }, { min: 30, label: "30 min antes" }, { min: 10, label: "10 min antes" }];
   function pushPrefs() {
     var p = {};
     try { p = JSON.parse(localStorage.getItem("tb-push") || "{}") || {}; } catch (e) {}
-    return { lead: String(p.lead || "15"), scope: p.scope === "all" ? "all" : "mine" };
+    var leads = Array.isArray(p.leads) ? p.leads.map(Number).filter(function (n) { return n === 60 || n === 30 || n === 10; }) : [60, 30, 10];
+    return { leads: leads, morning: p.morning !== false, scope: p.scope === "all" ? "all" : "mine" };
   }
   function savePushPrefs(p) { try { localStorage.setItem("tb-push", JSON.stringify(p)); } catch (e) {} }
   function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
@@ -10141,7 +10142,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function saveSub(sub) {
     var j = sub.toJSON(), p = pushPrefs();
-    return state.db.pushSubSet({ p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_member: meKey() || "", p_scope: p.scope, p_lead: Number(p.lead) });
+    return state.db.pushSubSet({ p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_member: meKey() || "", p_scope: p.scope, p_leads: p.leads, p_morning: p.morning });
   }
   function pushOn() {
     return Notification.requestPermission().then(function (perm) {
@@ -10167,7 +10168,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     openPanel(function (p) {
       p.setAttribute("aria-label", "Recordatorios de reuniones");
       p.appendChild(el("h2", null, "Recordatorios de reuniones"));
-      p.appendChild(el("div", "help-line", "Un aviso en este dispositivo antes de cada reunión, aunque el tablero esté cerrado. Se activa en cada teléfono o computadora por separado."));
+      p.appendChild(el("div", "help-line", "Avisos en este dispositivo con las reuniones del día y antes de cada una, aunque el tablero esté cerrado. Se activa en cada teléfono o computadora por separado."));
       var body = el("div", "rem-body");
       p.appendChild(body);
       var acts = el("div", "panel-actions");
@@ -10195,18 +10196,33 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(st);
         if (denied && !on) body.appendChild(note("Los avisos están bloqueados para el tablero en este navegador. Permítelos en los ajustes del navegador (Notificaciones del sitio) y vuelve a intentar.", "warn"));
 
-        var lead = segmented("rem-lead", PUSH_LEADS, prefs.lead);
-        body.appendChild(field("Avisarme antes", lead.el));
+        /* each kind of reminder is a chip that turns on or off: the 7:00 summary, and 1 h / 30 min / 10 min before */
+        function chipToggle(label, on) {
+          var b = el("button", "chip", label); b.type = "button";
+          b.setAttribute("aria-pressed", String(!!on));
+          b.onclick = function () { b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); change(); };
+          return b;
+        }
+        var isOn = function (b) { return b.getAttribute("aria-pressed") === "true"; };
+        var morning = chipToggle("Resumen a las 7:00", prefs.morning);
+        var mbox = el("div", "people-pick"); mbox.appendChild(morning);
+        body.appendChild(field("Cada mañana", mbox, "A las 7:00 (hora de Caracas), un aviso con las reuniones y eventos de ese día. Si no hay ninguno, no llega nada."));
+        var leadBtns = PUSH_LEADS.map(function (l) { var b = chipToggle(l.label, prefs.leads.indexOf(l.min) >= 0); b.dataset.min = l.min; return b; });
+        var lbox = el("div", "people-pick"); leadBtns.forEach(function (b) { lbox.appendChild(b); });
+        body.appendChild(field("Antes de cada reunión", lbox, "Elige uno, varios o ninguno."));
+        var current = function () {
+          return { morning: isOn(morning), leads: leadBtns.filter(isOn).map(function (b) { return Number(b.dataset.min); }), scope: scope.get() };
+        };
         var scope = segmented("rem-scope", [{ value: "mine", label: "Las mías" }, { value: "all", label: "Todas" }], prefs.scope);
         body.appendChild(field("De qué reuniones", scope.el, me
           ? "«Las mías» son las que tienen a " + me.name.split(" ")[0] + " en «Del equipo». Las que no tienen a nadie marcado avisan a todos."
           : "Para «Las mías», elige quién eres en Opciones → ¿Quién eres?. Mientras tanto avisa de todas."));
-        body.appendChild(el("p", "help", "Avisa de reuniones y eventos con hora. Los eventos de todo el día y lo cancelado no avisan."));
+        body.appendChild(el("p", "help", "Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
         var change = function () {
-          savePushPrefs({ lead: lead.get(), scope: scope.get() });
+          savePushPrefs(current());
           if (on) saveSub(sub).then(function () { toast("Recordatorios guardados."); }, function () { toast("No se pudo guardar. Revisa la conexión."); });
         };
-        lead.onChange(change); scope.onChange(change);
+        scope.onChange(change);
 
         if (on) {
           var test = btn("Enviar una prueba");
@@ -10223,8 +10239,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           go.disabled = denied;
           go.onclick = function () {
             go.disabled = true;
-            savePushPrefs({ lead: lead.get(), scope: scope.get() });
-            pushOn().then(function (s) { toast("Listo: te avisaremos antes de cada reunión."); draw(s); }, function (e) {
+            savePushPrefs(current());
+            pushOn().then(function (s) { toast("Listo: los recordatorios quedaron activados."); draw(s); }, function (e) {
               go.disabled = false;
               toast(e && e.code === "denied" ? "El navegador no dio permiso para avisos." : "No se pudieron activar. Revisa la conexión e inténtalo de nuevo.");
               if (e && e.code === "denied") draw(null);

@@ -70,10 +70,11 @@ Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: 
 
 ## Recordatorios de reuniones
 
-Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o computadora: 5, 10, 15, 30 o 60 minutos antes, de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.
+Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o computadora: un resumen a las 7:00 con las reuniones y eventos del día, y avisos 1 hora, 30 minutos y 10 minutos antes de cada reunión (cada uno se puede apagar), de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.
 
 - Android: Chrome. iPhone y iPad: solo con el tablero agregado a la pantalla de inicio (iOS 16.4 o más reciente).
 - Cada dispositivo es una fila de `push_subs` (la página la guarda con `push_sub_set`, que exige la clave del equipo). `push_sent` evita avisar dos veces la misma fecha.
 - La función `recordatorios` (código en `supabase/functions/recordatorios/`) corre cada minuto con un trabajo de `pg_cron`, calcula las fechas de las reuniones que se repiten igual que la página y envía los avisos (web push con claves VAPID; la privada está solo en los secretos de la función). `sw.js` los muestra y al tocarlos abre el calendario.
-- Avisan reuniones y eventos con hora; no los de todo el día, ni los cancelados o realizados. La hora es la de Caracas (UTC-4).
+- Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de las 7:00, que no se envía si ese día no hay nada. Lo cancelado o realizado no avisa. La hora es la de Caracas (UTC-4).
+- Cada dispositivo guarda `leads` (60, 30, 10) y `morning` en `push_subs`. Si alguien activa los avisos 25 minutos antes de una reunión, recibe solo el aviso más reciente (30 min), no todos los atrasados.
 - La configuración de Supabase está en `supabase/recordatorios.sql`.
