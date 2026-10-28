@@ -1,0 +1,22 @@
+{
+  "id": "./?app=calendario",
+  "name": "Colven · Calendario del equipo",
+  "short_name": "Calendario",
+  "description": "Reuniones, eventos y entregas del tablero de Colven, en tu teléfono.",
+  "lang": "es",
+  "start_url": "./?app=calendario#calendario",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#121a41",
+  "theme_color": "#121a41",
+  "icons": [
+    { "src": "assets/cal-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "assets/cal-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "assets/cal-icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Agenda", "url": "./?app=calendario&modo=agenda#calendario", "icons": [{ "src": "assets/cal-icon-192.png", "sizes": "192x192" }] },
+    { "name": "Mes", "url": "./?app=calendario&modo=mes#calendario", "icons": [{ "src": "assets/cal-icon-192.png", "sizes": "192x192" }] }
+  ]
+}

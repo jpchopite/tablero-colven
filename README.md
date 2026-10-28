@@ -26,6 +26,14 @@ La clave del equipo sigue funcionando. Para volver a pedirla:
 `manifest.webmanifest` y `sw.js` permiten instalar el tablero como app (ícono de Colven en la pantalla de inicio).
 La página se pide de nuevo cada vez que hay señal; sin señal se muestra la última copia guardada en el dispositivo, solo para consultar.
 
+### App de calendario
+
+La misma página abierta con `?app=calendario` (https://jpchopite.github.io/tablero-colven/?app=calendario#calendario) se instala como una app aparte, «Calendario», con su propio ícono (`assets/cal-icon-*.png`) y su propio `calendario.webmanifest`.
+
+- Muestra solo el calendario (Agenda, Mes y Semana) con los mismos datos del tablero: reuniones, eventos (también las que se repiten) y fechas de entrega. Lo que se crea o cambia ahí se guarda en el tablero al instante.
+- «Solo las mías» deja las reuniones donde está la persona elegida y las tareas suyas o sin persona asignada. Se recuerda en cada dispositivo (`tb-calapp-mine`), igual que la vista (`tb-calapp-mode`).
+- Se abre desde Opciones → «App de calendario para el teléfono». En Android, Chrome ofrece «Instalar»; en iPhone se instala desde Safari con Compartir → «Agregar a pantalla de inicio».
+
 ## Mantener activa la base de datos
 
 El plan gratuito de Supabase pausa un proyecto tras unos 7 días sin actividad.

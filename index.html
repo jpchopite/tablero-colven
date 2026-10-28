@@ -12,6 +12,13 @@
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Colven">
+<script>/* The calendar app: the same page opened with ?app=calendario installs as its own app, showing only the calendar. */
+if (/[?&]app=calendario(&|$)/.test(location.search)) {
+  document.documentElement.classList.add("cal-app");
+  document.querySelector('link[rel="manifest"]').href = "calendario.webmanifest";
+  document.querySelector('link[rel="apple-touch-icon"]').href = "assets/cal-icon-apple-180.png";
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').content = "Calendario";
+}</script>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}@media (max-width: 680px) {
   /* the selected day keeps its coloured dots */
@@ -2021,6 +2028,24 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .wg.w-labels, .wg.w-log, .wg.w-contacts, .wg.w-files { grid-column: span 6; }
 }
 @media (max-width: 1180px) { .wg.w-chain { grid-column: 1 / -1; } }
+
+/* ================= calendar app (?app=calendario): only the calendar, as its own app ================= */
+html.cal-app #side, html.cal-app #bnav, html.cal-app .toolbar, html.cal-app #labelBar, html.cal-app .foot-note,
+html.cal-app #logBtn, html.cal-app #teamBtn, html.cal-app #finderBtn, html.cal-app #addBtn, html.cal-app .hint { display: none !important; }
+html.cal-app body { padding-left: 0 !important; padding-bottom: env(safe-area-inset-bottom, 0px) !important; }
+html.cal-app .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+html.cal-app .main { padding-top: 12px; }
+html.cal-app .fab:not([hidden]) { display: grid !important; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+.cal > .cal-who { display: inline-flex; order: 0; margin: 0; align-self: flex-start; }
+.cal-who button { flex: 1; }
+.cal-install { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px; margin: 2px 0 10px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--surface-2, var(--bg)); color: var(--ink); font-size: 13px; line-height: 1.4; }
+.cal-install > .ico { width: 16px; height: 16px; flex: none; color: var(--muted); }
+.cal-install > span { flex: 1; min-width: 0; }
+.cal-install .btn { flex: none; }
+.cal-install .cal-install-x { width: 30px; height: 30px; flex: none; }
+.cal-steps { margin: 0 0 4px; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; line-height: 1.45; }
+@media (max-width: 680px) { .cal > .cal-who { display: flex; width: 100%; } }
 </style>
 </head>
 <body>
@@ -2221,6 +2246,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M6.5 14h11"/>',
     logout: '<path d="M14 4.5h4a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5h-4"/><path d="M10 16.5 5.5 12 10 7.5M5.5 12H15"/>'
   };
+
+  /* The calendar app (?app=calendario): installs as its own app and shows only the calendar, with the same data and editing. */
+  var CAL_APP = document.documentElement.classList.contains("cal-app");
+  if (CAL_APP) document.title = "Calendario · Colven";
 
   var state = {
     boardName: "Nuestro tablero de tareas",
@@ -5136,8 +5165,37 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- installable app ---------- */
   var installEvt = null;
-  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; var b = $("installBtn"); if (b) b.hidden = false; });
-  window.addEventListener("appinstalled", function () { installEvt = null; var b = $("installBtn"); if (b) b.hidden = true; toast("Listo: Colven quedó instalada como app."); });
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; var b = $("installBtn"); if (b) b.hidden = false; if (CAL_APP && state.view === "cal") renderCal(); });
+  window.addEventListener("appinstalled", function () { installEvt = null; var b = $("installBtn"); if (b) b.hidden = true; toast(CAL_APP ? "Listo: el calendario quedó instalado como app." : "Listo: Colven quedó instalada como app."); if (CAL_APP) renderCal(); });
+  function standalone() {
+    try { return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; } catch (e) { return false; }
+  }
+  function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); }
+  /* the calendar app is this same page with ?app=calendario, which carries its own manifest (calendario.webmanifest) */
+  function openCalApp() {
+    var dg = dialog({ title: "App de calendario" });
+    dg.box.appendChild(el("p", "dlg-help", "Un calendario aparte en la pantalla de inicio de tu teléfono, con su propio ícono. Muestra las reuniones, eventos y entregas del tablero, y lo que cambies ahí se guarda en el tablero al instante."));
+    dg.box.appendChild(el("p", "dlg-help", "Ábrelo en el teléfono y elige «Instalar». En iPhone se instala desde Safari: Compartir → «Agregar a pantalla de inicio»."));
+    var go = btn("Abrir el calendario", "primary");
+    go.onclick = function () { location.href = "./?app=calendario#calendario"; };
+    var no = btn("Cerrar"); no.onclick = function () { dg.close(); };
+    dlgActs(dg.box, [no, go]); go.focus();
+  }
+  function openCalInstall() {
+    var dg = dialog({ title: "Instalar el calendario" });
+    var steps = isIOS()
+      ? ["Abre esta página en Safari.", "Toca Compartir (el cuadrado con la flecha hacia arriba).", "Elige «Agregar a pantalla de inicio» y luego «Agregar»."]
+      : ["Abre el menú del navegador (⋮ arriba a la derecha).", "Elige «Instalar app» o «Agregar a la pantalla principal».", "Confirma con «Instalar»."];
+    var ol = el("ol", "cal-steps");
+    steps.forEach(function (t) { ol.appendChild(el("li", null, t)); });
+    dg.box.appendChild(ol);
+    var ok = btn("Listo", "primary"); ok.onclick = function () { dg.close(); };
+    dlgActs(dg.box, [ok]); ok.focus();
+  }
+  if (CAL_APP) {
+    var ib = $("installBtn");
+    if (ib) { ib.title = "Instalar el calendario como app en este dispositivo"; var ibt = ib.querySelector(".t"); if (ibt) ibt.textContent = "Instalar"; }
+  }
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
     window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   }
@@ -7738,6 +7796,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* ---------- calendar view ---------- */
   var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", contacts: "contactos", docs: "documentos" };
   function viewFromHash() {
+    if (CAL_APP) return "cal";
     var h = String(location.hash || "").replace(/^#/, "").split("/")[0];
     for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
     return "home";
@@ -7828,8 +7887,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos · arrastra archivos aquí para subirlos"
   };
   function setView(v) {
+    if (CAL_APP) v = "cal";
     state.view = v;
-    try { localStorage.setItem("tb-view", v); } catch (e) {}
+    try { if (!CAL_APP) localStorage.setItem("tb-view", v); } catch (e) {}
     var hv = v === "docs" ? docsHash() : VIEW_HASH[v];
     try { if (location.hash.replace(/^#/, "") !== hv) history.replaceState(null, "", "#" + hv); } catch (e) {}
     calDir = 0;
@@ -7848,6 +7908,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var map = {};
     byPerson(state.tasks).filter(matchesSearch).forEach(function (t) {
       if (!parseDay(t.due)) return;
+      if (!mineOk((t.people || []).concat(t.owner ? [t.owner] : []))) return;
       (map[t.due] = map[t.due] || []).push(t);
     });
     Object.keys(map).forEach(function (k) {
@@ -7908,7 +7969,23 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   state.calMode = "month";
   try { var cm0 = localStorage.getItem("tb-calmode"); if (cm0 === "week" || cm0 === "agenda") state.calMode = cm0; } catch (e) {}
-  function setCalMode(v) { state.calMode = v; try { localStorage.setItem("tb-calmode", v); } catch (e) {} renderCal(); }
+  /* the calendar app keeps its own view and opens on the agenda; its home-screen shortcuts can ask for one (&modo=agenda|mes) */
+  if (CAL_APP) {
+    state.calMode = "agenda";
+    try { var cm1 = localStorage.getItem("tb-calapp-mode"); if (cm1 === "month" || cm1 === "week" || cm1 === "agenda") state.calMode = cm1; } catch (e) {}
+    var qm = /[?&]modo=(agenda|mes|semana)(&|$)/.exec(location.search);
+    if (qm) state.calMode = { agenda: "agenda", mes: "month", semana: "week" }[qm[1]];
+  }
+  function setCalMode(v) { state.calMode = v; try { localStorage.setItem(CAL_APP ? "tb-calapp-mode" : "tb-calmode", v); } catch (e) {} renderCal(); }
+  /* "Mías": in the calendar app, only the meetings I'm in and the tasks that are mine (or nobody's in particular) */
+  state.calMine = false;
+  try { state.calMine = CAL_APP && localStorage.getItem("tb-calapp-mine") === "1"; } catch (e) {}
+  function setCalMine(on) { state.calMine = on; try { localStorage.setItem("tb-calapp-mine", on ? "1" : "0"); } catch (e) {} renderCal(); }
+  function mineOk(people) {
+    if (!state.calMine) return true;
+    var list = (people || []).filter(Boolean);
+    return !list.length || list.indexOf(meKey()) >= 0;
+  }
   function weekStartOf(ds) { var d = parseDay(ds) || parseDay(todayStr()); return addDays(d, -mIdx(d.getDay())); }
   function calShift(n) {
     if (state.calMode === "month") { shiftMonth(n); return; }
@@ -7972,6 +8049,23 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       head.appendChild(sub);
     }
     box.appendChild(head);
+    if (CAL_APP) {
+      var who = segmented("cal-who", [{ value: "all", label: "Todo el equipo" }, { value: "mine", label: "Solo las mías" }], state.calMine ? "mine" : "all");
+      who.el.classList.add("cal-modes", "cal-who");
+      who.el.setAttribute("aria-label", "Qué mostrar");
+      who.onChange(function (v) { setCalMine(v === "mine"); });
+      box.appendChild(who.el);
+    }
+    if (CAL_APP && !standalone() && !state.calHintOff) {
+      var hint = el("div", "cal-install");
+      hint.appendChild(icon("download"));
+      hint.appendChild(el("span", null, installEvt ? "Instala el calendario para abrirlo desde la pantalla de inicio." : isIOS() ? "Para tenerlo como app: Compartir → «Agregar a pantalla de inicio»." : "Para tenerlo como app: menú del navegador → «Instalar app»."));
+      var hb = btn(installEvt ? "Instalar" : "Cómo", "small"); hb.onclick = function () { if (installEvt) $("installBtn").click(); else openCalInstall(); };
+      var hx = el("button", "navbtn cal-install-x"); hx.type = "button"; hx.setAttribute("aria-label", "Ocultar"); hx.appendChild(icon("x"));
+      hx.onclick = function () { state.calHintOff = true; renderCal(); };
+      hint.appendChild(hb); hint.appendChild(hx);
+      box.appendChild(hint);
+    }
     var legend = el("div", "cal-legend");
     [["lg-meet", "Reunión"], ["lg-event", "Evento"], ["lg-task", "Entrega de tarea"], ["lg-late", "Atrasada"]].forEach(function (x) {
       var s = el("span", "lg " + x[0]); s.appendChild(el("i")); s.appendChild(document.createTextNode(x[1])); legend.appendChild(s);
@@ -9502,6 +9596,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var map = {};
     state.meetings.filter(matchesMeeting).forEach(function (m) {
       var d = parseDay(m.date); if (!d) return;
+      if (!mineOk(m.team)) return;
       var end = mEnd(m);
       for (var i = 0; i < 62; i++) {
         var ds = fmt(addDays(d, i)); if (ds > end) break;
@@ -10113,11 +10208,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       ["monitor", "Igual que el dispositivo", function () { setTheme(""); }, !t ? "on" : ""],
       "-",
       state.canWrite && state.db ? ["users", me ? "Cambiar de persona (eres " + me.name + ")" : "¿Quién eres?", openMe] : null,
-      state.canWrite ? ["pencil", "Equipo y nombre del tablero", openTeam] : null,
+      state.canWrite && !CAL_APP ? ["pencil", "Equipo y nombre del tablero", openTeam] : null,
       state.db ? ["refresh", "Actualizar datos", function () {
         Promise.resolve(state.db.reload()).then(function () { toast("Tablero actualizado."); });
       }] : null,
-      installEvt ? ["download", "Instalar como app", function () { $("installBtn").click(); }] : null,
+      installEvt ? ["download", CAL_APP ? "Instalar el calendario como app" : "Instalar como app", function () { $("installBtn").click(); }] : null,
+      CAL_APP ? (standalone() || installEvt ? null : ["download", "Instalar el calendario como app", openCalInstall]) : ["cal", "App de calendario para el teléfono", openCalApp],
+      CAL_APP ? ["home", "Abrir el tablero completo", function () { location.href = "./#inicio"; }] : null,
       "-",
       isPhone() ? null : ["keyboard", "Atajos de teclado", openShortcuts],
       ["info", "Acerca de este tablero", openAbout],
@@ -10563,7 +10660,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       state.labels = cleanLabels(state.settingsRaw && state.settingsRaw.labels);
       if (s.exists) {
         var v = s.data() || {};
-        if (typeof v.name === "string" && v.name) { state.boardName = v.name; document.title = v.name + " · Tablero"; }
+        if (typeof v.name === "string" && v.name) { state.boardName = v.name; document.title = CAL_APP ? "Calendario · " + v.name : v.name + " · Tablero"; }
         if (Array.isArray(v.members) && v.members.length) {
           state.members = DEFAULT_MEMBERS.map(function (d) {
             var m = v.members.filter(function (x) { return x && x.key === d.key; })[0];
