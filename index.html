@@ -1961,15 +1961,19 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .side-foot { margin-top: auto; border-top: 1px solid #2a3160; padding: 14px 8px 0; color: #aab2cc; font-size: 12.5px; line-height: 1.4; }
   .viewswitch, .hero .brand, #addBtn { display: none !important; }
   /* on the board the menu tucks away to a thin rail and slides out over the page, so the five columns get the full width */
-  body.side-tuck { padding-left: 14px; }
+  /* the rail is 30px; the board loses those pixels from its own side padding, so the columns keep their width */
+  body.side-tuck { padding-left: 30px; }
+  body.side-tuck .wrap { padding-left: 4px; }
   body.side-tuck .wrap { max-width: 1840px; }
-  body.side-tuck .side { transform: translateX(-218px); box-shadow: none; overflow: hidden; }
+  body.side-tuck .side { transform: translateX(-202px); box-shadow: none; overflow: hidden; }
   body.side-tuck .side.open { transform: translateX(0px); box-shadow: 0 0 0 1px rgba(18,26,65,.08), 0 24px 60px rgba(18,26,65,.32); overflow-y: auto; }
   body.side-tuck .side > * { transition: opacity .18s; }
   body.side-tuck .side:not(.open) > * { opacity: 0; pointer-events: none; }
-  body.side-tuck .side::after { content: ""; position: absolute; right: 4px; top: 50%; width: 4px; height: 44px; margin-top: -22px; border-radius: 4px; background: rgba(255,212,83,.75); transition: opacity .18s; }
+  body.side-tuck .side::after { content: ""; position: absolute; right: 5px; top: 50%; width: 20px; height: 56px; margin-top: -28px; border-radius: 6px; border: 1px solid rgba(255,212,83,.45); background: rgba(255,212,83,.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffd453' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center / 14px no-repeat; transition: opacity .18s, background-color .15s; }
   body.side-tuck .side.open::after { opacity: 0; }
-  body.side-tuck .side:not(.open) { cursor: e-resize; }
+  body.side-tuck .side:not(.open) { cursor: pointer; transition: background-color .15s; }
+  body.side-tuck .side:not(.open):hover { background: #1b2554; }
+  body.side-tuck .side:not(.open):hover::after { background-color: rgba(255,212,83,.25); }
   /* the header turns light: the navy now lives in the side menu */
   .hero { --hero: transparent; --hero-2: transparent; --hero-ink: var(--ink); --hero-muted: var(--muted); --hero-line: var(--line); --hero-late: var(--late); --hero-wait: var(--wait); background: transparent; }
   .hero::before { display: none; }
@@ -7755,8 +7759,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var side = $("side");
     if (!side || side.classList.contains("open") === open) return;
     side.classList.toggle("open", open);
+    side.title = open ? "" : "Abrir menú";
     var m = !reduced() && window.Motion && window.Motion.animate;
-    if (m) window.Motion.animate(side, { transform: open ? "translateX(0px)" : "translateX(-218px)" }, { type: "spring", visualDuration: 0.3, bounce: open ? 0.1 : 0 });
+    if (m) window.Motion.animate(side, { transform: open ? "translateX(0px)" : "translateX(-202px)" }, { type: "spring", visualDuration: 0.3, bounce: open ? 0.1 : 0 });
   }
   function sideTuck(on) {
     var side = $("side");
@@ -7764,6 +7769,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     document.body.classList.toggle("side-tuck", on);
     if (!side) return;
     side.classList.remove("open");
+    side.title = on ? "Abrir menú" : "";
     side.getAnimations().forEach(function (a) { a.cancel(); });
     side.style.transform = "";
   }
