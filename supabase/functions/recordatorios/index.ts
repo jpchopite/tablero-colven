@@ -189,11 +189,11 @@ async function rest(path: string, init: RequestInit = {}) {
     headers: { apikey: SERVICE, Authorization: "Bearer " + SERVICE, "Content-Type": "application/json", ...(init.headers || {}) },
   });
   if (!r.ok) throw new Error(path + ": " + r.status + " " + (await r.text()));
-  return r.status === 204 || init.method === "DELETE" ? null : r.json();
+  const t = await r.text();
+  return t ? JSON.parse(t) : null;
 }
 
-/* sends one notification; false when the device is gone for good (the browser unsubscribed or the app was removed) */
-// the first call creates the pair and keeps it in push_keys; every later call reads it back
+// the VAPID pair: the first call creates it and keeps it in push_keys; every later call reads it back
 async function vapid() {
   if (VAPID_PUBLIC && VAPID_PRIVATE) return;
   const read = async () => await rest("push_keys?select=public_key,private_key&id=eq.1") as { public_key: string; private_key: string }[];
@@ -205,6 +205,7 @@ async function vapid() {
   }
   VAPID_PUBLIC = rows[0].public_key; VAPID_PRIVATE = rows[0].private_key;
 }
+/* sends one notification; false when the device is gone for good (the browser unsubscribed or the app was removed) */
 async function send(s: Sub, payload: Record<string, unknown>): Promise<boolean> {
   await vapid();
   const d = webpush.generateRequestDetails({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload), {
