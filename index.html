@@ -675,6 +675,25 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .rem-status.on { color: var(--ok); background: var(--ok-soft); border-color: transparent; }
 .rem-note { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
 .rem-note.warn { color: var(--late); background: var(--late-soft); border-color: transparent; }
+/* the alarm screen: a meeting reminder opened from the phone's notification, or arriving while the board is open */
+.alarm { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: center; gap: 28px;
+  padding: calc(32px + env(safe-area-inset-top, 0px)) 24px calc(28px + env(safe-area-inset-bottom, 0px));
+  background: #121a41; color: #fff; text-align: center; animation: fade .2s ease; }
+.alarm .al-top { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.alarm .al-bell { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,212,83,.14); color: #ffd453; }
+.alarm .al-bell .ico { width: 30px; height: 30px; }
+.alarm.ring .al-bell { animation: al-ring 1.2s ease-in-out infinite; }
+@keyframes al-ring { 0%, 50%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
+.alarm .al-kind { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd453; }
+.alarm .al-time { font-family: var(--font-display); font-size: clamp(56px, 18vw, 96px); font-weight: 800; line-height: 1; letter-spacing: -.02em; }
+.alarm .al-time small { display: block; margin-top: 6px; font-size: 16px; font-weight: 600; letter-spacing: 0; color: rgba(255,255,255,.65); }
+.alarm h2 { margin: 0 auto; max-width: 560px; font-size: clamp(22px, 6vw, 30px); line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; text-wrap: balance; }
+.alarm .al-when { font-size: 17px; font-weight: 600; color: #ffd453; }
+.alarm .al-where { font-size: 15px; color: rgba(255,255,255,.75); overflow-wrap: anywhere; }
+.alarm .al-acts { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; margin: 0 auto; }
+.alarm .al-acts button { min-height: 52px; border-radius: 12px; font-size: 16px; font-weight: 700; border: 1px solid rgba(255,255,255,.22); background: transparent; color: #fff; }
+.alarm .al-acts .al-done { background: #ffd453; border-color: #ffd453; color: #121a41; }
+@media (prefers-reduced-motion: reduce) { .alarm.ring .al-bell { animation: none; } }
 @media (max-width: 680px) {
   .viewswitch { width: 100%; }
   .viewswitch button { flex: 1; justify-content: center; }
@@ -10161,6 +10180,107 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     });
   }
   /* keeps the saved row in step with the device: a browser can renew its subscription, and the person can change */
+  /* ---------- the alarm screen ---------- */
+  /* A reminder notification carries `alarm` ({ id, day, start, end, where, title, kind }). Opening it (or the reminder
+     arriving while the board is open and visible) shows the meeting full screen, with "Ver reunión", "Posponer 5 min"
+     and "Listo". While the board is open it also beeps and vibrates. */
+  var alarmEl = null, alarmTick = 0;
+  function findAlarmMeeting(a) {
+    if (!a || !a.id) return null;
+    for (var i = 0; i < state.meetings.length; i++) {
+      var m = state.meetings[i];
+      if (m.id === a.id || m.id === a.id + "@" + a.day || (m.seriesId === a.id && m.occ === a.day)) return m;
+    }
+    return null;
+  }
+  function alarmWhen(a) {
+    var t = /^(\d{1,2}):(\d{2})$/.exec(a.start || ""), d = parseDay(a.day);
+    if (!t || !d) return "";
+    var mins = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate(), +t[1], +t[2]) - new Date()) / 60000);
+    if (mins > 59) return "Empieza en " + Math.floor(mins / 60) + " h" + (mins % 60 ? " " + (mins % 60) + " min" : "");
+    if (mins > 0) return "Empieza en " + mins + " min";
+    if (mins === 0) return "Empieza ahora";
+    return "Empezó hace " + (-mins) + " min";
+  }
+  function alarmSound() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+      var ac = new AC(), t0 = ac.currentTime + 0.05;
+      [0, 0.35, 0.7, 1.4, 1.75, 2.1].forEach(function (dt) {
+        var o = ac.createOscillator(), g = ac.createGain();
+        o.type = "sine"; o.frequency.value = 880; o.connect(g); g.connect(ac.destination);
+        g.gain.setValueAtTime(0.0001, t0 + dt); g.gain.exponentialRampToValueAtTime(0.25, t0 + dt + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dt + 0.25);
+        o.start(t0 + dt); o.stop(t0 + dt + 0.3);
+      });
+      setTimeout(function () { try { ac.close(); } catch (e) {} }, 3500);
+    } catch (e) {}
+  }
+  function closeAlarm() { clearInterval(alarmTick); if (alarmEl) { alarmEl.remove(); alarmEl = null; } document.removeEventListener("keydown", alarmKeys, true); }
+  function alarmKeys(e) { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closeAlarm(); } }
+  function showAlarm(a, live) {
+    if (!a || !a.title) return;
+    closeAlarm();
+    var box = el("div", "alarm" + (live ? " ring" : ""));
+    box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Recordatorio: " + a.title);
+    var top = el("div", "al-top");
+    var bell = el("div", "al-bell"); bell.appendChild(icon("bell")); top.appendChild(bell);
+    top.appendChild(el("div", "al-kind", a.test ? "Prueba de recordatorio" : a.kind === "event" ? "Evento" : "Reunión"));
+    box.appendChild(top);
+    var mid = el("div", "al-top");
+    var time = el("div", "al-time", a.start || "");
+    if (a.end) time.appendChild(el("small", null, "hasta las " + a.end));
+    mid.appendChild(time);
+    mid.appendChild(el("h2", null, a.title));
+    var when = el("div", "al-when", alarmWhen(a)); mid.appendChild(when);
+    if (a.where) mid.appendChild(el("div", "al-where", a.where));
+    box.appendChild(mid);
+    var acts = el("div", "al-acts");
+    var done = el("button", "al-done", "Listo"); done.type = "button"; done.onclick = closeAlarm;
+    var later = el("button", null, "Posponer 5 min"); later.type = "button";
+    later.onclick = function () {
+      later.disabled = true;
+      currentSub().then(function (sub) {
+        if (!sub) throw new Error("sin-dispositivo");
+        var body = [alarmWhen(a), a.start + (a.end ? " a " + a.end : ""), a.where].filter(Boolean).join(" · ");
+        return state.db.pushSnooze(sub.endpoint, { title: a.title, body: body, tag: "pospuesto-" + (a.id || "prueba"), url: "./#calendario", alarm: a });
+      }).then(function () { toast("Te lo recordamos de nuevo en 5 minutos."); closeAlarm(); },
+        function () { later.disabled = false; toast("No se pudo posponer. Revisa la conexión."); });
+    };
+    acts.appendChild(done);
+    if (state.db && state.db.pushSnooze) acts.appendChild(later);
+    if (!a.test) {
+      var view = el("button", null, "Ver reunión"); view.type = "button";
+      view.onclick = function () {
+        var m = findAlarmMeeting(a);
+        closeAlarm();
+        if (state.view !== "cal") setView("cal");
+        if (m) openMeeting(m); else toast("No encontré esa reunión en el calendario.");
+      };
+      acts.appendChild(view);
+    }
+    box.appendChild(acts);
+    document.body.appendChild(box);
+    alarmEl = box;
+    document.addEventListener("keydown", alarmKeys, true);
+    alarmTick = setInterval(function () { when.textContent = alarmWhen(a); }, 20000);
+    try { done.focus({ preventScroll: true, focusVisible: false }); } catch (e) { done.focus(); }
+    if (live) { alarmSound(); try { if (navigator.vibrate) navigator.vibrate([500, 250, 500, 250, 900]); } catch (e) {} }
+  }
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      var d = e.data || {};
+      if (d.type === "alarma" && d.alarm) showAlarm(d.alarm, !!d.live);
+    });
+  }
+  (function () {
+    var q = /[?&]alarma=([^&]*)/.exec(location.search);
+    if (!q) return;
+    var a = null;
+    try { a = JSON.parse(decodeURIComponent(q[1].replace(/\+/g, " "))); } catch (e) { a = null; }
+    try { history.replaceState(null, "", location.pathname + location.hash); } catch (e) {}
+    if (a) setTimeout(function () { showAlarm(a, false); }, 0);
+  })();
+
   function syncPush() {
     if (!state.db || !state.db.pushSubSet || !pushSupported() || Notification.permission !== "granted") return;
     currentSub().then(function (sub) { if (sub) return saveSub(sub); }).catch(function () {});
@@ -10218,7 +10338,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(field("De qué reuniones", scope.el, me
           ? "«Las mías» son las que tienen a " + me.name.split(" ")[0] + " en «Del equipo». Las que no tienen a nadie marcado avisan a todos."
           : "Para «Las mías», elige quién eres en Opciones → ¿Quién eres?. Mientras tanto avisa de todas."));
-        body.appendChild(el("p", "help", "Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
+        body.appendChild(el("p", "help", "Los avisos previos funcionan como una alarma: vibran, se quedan hasta que los cierras y traen «Posponer 5 min»; al tocarlos se abre la reunión en pantalla completa. Son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
         var change = function () {
           savePushPrefs(current());
           if (on) saveSub(sub).then(function () { toast("Recordatorios guardados."); }, function () { toast("No se pudo guardar. Revisa la conexión."); });
@@ -10229,7 +10349,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var test = btn("Enviar una prueba");
           test.onclick = function () {
             test.disabled = true;
-            state.db.pushTest(sub.endpoint).then(function () { toast("Prueba enviada: debería llegar en unos segundos."); },
+            state.db.pushTest(sub.endpoint).then(function () { toast("Prueba enviada: debería llegar en unos segundos. Tócala para ver la pantalla de alarma."); },
               function () { toast("No se pudo enviar la prueba."); }).then(function () { test.disabled = false; });
           };
           var off = btn("Desactivar", "danger");
@@ -10587,6 +10707,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       pushSubDelete: function (endpoint) { return rpc("push_sub_delete", { p_endpoint: endpoint }); },
       pushPublicKey: function () {
         return sb.functions.invoke("recordatorios", { body: { publicKey: true } }).then(function (r) { if (r.error || !r.data || !r.data.publicKey) throw r.error || new Error("sin clave"); return r.data.publicKey; });
+      },
+      pushSnooze: function (endpoint, payload) {
+        return sb.functions.invoke("recordatorios", { body: { snooze: true, endpoint: endpoint, payload: payload } }).then(function (r) { if (r.error) throw r.error; return r.data; });
       },
       pushTest: function (endpoint) {
         return sb.functions.invoke("recordatorios", { body: { test: true, key: key, endpoint: endpoint } }).then(function (r) { if (r.error) throw r.error; return r.data; });
