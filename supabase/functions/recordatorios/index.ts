@@ -3,6 +3,8 @@
 // it sends a notification 60, 30 and/or 10 minutes before each meeting (`leads`), and, if `morning` is on, one at 7:00 with
 // that day's meetings and events.
 // The page calls it with { test: true, key, endpoint } to send a test notification to one device; that needs the team key.
+// A reminder carries `alarm` (the meeting, for the full-screen card in the board). Its "Posponer 5 min" button calls this with
+// { snooze: true, endpoint, payload }: the notice is kept in push_sent as "pospuesto@<when>@<payload>" and sent again then.
 import webpush from "npm:web-push@3.6.7";
 
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
@@ -154,7 +156,8 @@ export function dueReminders(meetings: { id: string; data: Meeting }[], subs: Su
         const where = m.mode === "video" ? "Videollamada" : m.place || (m.mode && m.mode !== "presencial" ? MODE[m.mode] : "");
         const body = [inText(Math.round((at - now) / 60000)), m.start + (en ? " a " + m.end : ""), where].filter(Boolean).join(" · ");
         // same tag for every lead of a meeting date, so the newer notice replaces the older one on the phone
-        out.push({ sub: s, occ: occ + "@" + lead, payload: { title: titleOf(m), body, tag: occ, url: BOARD + "#calendario" } });
+        const alarm = { id: row.id, day, start: m.start, end: m.end || "", where, title: titleOf(m), kind: m.kind || "meeting" };
+        out.push({ sub: s, occ: occ + "@" + lead, payload: { title: titleOf(m), body, tag: occ, url: BOARD + "#calendario", alarm } });
       }
     }
   }
@@ -226,11 +229,20 @@ async function forget(endpoint: string) {
 if (import.meta.main) Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   const json = (o: unknown, status = 200) => new Response(JSON.stringify(o), { status, headers: { ...CORS, "Content-Type": "application/json" } });
-  let body: { test?: boolean; publicKey?: boolean; key?: string; endpoint?: string } = {};
+  let body: { test?: boolean; publicKey?: boolean; snooze?: boolean; key?: string; endpoint?: string; payload?: Record<string, unknown> } = {};
   try { body = await req.json(); } catch { /* the job sends {} */ }
 
   // the page asks for the public half before subscribing a device
   if (body.publicKey) { await vapid(); return json({ publicKey: VAPID_PUBLIC }); }
+
+  if (body.snooze) {
+    const rows = await rest("push_subs?select=endpoint&endpoint=eq." + encodeURIComponent(body.endpoint || "")) as Sub[];
+    const p = body.payload && typeof body.payload === "object" ? body.payload : null;
+    if (!rows.length || !p) return json({ error: "sin-dispositivo" }, 404);
+    const occ = "pospuesto@" + (Date.now() + 5 * 60000) + "@" + JSON.stringify(p).slice(0, 4000);
+    await rest("push_sent", { method: "POST", headers: { Prefer: "return=minimal" }, body: JSON.stringify({ endpoint: rows[0].endpoint, occ }) });
+    return json({ ok: true });
+  }
 
   if (body.test) {
     const ck = await fetch(SB_URL + "/rest/v1/rpc/board_check", {
@@ -241,7 +253,10 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
     if (!ck.ok || (await ck.json()) !== true) return json({ error: "clave" }, 403);
     const rows = await rest("push_subs?select=*&endpoint=eq." + encodeURIComponent(body.endpoint || "")) as Sub[];
     if (!rows.length) return json({ error: "sin-dispositivo" }, 404);
-    const alive = await send(rows[0], { title: "Recordatorios activados", body: "Así se verán los avisos de tus reuniones en este dispositivo.", tag: "prueba", url: BOARD + "#calendario" });
+    // the test looks like a real reminder for a meeting 10 minutes from now, so the alarm screen can be tried too
+    const soon = new Date(Date.now() - UTC_OFFSET_HOURS * 3600000 + 10 * 60000), st = soon.toISOString().slice(11, 16);
+    const alive = await send(rows[0], { title: "Reunión de prueba", body: "Empieza en 10 min · " + st + " · Así se verán tus recordatorios", tag: "prueba", url: BOARD + "#calendario",
+      alarm: { test: true, id: "", day: fmt(soon), start: st, end: "", where: "Así se verán tus recordatorios", title: "Reunión de prueba", kind: "meeting" } });
     if (!alive) { await forget(rows[0].endpoint); return json({ error: "dispositivo-caducado" }, 410); }
     return json({ ok: true });
   }
@@ -249,13 +264,25 @@ if (import.meta.main) Deno.serve(async (req: Request) => {
   const subs = await rest("push_subs?select=*") as Sub[];
   if (!subs.length) return json({ sent: 0 });
   const now = Date.now();
+  // snoozed reminders whose 5 minutes are up: whoever deletes the row sends it
+  let n = 0;
+  const snoozed = await rest("push_sent?select=endpoint,occ&occ=like." + encodeURIComponent("pospuesto@*")) as { endpoint: string; occ: string }[];
+  for (const r of snoozed) {
+    const m = /^pospuesto@(\d+)@(.*)$/s.exec(r.occ);
+    if (!m || Number(m[1]) > now) continue;
+    const gone = await rest("push_sent?endpoint=eq." + encodeURIComponent(r.endpoint) + "&occ=eq." + encodeURIComponent(r.occ), { method: "DELETE", headers: { Prefer: "return=representation" } }) as unknown[];
+    const sub = subs.find((s) => s.endpoint === r.endpoint);
+    if (!gone || !gone.length || !sub) continue;
+    let p: Record<string, unknown> = {};
+    try { p = JSON.parse(m[2]); } catch { continue; }
+    if (await send(sub, p)) n++;
+  }
   const meetings = await rest("meetings?select=id,data") as { id: string; data: Meeting }[];
   const since = new Date(now - 3 * 86400000).toISOString();
   const sentRows = await rest("push_sent?select=endpoint,occ&sent_at=gte." + since) as { endpoint: string; occ: string }[];
   const sent = new Set(sentRows.map((r) => r.endpoint + " " + r.occ));
   const due = morningSummaries(meetings, subs, sent, now).concat(dueReminders(meetings, subs, sent, now));
   const gone = new Set<string>();
-  let n = 0;
   for (const d of due) {
     if (gone.has(d.sub.endpoint)) continue;
     // claim it first: if a slow run and the next one overlap, only the one that wrote the row sends it
