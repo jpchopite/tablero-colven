@@ -435,6 +435,11 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+.fx-out, .fx-out * { animation: none !important; pointer-events: none !important; }
+.card.fx-flip { transition: none; }
+/* while a card flies in from another column, its new column lets it show outside its edges */
+.lane.fx-over { overflow: visible; z-index: 3; }
+.lane.fx-over::before { border-bottom-left-radius: inherit; border-bottom-right-radius: inherit; }
 
 /* ---------- team key screen (GitHub version) ---------- */
 body.locked { overflow: hidden; }
@@ -811,6 +816,11 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 .lb-empty { font-size: 13px; color: var(--muted); }
 .lb-manage { margin-left: auto; }
 .lb-clear { font-size: 13px; }
+.lbchip.lb-off { background: transparent; border: 1px dashed var(--line-strong, var(--line)); color: var(--muted); font-weight: 600; }
+.lbchip.lb-off .lbname { text-decoration: line-through; }
+.lbchip.lb-off .lbn { background: transparent; color: var(--muted); }
+.lbchip.lb-off .ico { width: 14px; height: 14px; }
+.lbchip { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 
 /* editor */
 .lbpick { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1956,6 +1966,20 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .side-add:hover { background: rgba(255,212,83,.1); }
   .side-foot { margin-top: auto; border-top: 1px solid #2a3160; padding: 14px 8px 0; color: #aab2cc; font-size: 12.5px; line-height: 1.4; }
   .viewswitch, .hero .brand, #addBtn { display: none !important; }
+  /* on the board the menu tucks away to a thin rail and slides out over the page, so the five columns get the full width */
+  /* the rail is 30px; the board loses those pixels from its own side padding, so the columns keep their width */
+  body.side-tuck { padding-left: 30px; }
+  body.side-tuck .wrap { padding-left: 4px; }
+  body.side-tuck .wrap { max-width: 1840px; }
+  body.side-tuck .side { transform: translateX(-202px); box-shadow: none; overflow: hidden; }
+  body.side-tuck .side.open { transform: translateX(0px); box-shadow: 0 0 0 1px rgba(18,26,65,.08), 0 24px 60px rgba(18,26,65,.32); overflow-y: auto; }
+  body.side-tuck .side > * { transition: opacity .18s; }
+  body.side-tuck .side:not(.open) > * { opacity: 0; pointer-events: none; }
+  body.side-tuck .side::after { content: ""; position: absolute; right: 5px; top: 50%; width: 20px; height: 56px; margin-top: -28px; border-radius: 6px; border: 1px solid rgba(255,212,83,.45); background: rgba(255,212,83,.12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffd453' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6-6 6'/%3E%3C/svg%3E") center / 14px no-repeat; transition: opacity .18s, background-color .15s; }
+  body.side-tuck .side.open::after { opacity: 0; }
+  body.side-tuck .side:not(.open) { cursor: pointer; transition: background-color .15s; }
+  body.side-tuck .side:not(.open):hover { background: #1b2554; }
+  body.side-tuck .side:not(.open):hover::after { background-color: rgba(255,212,83,.25); }
   /* the header turns light: the navy now lives in the side menu */
   .hero { --hero: transparent; --hero-2: transparent; --hero-ink: var(--ink); --hero-muted: var(--muted); --hero-line: var(--line); --hero-late: var(--late); --hero-wait: var(--wait); background: transparent; }
   .hero::before { display: none; }
@@ -2123,6 +2147,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 <div id="panelRoot"></div>
 <div id="toast" class="toast" role="status" hidden></div>
 
+<script src="https://cdn.jsdelivr.net/npm/motion@12.43.0/dist/motion.js" async></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 (function () {
@@ -2185,6 +2210,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     rows: '<path d="M4 6.5h16M4 12h16M4 17.5h16"/>',
     trash: '<path d="M4.5 7h15M9.5 7V4.8h5V7M6.5 7l1 12.4a1 1 0 0 0 1 .9h7a1 1 0 0 0 1-.9l1-12.4"/><path d="M10 11v5.5M14 11v5.5"/>',
     eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+    eyeoff: '<path d="M10.7 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-2.2 3.2"/><path d="M6.6 6.6A17.4 17.4 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/><path d="m2 2 20 20"/>',
     unlink: '<path d="M10.5 6.5l1.2-1.2a4 4 0 0 1 5.7 5.7l-1.2 1.2M13.5 17.5l-1.2 1.2a4 4 0 0 1-5.7-5.7l1.2-1.2"/><path d="M4 4l16 16"/>',
     shortcut: '<path d="M8 16.5V13a4.5 4.5 0 0 1 4.5-4.5H17"/><path d="M14 5.5l3 3-3 3"/>',
     pin: '<path d="M9 3.5h6l-1 5.5 3.5 3.5v1.5h-11V12.5L10 9z"/><path d="M12 14.5V20.5"/>',
@@ -2243,6 +2269,86 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     return s;
   }
   function reduced() { try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; } }
+
+  /* ---------- motion (motion.dev) ----------
+     Springs for things that move, short fades for things that leave. Everything here is optional:
+     with reduced motion, or before the library has loaded, the page just changes at once. */
+  var fx = (function () {
+    var SPRING = { type: "spring", visualDuration: 0.38, bounce: 0.14 };
+    var OUT = { duration: 0.16, ease: [0.4, 0, 1, 1] };
+    function M() { return !reduced() && window.Motion && window.Motion.animate ? window.Motion : null; }
+    function base(node) { var t = getComputedStyle(node).transform; return t && t !== "none" ? t + " " : ""; }
+    /* fade a node out, nudged by dy and shrunk a touch, then remove it (or run done) */
+    function leave(node, o, done) {
+      o = o || {};
+      var finish = function () { if (done) done(); else if (node.parentNode) node.parentNode.removeChild(node); };
+      var m = M();
+      if (!m || !node || !node.isConnected) { finish(); return; }
+      var from = base(node);
+      node.classList.add("fx-out");
+      /* both ends spell out the same functions, so the in-between is a plain blend */
+      var to = from + "translate(" + (o.x || 0) + "px," + (o.y || 0) + "px) scale(" + (o.scale || 1) + ")";
+      var a = m.animate(node, { opacity: [getComputedStyle(node).opacity, 0], transform: [from + "translate(0px,0px) scale(1)", to] }, o.dur ? { duration: o.dur, ease: OUT.ease } : OUT);
+      a.then(finish, finish);
+      return a;
+    }
+    /* where every card on the board sits right now */
+    function snap(root) {
+      var out = {};
+      if (!M()) return out;
+      Array.prototype.forEach.call(root.querySelectorAll(".card[data-id]"), function (c) {
+        /* a glide that has not painted yet (two redraws in one go) still counts from where it started */
+        var r = c._fxFrom && !c.getAnimations().length ? c._fxFrom : c.getBoundingClientRect();
+        if (r.width) out[c.dataset.id] = r;
+      });
+      return out;
+    }
+    /* cards glide from where they were to where they are now; new ones grow in */
+    function flip(root, before, o) {
+      var m = M(); if (!m) return false;
+      o = o || {};
+      var moved = 0, added = [], vh = window.innerHeight;
+      Array.prototype.forEach.call(root.querySelectorAll(".card[data-id]"), function (c) {
+        var now = c.getBoundingClientRect();
+        if (!now.width || now.bottom < -40 || now.top > vh + 40) return;
+        var was = before[c.dataset.id];
+        if (!was) { if (o.enter) { c._fxFrom = null; added.push(c); } return; }
+        var dx = was.left - now.left, dy = was.top - now.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+        moved++;
+        c._fxFrom = was;
+        c.classList.remove("landed");
+        c.classList.add("fx-flip");
+        var lift = Math.abs(dx) > 40, lane = lift && c.closest(".lane");
+        if (lane) { lane._fx = (lane._fx || 0) + 1; lane.classList.add("fx-over"); }
+        var kf = { transform: ["translate(" + dx + "px," + dy + "px) scale(" + (lift ? 1.03 : 1) + ")", "translate(0px,0px) scale(1)"] };
+        if (lift) kf.boxShadow = ["var(--shadow-lg)", "var(--shadow-sm)"];
+        c.style.transform = kf.transform[0];
+        var end = function () {
+          c.classList.remove("fx-flip"); c.style.transform = ""; c.style.boxShadow = "";
+          if (lane && !--lane._fx) lane.classList.remove("fx-over");
+        };
+        m.animate(c, kf, SPRING).then(end, end);
+      });
+      added.forEach(function (c, i) {
+        c.classList.remove("landed");
+        m.animate(c, { opacity: [0, 1], transform: ["translate(0px,8px) scale(.97)", "translate(0px,0px) scale(1)"] }, { type: "spring", visualDuration: 0.32, bounce: 0.1, delay: Math.min(i, 8) * 0.03 })
+          .then(function () { c.style.transform = ""; c.style.opacity = ""; });
+      });
+      return moved > 0 || added.length > 0;
+    }
+    /* first paint after loading, or a lane switch on the phone: cards rise in one after another */
+    function cascade(nodes, o) {
+      var m = M(); if (!m || !nodes.length) return;
+      o = o || {};
+      var list = Array.prototype.slice.call(nodes, 0, 14);
+      list.forEach(function (c) { c.classList.remove("landed"); });
+      m.animate(list, { opacity: [0, 1], transform: ["translate(" + (o.x || 0) + "px," + (o.y == null ? 10 : o.y) + "px)", "translate(0px,0px)"] },
+        { type: "spring", visualDuration: 0.36, bounce: 0.08, delay: m.stagger(0.035) })
+        .then(function () { list.forEach(function (c) { c.style.transform = ""; c.style.opacity = ""; }); });
+    }
+    return { leave: leave, snap: snap, flip: flip, cascade: cascade, on: function () { return !!M(); } };
+  })();
   function plural(n, one, many) { return n + " " + (n === 1 ? one : many); }
 
   /* ---------- dates ---------- */
@@ -2771,6 +2877,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   function renderBoard() {
     hidePeek();
+    var boardEl = lanes.todo.lane.parentNode;
+    var wasLoading = !!boardEl.querySelector(".skel");
+    var before = fx.snap(boardEl), tabWas = renderBoard.tab;
+    renderBoard.tab = state.tab;
     var list = byPerson(state.tasks).filter(matchesSearch);
     var prev = state.prevLane;
     STATUSES.forEach(function (s) {
@@ -2802,6 +2912,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var pl = {};
       state.tasks.forEach(function (t) { pl[t.id] = t.status || "todo"; });
       state.prevLane = pl;
+    }
+    if (state.loaded && state.view === "board") {
+      var order = STATUSES.map(function (s) { return s.id; });
+      if (wasLoading) fx.cascade(boardEl.querySelectorAll(".lane:not(.off) .card"));
+      else if (tabWas && tabWas !== state.tab && isPhone()) fx.cascade(lanes[state.tab].cards.children, { x: order.indexOf(state.tab) > order.indexOf(tabWas) ? 24 : -24, y: 0 });
+      else fx.flip(boardEl, before, { enter: true });
     }
   }
 
@@ -3069,18 +3185,28 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* ---------- writes ---------- */
   function toast(msg, undo, label) {
     var t = $("toast");
+    if (hideToast.a) { try { hideToast.a.cancel(); } catch (e) {} hideToast.a = null; }
+    t.classList.remove("fx-out"); t.style.opacity = ""; t.style.transform = "";
     t.textContent = "";
     t.appendChild(el("span", null, msg));
     if (undo) {
       var b = el("button", "undo", label || "Deshacer");
       b.type = "button";
-      b.onclick = function () { t.hidden = true; clearTimeout(toast._t); undo(); };
+      b.onclick = function () { hideToast(); clearTimeout(toast._t); undo(); };
       t.appendChild(b);
     }
     t.hidden = false;
     t.classList.remove("show"); void t.offsetWidth; t.classList.add("show");
     clearTimeout(toast._t);
-    toast._t = setTimeout(function () { t.hidden = true; }, undo ? 6000 : 2600);
+    toast._t = setTimeout(hideToast, undo ? 6000 : 2600);
+  }
+  function hideToast() {
+    var t = $("toast"), shown = t.textContent;
+    hideToast.a = fx.leave(t, { y: 10, dur: 0.18 }, function () {
+      t.classList.remove("fx-out"); t.style.opacity = ""; t.style.transform = "";
+      if (t.textContent === shown) t.hidden = true;
+      hideToast.a = null;
+    });
   }
   function handleWriteError(err) {
     var code = err && err.code;
@@ -3457,7 +3583,19 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     fns.forEach(function (fn) { try { fn(); } catch (e) {} });
   }
   function onPanelClose(fn) { state.cleanups.push(fn); }
-  function closePanel() { runCleanups(); $("panelRoot").textContent = ""; document.removeEventListener("keydown", escClose); }
+  function closePanel() {
+    runCleanups();
+    document.removeEventListener("keydown", escClose);
+    var root = $("panelRoot"), sc = root.firstChild;
+    if (sc && fx.on()) {
+      /* step out of panelRoot at once so the page counts the panel as closed while it slides away */
+      sc.classList.add("fx-out"); document.body.appendChild(sc);
+      var p = sc.querySelector(".panel");
+      if (p) fx.leave(p, isPhone() ? { y: 60, dur: 0.2 } : { x: 32, dur: 0.18 }, function () {});
+      fx.leave(sc, { dur: 0.2 });
+    }
+    root.textContent = "";
+  }
   function escClose(e) { if (e.key === "Escape") closePanel(); }
   function openPanel(build) {
     runCleanups();
@@ -3811,9 +3949,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   ];
   state.labels = [];
   state.settingsRaw = null;
-  /* label filter: any number of labels; a card has to carry all of them */
+  /* label filter: any number of labels; a card has to carry all of them.
+     Hidden labels (right-click or long-press a chip) work the other way: a card with any of them is left out. */
   state.labelFilter = [];
+  state.labelHide = [];
   try { state.labelFilter = (localStorage.getItem("tb-label") || "").split(",").filter(Boolean); } catch (e) {}
+  try { state.labelHide = (localStorage.getItem("tb-label-x") || "").split(",").filter(Boolean); } catch (e) {}
   function colorKey(c) { return LABEL_COLORS.some(function (x) { return x.key === c; }) ? c : "gris"; }
   function cleanLabels(list) {
     var seen = {};
@@ -3828,8 +3969,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function labelsOf(t) { var ids = labelIds(t); return state.labels.filter(function (l) { return ids.indexOf(l.id) >= 0; }); }
   /* the labels being filtered on that still exist */
   function activeLabels() { return state.labelFilter.filter(function (id) { return labelById(id); }); }
+  function hiddenLabels() { return state.labelHide.filter(function (id) { return labelById(id); }); }
   function labelFilterOk(ids) {
-    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; });
+    return activeLabels().every(function (id) { return ids.indexOf(id) >= 0; }) &&
+      !hiddenLabels().some(function (id) { return ids.indexOf(id) >= 0; });
   }
   /* a new card or meeting made while filtering starts with the filtered labels */
   function presetLabels() { return activeLabels(); }
@@ -3886,18 +4029,28 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     set(colorKey(current));
     return { el: row, set: set };
   }
-  function saveLabelFilter(ids) {
+  function saveLabelFilter(ids, hide) {
     state.labelFilter = ids;
+    if (hide) state.labelHide = hide;
     try { if (ids.length) localStorage.setItem("tb-label", ids.join(",")); else localStorage.removeItem("tb-label"); } catch (e) {}
+    try { if (state.labelHide.length) localStorage.setItem("tb-label-x", state.labelHide.join(",")); else localStorage.removeItem("tb-label-x"); } catch (e) {}
   }
-  function setLabelFilter(ids) {
-    saveLabelFilter(ids);
+  function setLabelFilter(ids, hide) {
+    saveLabelFilter(ids, hide);
     renderLabelBar(); renderBoard(); renderCal();
   }
+  /* click: a hidden label comes back; otherwise it goes in or out of the "must have" filter */
   function toggleLabelFilter(id) {
-    var f = activeLabels(), i = f.indexOf(id);
-    if (i >= 0) f.splice(i, 1); else f.push(id);
-    setLabelFilter(f);
+    var f = activeLabels(), h = hiddenLabels(), i = f.indexOf(id), j = h.indexOf(id);
+    if (j >= 0) h.splice(j, 1);
+    else if (i >= 0) f.splice(i, 1); else f.push(id);
+    setLabelFilter(f, h);
+  }
+  /* right-click or long-press: hide every card with this label, or show them again */
+  function toggleLabelHide(id) {
+    var f = activeLabels().filter(function (x) { return x !== id; }), h = hiddenLabels(), j = h.indexOf(id);
+    if (j >= 0) h.splice(j, 1); else h.push(id);
+    setLabelFilter(f, h);
   }
   function joinList(xs, word) { return xs.length < 2 ? xs.join("") : xs.slice(0, -1).join(", ") + " " + word + " " + xs[xs.length - 1]; }
   function renderLabelBar() {
@@ -3910,7 +4063,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bar.hidden = !show;
     if (!show) return;
     state.labelFilter = activeLabels();
-    var picked = state.labelFilter;
+    state.labelHide = hiddenLabels();
+    var picked = state.labelFilter, hid = state.labelHide;
     bar.className = "labelbar" + (picked.length ? " filtering" : "");
     bar.textContent = "";
     var tl = el("span", "lb-title");
@@ -3919,24 +4073,46 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bar.appendChild(tl);
     var chips = el("div", "lb-chips");
     state.labels.forEach(function (l) {
-      var on = picked.indexOf(l.id) >= 0;
-      var b = el("button", "lbchip lb-" + colorKey(l.color));
+      var on = picked.indexOf(l.id) >= 0, off = hid.indexOf(l.id) >= 0;
+      var b = el("button", "lbchip lb-" + colorKey(l.color) + (off ? " lb-off" : ""));
       b.type = "button";
       b.setAttribute("aria-pressed", String(on));
-      b.title = on ? "Quitar «" + l.name + "» del filtro" : picked.length ? "Agregar «" + l.name + "» al filtro" : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»");
-      b.appendChild(el("span", "lbdot"));
+      b.title = off ? "Volver a mostrar lo que tiene «" + l.name + "»" :
+        (on ? "Quitar «" + l.name + "» del filtro" : picked.length ? "Agregar «" + l.name + "» al filtro" : (state.view === "cal" ? "Ver en el calendario solo lo que tiene «" + l.name + "»" : "Ver solo las tarjetas con «" + l.name + "»")) +
+        "\nClic derecho o mantener presionado: ocultar lo que tiene «" + l.name + "»";
+      if (off) b.setAttribute("aria-label", l.name + ", oculta");
+      b.appendChild(off ? icon("eyeoff") : el("span", "lbdot"));
       b.appendChild(el("span", "lbname", l.name));
       var n = state.tasks.filter(function (t) { return t.status !== "done" && labelIds(t).indexOf(l.id) >= 0; }).length;
       if (state.view === "cal") n += onePerSeries(state.meetings || []).filter(function (m) { return m.status !== "cancelled" && meetingLabels(m).indexOf(l.id) >= 0; }).length;
       b.appendChild(el("span", "lbn", String(n)));
-      b.onclick = function () { toggleLabelFilter(l.id); };
+      var held = false, holdT = null, x0 = 0, y0 = 0;
+      function unhold() { clearTimeout(holdT); holdT = null; }
+      b.addEventListener("pointerdown", function (e) {
+        held = false;
+        if (e.pointerType !== "touch") return;
+        x0 = e.clientX; y0 = e.clientY;
+        holdT = setTimeout(function () { holdT = null; held = true; buzz(15); toggleLabelHide(l.id); }, 500);
+      });
+      b.addEventListener("pointermove", function (e) { if (holdT && Math.abs(e.clientX - x0) + Math.abs(e.clientY - y0) > 10) unhold(); });
+      b.addEventListener("pointerup", unhold);
+      b.addEventListener("pointercancel", unhold);
+      b.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        if (lastPtr === "touch") return; /* the long-press timer handles touch */
+        toggleLabelHide(l.id);
+      });
+      b.onclick = function () { if (held) { held = false; return; } toggleLabelFilter(l.id); };
       chips.appendChild(b);
     });
     bar.appendChild(chips);
-    if (picked.length) {
-      var clr = el("button", "linkbtn lb-clear", "Ver todas");
+    if (picked.length || hid.length) {
+      var clr = el("button", "btn small lb-clear");
       clr.type = "button";
-      clr.onclick = function () { setLabelFilter([]); };
+      clr.title = "Quitar el filtro y volver a mostrar todas las etiquetas";
+      clr.appendChild(icon("refresh"));
+      clr.appendChild(document.createTextNode("Ver todas"));
+      clr.onclick = function () { setLabelFilter([], []); };
       bar.appendChild(clr);
     }
     if (state.canWrite) {
@@ -7584,9 +7760,51 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     if (v !== state.view) setView(v);
   });
+  /* ---------- side menu on the board: a thin rail that slides out over the page ----------
+     Mouse: rest on the left edge to open, leave the menu to close. Keyboard: tabbing into it opens it, Esc closes.
+     Touch screens wide enough for the menu: tap the rail to open, tap outside to close. */
+  var sideT = 0;
+  function sideOpen(open) {
+    var side = $("side");
+    if (!side || side.classList.contains("open") === open) return;
+    side.classList.toggle("open", open);
+    side.title = open ? "" : "Abrir menú";
+    var m = !reduced() && window.Motion && window.Motion.animate;
+    if (m) window.Motion.animate(side, { transform: open ? "translateX(0px)" : "translateX(-202px)" }, { type: "spring", visualDuration: 0.3, bounce: open ? 0.1 : 0 });
+  }
+  function sideTuck(on) {
+    var side = $("side");
+    clearTimeout(sideT);
+    document.body.classList.toggle("side-tuck", on);
+    if (!side) return;
+    side.classList.remove("open");
+    side.title = on ? "Abrir menú" : "";
+    side.getAnimations().forEach(function (a) { a.cancel(); });
+    side.style.transform = "";
+  }
+  (function () {
+    var side = $("side"); if (!side) return;
+    var tucked = function () { return document.body.classList.contains("side-tuck"); };
+    side.addEventListener("pointerenter", function (e) {
+      if (!tucked() || e.pointerType === "touch") return;
+      clearTimeout(sideT); sideT = setTimeout(function () { sideOpen(true); }, 90);
+    });
+    side.addEventListener("pointerleave", function (e) {
+      if (!tucked() || e.pointerType === "touch" || side.querySelector(":focus-visible")) return;
+      clearTimeout(sideT); sideT = setTimeout(function () { sideOpen(false); }, 220);
+    });
+    side.addEventListener("click", function (e) {
+      if (tucked() && !side.classList.contains("open")) { e.preventDefault(); e.stopPropagation(); sideOpen(true); }
+    }, true);
+    side.addEventListener("focusin", function () { if (tucked()) { clearTimeout(sideT); sideOpen(true); } });
+    side.addEventListener("focusout", function (e) { if (tucked() && !side.contains(e.relatedTarget) && !side.matches(":hover")) sideOpen(false); });
+    side.addEventListener("keydown", function (e) { if (e.key === "Escape" && tucked() && side.classList.contains("open")) { e.stopPropagation(); if (document.activeElement) document.activeElement.blur(); sideOpen(false); } });
+    document.addEventListener("pointerdown", function (e) { if (tucked() && side.classList.contains("open") && !side.contains(e.target)) sideOpen(false); });
+  })();
   function applyView() {
     var v = state.view;
     document.body.classList.toggle("compact", v !== "home");
+    sideTuck(v === "board");
     Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v], #side [data-v]"), function (b) { if (b.dataset.v === v) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
     $("home").hidden = v !== "home";
     $("archiveBtn").hidden = v !== "board" || !state.db;
@@ -10064,7 +10282,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ok = btn("Listo", "primary"); ok.onclick = function () { dg.close(); };
     dlgActs(dg.box, [ok]); ok.focus();
   }
-  function closeAddMenu() { var m = $("addMenu"), s = $("addScrim"); if (m) m.remove(); if (s) s.remove(); }
+  function closeAddMenu() {
+    var m = $("addMenu"), s = $("addScrim");
+    if (m) { m.removeAttribute("id"); fx.leave(m, { y: m.classList.contains("pop-menu") ? -4 : 8, scale: 0.97, dur: 0.13 }); }
+    if (s) { s.removeAttribute("id"); fx.leave(s, { dur: 0.13 }); }
+  }
   /* the + button: straight to the form when there is only one sensible thing to add, a short menu otherwise */
   function openAddMenu() {
     if (!state.canWrite) return;
