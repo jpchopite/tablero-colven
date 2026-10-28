@@ -8,8 +8,10 @@ import webpush from "npm:web-push@3.6.7";
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
 const ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SERVICE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY")!;
-const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY")!;
+// the VAPID pair lives in the locked table push_keys (only this function, with the service key, can read it);
+// secrets VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY take precedence if they are ever set
+let VAPID_PUBLIC = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+let VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY") || "";
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") || "https://jpchopite.github.io/tablero-colven/";
 const BOARD = "https://jpchopite.github.io/tablero-colven/";
 const UTC_OFFSET_HOURS = 4; // Venezuela is UTC-4 all year
@@ -191,7 +193,14 @@ async function rest(path: string, init: RequestInit = {}) {
 }
 
 /* sends one notification; false when the device is gone for good (the browser unsubscribed or the app was removed) */
+async function vapid() {
+  if (VAPID_PUBLIC && VAPID_PRIVATE) return;
+  const rows = await rest("push_keys?select=public_key,private_key&id=eq.1") as { public_key: string; private_key: string }[];
+  if (!rows.length) throw new Error("push_keys vacío");
+  VAPID_PUBLIC = rows[0].public_key; VAPID_PRIVATE = rows[0].private_key;
+}
 async function send(s: Sub, payload: Record<string, unknown>): Promise<boolean> {
+  await vapid();
   const d = webpush.generateRequestDetails({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload), {
     vapidDetails: { subject: VAPID_SUBJECT, publicKey: VAPID_PUBLIC, privateKey: VAPID_PRIVATE },
     TTL: 1800,

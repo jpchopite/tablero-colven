@@ -24,6 +24,16 @@ create table if not exists public.push_sent (
 );
 alter table public.push_sent enable row level security;
 
+-- the VAPID key pair for web push: one row, readable only with the service key (RLS on, no policies).
+-- The public half is also in index.html (VAPID_PUBLIC); the row is inserted once by hand, never in a migration.
+create table if not exists public.push_keys (
+  id int primary key default 1 check (id = 1),
+  public_key text not null,
+  private_key text not null
+);
+alter table public.push_keys enable row level security;
+revoke all on public.push_keys from anon, authenticated;
+
 create or replace function public.push_sub_set(p_key text, p_endpoint text, p_p256dh text, p_auth text, p_member text, p_scope text, p_leads int[], p_morning boolean)
 returns void language plpgsql security definer set search_path to '' as $$
 begin
