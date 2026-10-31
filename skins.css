@@ -1,6 +1,7 @@
 /* Design options for the board: the Aire skin and the optional dock.
    skins.js sets data-skin (which skin), data-mode (light/dark, as the board shows it) and data-dock on <html>.
-   Nothing here changes what the board does; without data-skin and data-dock the board looks exactly as before. */
+   Nothing here changes what the board does; without data-skin and data-dock the board looks exactly as before.
+   The offline cache (sw.js) serves this file cache-first: after changing it or skins.js, bump the ?v= on both in index.html. */
 
 /* ---------- the "Diseño" button in the header and its menu ---------- */
 .skin-btn .ico { width: 18px; height: 18px; }
@@ -66,6 +67,8 @@
 /* everything that opens on top: solid, so nothing behind it shows through the text */
 :root[data-skin="aire"] :is(.panel, .panel-actions, .peek, .dlg, .pop-menu, .add-menu, .finder, .dtray, .cell-pick, .cpick-results, .gate-card, .dnav) { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
 :root[data-skin="aire"] :is(.toast, .dselbar, .ddrop-msg, .gate) { background: var(--hero-solid); }
+:root[data-skin="aire"] .add-menu .am-ico { background: rgba(18, 26, 65, .07); }
+:root[data-skin="aire"][data-mode="dark"] .add-menu .am-ico { background: rgba(255, 255, 255, .08); }
 :root[data-skin="aire"] .side { background: rgba(18, 26, 65, .88); backdrop-filter: blur(24px) saturate(1.5); -webkit-backdrop-filter: blur(24px) saturate(1.5); }
 @media (min-width: 1100px) {
   /* the light header on computers: its buttons and number tiles get glass (below this width they sit on the navy header and keep its look), the weekly ring stays a solid navy block */
