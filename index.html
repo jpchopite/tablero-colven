@@ -193,13 +193,11 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .ring-txt .sub { font-size: 12.5px; color: var(--hero-muted); }
 .spark-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .spark-head .num { font-size: 22px; }
-.bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 40px; margin-top: 2px; }
-.bar { background: rgba(255,255,255,.14); border-radius: 4px 4px 2px 2px; height: 8%; transition: height .7s cubic-bezier(.2,.8,.2,1); }
+.bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 40px; margin-top: 2px; overflow: hidden; }
+.bar { background: rgba(255,255,255,.14); border-radius: 4px 4px 2px 2px; height: 100%; transform: translateY(92%); transition: transform .7s cubic-bezier(.2,.8,.2,1); }
 .bar.has { background: rgba(255,212,83,.5); }
 .bar.today { background: var(--accent); }
 .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; font-family: var(--font-mono); font-size: 10.5px; color: var(--hero-muted); text-align: center; }
-@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.2); } 100% { transform: scale(1); } }
-.bump { animation: bump .45s ease; }
 
 .people { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pchip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--hero-line); background: rgba(255,255,255,.05); color: var(--hero-ink); border-radius: 999px; padding: 4px 13px 4px 4px; font-size: 14px; font-weight: 600; white-space: nowrap; transition: background .15s, transform .12s, color .15s; }
@@ -525,7 +523,7 @@ body.locked { overflow: hidden; }
 .ocr-msg.ok { color: var(--ok); font-weight: 600; }
 .ocr-msg.warn { color: var(--wait); }
 .ocr-bar { height: 6px; border-radius: 999px; background: var(--lane); overflow: hidden; }
-.ocr-bar span { display: block; height: 100%; width: 6%; background: var(--accent); border-radius: inherit; transition: width .35s ease; }
+.ocr-bar span { display: block; height: 100%; background: var(--accent); border-radius: inherit; transform: translateX(-94%); transition: transform .35s ease; }
 .ocr-lines { display: flex; flex-direction: column; }
 .ocr-lines summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--muted); padding: 2px 0 6px; }
 .ocr-lines .help { margin-bottom: 4px; }
@@ -1110,7 +1108,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .ck-head { display: flex; align-items: baseline; gap: 10px; }
 .ck-count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); font-weight: 600; }
 .ck-bar { height: 6px; border-radius: 999px; background: var(--lane); overflow: hidden; }
-.ck-bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: var(--p1); transition: width .45s cubic-bezier(.2,.8,.2,1), background .3s; }
+.ck-bar i { display: block; height: 100%; border-radius: inherit; background: var(--p1); transform: translateX(-100%); transition: transform .45s cubic-bezier(.2,.8,.2,1), background .3s; }
 .ck-bar.full i { background: var(--ok); }
 .ck-list { display: flex; flex-direction: column; gap: 2px; }
 .ck-item { display: flex; align-items: flex-start; gap: 10px; padding: 6px 4px 6px 6px; border-radius: 10px; transition: background .12s, opacity .2s; }
@@ -2346,7 +2344,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     function flip(root, before, o) {
       var m = M(); if (!m) return false;
       o = o || {};
-      var moved = 0, added = [], vh = window.innerHeight;
+      var added = [], moves = [], vh = window.innerHeight;
+      /* measure every card before changing any: a change between two measurements makes the page lay out again */
       Array.prototype.forEach.call(root.querySelectorAll(".card[data-id]"), function (c) {
         var now = c.getBoundingClientRect();
         if (!now.width || now.bottom < -40 || now.top > vh + 40) return;
@@ -2354,8 +2353,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         if (!was) { if (o.enter) { c._fxFrom = null; added.push(c); } return; }
         var dx = was.left - now.left, dy = was.top - now.top;
         if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
-        moved++;
-        c._fxFrom = was;
+        moves.push({ c: c, was: was, dx: dx, dy: dy });
+      });
+      moves.forEach(function (mv) {
+        var c = mv.c, dx = mv.dx, dy = mv.dy;
+        c._fxFrom = mv.was;
         c.classList.remove("landed");
         c.classList.add("fx-flip");
         var lift = Math.abs(dx) > 40, lane = lift && c.closest(".lane");
@@ -2374,7 +2376,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         m.animate(c, { opacity: [0, 1], transform: ["translate(0px,8px) scale(.97)", "translate(0px,0px) scale(1)"] }, { type: "spring", visualDuration: 0.32, bounce: 0.1, delay: Math.min(i, 8) * 0.03 })
           .then(function () { c.style.transform = ""; c.style.opacity = ""; });
       });
-      return moved > 0 || added.length > 0;
+      return moves.length > 0 || added.length > 0;
     }
     /* first paint after loading, or a lane switch on the phone: cards rise in one after another */
     function cascade(nodes, o) {
@@ -2717,11 +2719,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var had = /\d/.test(node.textContent);
       if (state.loaded && !reduced()) countTo(node, had ? parseInt(node.textContent, 10) || 0 : 0, n, "");
       else node.textContent = txt;
-      if (had && !reduced()) { node.classList.remove("bump"); void node.offsetWidth; node.classList.add("bump"); }
+      if (had && !reduced()) bump(node);
     }
     if (tile) tile.classList.toggle("zero", state.loaded && n === 0);
   }
 
+  /* a changed number swells for a moment; animate() restarts it without forcing a layout */
+  function bump(node) {
+    if (node.animate) node.animate([{ transform: "scale(1)" }, { transform: "scale(1.2)", offset: .4 }, { transform: "scale(1)" }], { duration: 450, easing: "ease" });
+  }
   /* numbers roll up to their value: quick, eased, and always land on the exact figure */
   function countTo(node, from, to, suffix) {
     if (node._raf) cancelAnimationFrame(node._raf);
@@ -2767,7 +2773,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var had = /\d/.test(pctNode.textContent);
       if (state.loaded && total && !reduced()) countTo(pctNode, had ? parseInt(pctNode.textContent, 10) || 0 : 0, Math.round(pct * 100), "%");
       else pctNode.textContent = pctTxt;
-      if (had && !reduced()) { pctNode.classList.remove("bump"); void pctNode.offsetWidth; pctNode.classList.add("bump"); }
+      if (had && !reduced()) bump(pctNode);
     }
     $("ringSub").textContent = !state.loaded ? "Cargando…" : total ? doneDue + " de " + total + " que vencen esta semana" : "Nada vence esta semana";
     $("ringPct").parentNode.parentNode.title = "Tareas con entrega entre el " + fmtShort(wkStart) + " y el " + fmtShort(wkEnd) + " que ya están hechas";
@@ -2787,7 +2793,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var max = Math.max.apply(null, counts.concat([1]));
     var bars = $("bars").children, days = $("days").children;
     for (var i = 0; i < 7; i++) {
-      bars[i].style.height = Math.max(8, counts[i] / max * 100) + "%";
+      bars[i].style.transform = "translateY(" + (100 - Math.max(8, counts[i] / max * 100)) + "%)";
       bars[i].classList.toggle("has", counts[i] > 0);
       days[i].textContent = WD_SHORT[addDays(today, i - 6).getDay()].charAt(0).toUpperCase();
     }
@@ -3206,8 +3212,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function tick() {
     var w = window.innerWidth, h = window.innerHeight;
     bctx.clearRect(0, 0, w, h);
-    particles = particles.filter(function (p) { return p.life < p.max; });
-    particles.forEach(function (p) {
+    /* drop spent particles in place: no new array every frame */
+    var n = 0;
+    for (var i = 0; i < particles.length; i++) if (particles[i].life < particles[i].max) particles[n++] = particles[i];
+    particles.length = n;
+    for (i = 0; i < n; i++) {
+      var p = particles[i];
       p.life++; p.vy += .22; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
       bctx.globalAlpha = Math.max(0, 1 - p.life / p.max);
       bctx.fillStyle = p.c;
@@ -3215,7 +3225,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (p.sq) bctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
       else { bctx.beginPath(); bctx.arc(0, 0, p.s / 2, 0, 6.283); bctx.fill(); }
       bctx.restore();
-    });
+    }
     bctx.globalAlpha = 1;
     if (particles.length) requestAnimationFrame(tick);
     else { brun = false; bctx.clearRect(0, 0, w, h); }
@@ -4756,7 +4766,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var done = items.filter(function (i) { return i.done; }).length;
       cnt.textContent = items.length ? done + " de " + items.length : "";
       bar.hidden = !items.length;
-      fill.style.width = items.length ? (done / items.length * 100) + "%" : "0";
+      fill.style.transform = "translateX(" + (items.length ? done / items.length * 100 - 100 : -100) + "%)";
       bar.classList.toggle("full", items.length > 0 && done === items.length);
       if (!items.length && ro) list.appendChild(el("div", "help", "Esta tarjeta no tiene pasos."));
       items.forEach(function (it, idx) {
@@ -7010,24 +7020,27 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var add = e.ctrlKey || e.metaKey || e.shiftKey, base = add ? Object.assign({}, state.dsel) : {};
       var sx = e.clientX, sy = e.clientY, box = null, moved = false;
       var nodes = Array.prototype.slice.call(main.querySelectorAll("[data-id]"));
+      /* items stay put while dragging, so measure them once (again only after a scroll) */
+      var rects = null, rescan = function () { rects = null; };
       function mv(ev) {
         var dx = ev.clientX - sx, dy = ev.clientY - sy;
         if (!moved && dx * dx + dy * dy < 30) return;
         moved = true;
+        if (!rects) rects = nodes.map(function (n) { return n.getBoundingClientRect(); });
         if (!box) { box = el("div", "dmarquee"); document.body.appendChild(box); document.body.classList.add("marqueeing"); }
         var l = Math.min(sx, ev.clientX), t = Math.min(sy, ev.clientY), w = Math.abs(dx), h = Math.abs(dy);
         box.style.left = l + "px"; box.style.top = t + "px"; box.style.width = w + "px"; box.style.height = h + "px";
         var sel = Object.assign({}, base);
-        nodes.forEach(function (n) { var r = n.getBoundingClientRect(); if (r.left < l + w && r.right > l && r.top < t + h && r.bottom > t) sel[n.dataset.id] = 1; });
+        nodes.forEach(function (n, i) { var r = rects[i]; if (r.left < l + w && r.right > l && r.top < t + h && r.bottom > t) sel[n.dataset.id] = 1; });
         var keys = Object.keys(sel).sort().join(",");
         if (keys !== Object.keys(state.dsel).sort().join(",")) { state.dsel = sel; paintSel(); }
       }
       function up() {
-        document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up);
+        document.removeEventListener("mousemove", mv); document.removeEventListener("mouseup", up); window.removeEventListener("scroll", rescan, true);
         if (box) { box.classList.add("out"); setTimeout(function () { box.remove(); }, 120); document.body.classList.remove("marqueeing"); }
         if (!moved && !add) clearSel();
       }
-      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up);
+      document.addEventListener("mousemove", mv); document.addEventListener("mouseup", up); window.addEventListener("scroll", rescan, true);
       e.preventDefault();
       if (document.activeElement && document.activeElement !== document.body && $("docs").contains(document.activeElement)) document.activeElement.blur();
     });
@@ -9168,10 +9181,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           if (!ocrBox.isConnected) return;
           if (m.status === "recognizing text") {
             msg.textContent = "Leyendo la tarjeta… " + Math.round((m.progress || 0) * 100) + "%";
-            fill.style.width = (40 + (m.progress || 0) * 60) + "%";
+            fill.style.transform = "translateX(" + ((m.progress || 0) * 60 - 60) + "%)";
           } else if (/load|initiali/i.test(m.status || "")) {
             msg.textContent = "Preparando el lector (la primera vez tarda un poco más)…";
-            fill.style.width = Math.max(6, Math.round((m.progress || 0) * 38)) + "%";
+            fill.style.transform = "translateX(" + (Math.max(6, Math.round((m.progress || 0) * 38)) - 100) + "%)";
           }
         };
         Promise.all([getOcrWorker(), ocrImage(source)]).then(function (r) {
