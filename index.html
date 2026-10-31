@@ -676,9 +676,13 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .rem-note { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 14px; }
 .rem-note.warn { color: var(--late); background: var(--late-soft); border-color: transparent; }
 /* the alarm screen: a meeting reminder opened from the phone's notification, or arriving while the board is open */
-.alarm { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; justify-content: center; gap: 28px;
-  padding: calc(32px + env(safe-area-inset-top, 0px)) 24px calc(28px + env(safe-area-inset-bottom, 0px));
+/* centered with auto margins rather than justify-content, so on a short screen it scrolls instead of cutting off the bell and the buttons */
+.alarm { position: fixed; inset: 0; z-index: 90; display: flex; flex-direction: column; gap: 28px; overflow-y: auto; overscroll-behavior: contain;
+  padding: calc(32px + env(safe-area-inset-top, 0px)) calc(24px + env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
   background: #121a41; color: #fff; text-align: center; animation: fade .2s ease; }
+.alarm > :first-child { margin-top: auto; }
+.alarm > :last-child { margin-bottom: auto; }
+.alarm > * { flex-shrink: 0; }
 .alarm .al-top { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .alarm .al-bell { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,212,83,.14); color: #ffd453; }
 .alarm .al-bell .ico { width: 30px; height: 30px; }
@@ -694,6 +698,22 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .alarm .al-acts button { min-height: 52px; border-radius: 12px; font-size: 16px; font-weight: 700; border: 1px solid rgba(255,255,255,.22); background: transparent; color: #fff; }
 .alarm .al-acts .al-done { background: #ffd453; border-color: #ffd453; color: #121a41; }
 @media (prefers-reduced-motion: reduce) { .alarm.ring .al-bell { animation: none; } }
+/* short screens (small phones, landscape): tighter, so it all fits without scrolling when it can */
+@media (max-height: 640px) {
+  .alarm { gap: 16px; padding-top: calc(18px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
+  .alarm .al-top { gap: 6px; }
+  .alarm .al-bell { width: 44px; height: 44px; }
+  .alarm .al-bell .ico { width: 22px; height: 22px; }
+  .alarm .al-time { font-size: clamp(44px, 12vh, 64px); }
+  .alarm .al-acts button { min-height: 46px; }
+}
+@media (max-height: 480px) and (min-width: 560px) {
+  .alarm { gap: 10px; }
+  .alarm .al-top { gap: 4px; }
+  .alarm h2 { font-size: 20px; }
+  .alarm .al-acts { flex-direction: row; max-width: 640px; }
+  .alarm .al-acts button { flex: 1; }
+}
 @media (max-width: 680px) {
   .viewswitch { width: 100%; }
   .viewswitch button { flex: 1; justify-content: center; }
