@@ -46,7 +46,7 @@
   function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
   var PALETTE = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.7-1.7h2.2a4.3 4.3 0 0 0 4.3-4.3C21 6.7 17 3.5 12 3.5z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15.5" cy="8" r="1.2"/></svg>';
 
-  /* ---------- the dock: a copy of the side menu's sections that presses the side menu's own buttons ---------- */
+  /* ---------- the dock: a copy of the sections that presses the board's own section buttons ---------- */
   var dock;
   function buildDock() {
     var side = document.getElementById("side");
@@ -64,7 +64,9 @@
       var ico = b.querySelector("svg"); if (ico) c.appendChild(ico.cloneNode(true));
       var name = b.textContent.trim(), short = { "Documentos": "Docs" }[name];
       c.appendChild(el("span", short ? "dl-long" : null, name)); if (short) { c.appendChild(el("span", "dl-short", short)); c.setAttribute("aria-label", name); }
-      c.addEventListener("click", function () { b.click(); });
+      /* press the bottom bar's copy: the side menu ignores clicks while it is tucked away on Tablero */
+      var target = document.querySelector('#bnav [data-v="' + b.getAttribute("data-v") + '"]') || b;
+      c.addEventListener("click", function () { target.click(); });
       dock.appendChild(c);
     });
     document.body.appendChild(dock);
