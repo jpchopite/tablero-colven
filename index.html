@@ -907,7 +907,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
 
 /* ---------- home ---------- */
 .home { display: flex; flex-direction: column; gap: 14px; }
-.home-actions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.home-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .qa { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 14px; padding: 11px 14px; font-weight: 700; font-size: 14.5px; text-align: left; cursor: pointer; box-shadow: var(--shadow-sm); transition: transform .15s cubic-bezier(.2,.8,.2,1), box-shadow .15s, border-color .15s; }
 .qa:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--line-strong); }
 .qa:active { transform: translateY(0) scale(.98); }
@@ -983,6 +983,7 @@ button.fmain:hover .fname { text-decoration: underline; text-underline-offset: 2
   .brand { margin-bottom: 10px; }
   .gate-logo { height: 58px; }
   .home-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .home-actions > :last-child:nth-child(odd) { grid-column: 1 / -1; }
   .qa { padding: 10px 11px; font-size: 13.5px; gap: 8px; }
   .qa-ico { width: 30px; height: 30px; }
   .home-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
@@ -1576,7 +1577,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   .dclear { margin-left: 0; }
   /* five sections in the bottom bar; + floats above it on the right */
   body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
-  .bnav { grid-template-columns: repeat(5, 1fr); }
+  .bnav { grid-template-columns: repeat(4, 1fr); }
   .bnav button { font-size: 11px; letter-spacing: 0; }
   .bnav .bnav-add { position: fixed; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); margin: 0; z-index: 19; width: 58px; height: 58px; }
   .add-menu { left: auto; right: 16px; transform: none; bottom: calc(148px + env(safe-area-inset-bottom, 0px)); transform-origin: bottom right; animation: menuin3 .2s cubic-bezier(.2,.8,.2,1); }
@@ -2095,11 +2096,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <button type="button" data-v="home"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
     <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
     <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
-    <button type="button" data-v="contacts"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg>Contactos</button>
     <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
   </nav>
   <button type="button" class="side-add" id="sideAdd"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva tarea</button>
-  <div class="side-foot">Colven HQ<br>Tareas, calendario, contactos y documentos del equipo.</div>
+  <div class="side-foot">Colven HQ<br>Tareas, calendario y documentos del equipo.</div>
 </aside>
 <header class="hero">
   <div class="wrap hero-inner">
@@ -2149,7 +2149,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       <button type="button" id="viewHome" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
       <button type="button" id="viewBoard" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
       <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
-      <button type="button" id="viewContacts" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg>Contactos</button>
       <button type="button" id="viewDocs" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
     </div>
     <div class="search">
@@ -2167,7 +2166,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <div class="labelbar" id="labelBar" hidden></div>
   <main class="board" id="board"></main>
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
-  <section class="contacts" id="contacts" aria-label="Contactos" hidden></section>
   <section class="docs" id="docs" aria-label="Documentos" hidden></section>
 
   <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong> y entreguen lo que llegó a su fecha en <strong>Lista para entregar</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
@@ -2180,7 +2178,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg><span>Tablero</span></button>
   <button type="button" class="bnav-add" id="bnavAdd" aria-label="Agregar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
-  <button type="button" data-v="contacts"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.3"/><path d="M5.8 16.2c.5-1.7 1.8-2.6 3.2-2.6s2.7.9 3.2 2.6M14.5 10h3.5M14.5 13.5h3.5"/></svg><span>Contactos</span></button>
   <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg><span>Documentos</span></button>
 </nav>
 <div id="panelRoot"></div>
@@ -2673,7 +2670,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     renderStats();
     renderBoard();
     renderCal();
-    renderContacts();
     renderDocs();
     renderHome();
   }
@@ -2682,7 +2678,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("boardName").textContent = viewTitle();
     var now = new Date();
     var eb = $("today"); eb.textContent = "";
-    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", contacts: "Contactos", docs: "Documentos" }[state.view] || "";
+    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", docs: "Documentos" }[state.view] || "";
     eb.appendChild(el("span", "eb-sec", sec));
     eb.appendChild(el("span", "eb-date", "| " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
@@ -3554,13 +3550,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
             line.appendChild(da);
           } else line.appendChild(el("span", "log-task gone", dtt));
         } else if (e.contactId) {
-          var ct = (state.contacts || []).filter(function (x) { return x.id === e.contactId; })[0];
-          var ctt = "«" + (e.title || "contacto") + "»";
-          if (ct && e.action !== "contact_delete") {
-            var ca = el("button", "log-task", ctt); ca.type = "button";
-            ca.onclick = function () { openContact(ct); };
-            line.appendChild(ca);
-          } else line.appendChild(el("span", "log-task gone", ctt));
+          line.appendChild(el("span", "log-task gone", "«" + (e.title || "contacto") + "»"));
         } else {
           var task = state.tasks.filter(function (x) { return x.id === e.taskId; })[0];
           var tt = "«" + (e.title || "tarea") + "»";
@@ -4107,7 +4097,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
-    var place = state.view !== "contacts" && state.view !== "home" && state.view !== "docs" && state.db && state.loaded;
+    var place = state.view !== "home" && state.view !== "docs" && state.db && state.loaded;
     var show = !!(place && state.labels.length);
     var lb = $("labelsBtn");
     if (lb) lb.hidden = !(place && !state.labels.length && state.canWrite);
@@ -4341,7 +4331,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- home (Inicio): the most important things from every part of the page ---------- */
   state.recentLog = [];
-  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", contacts: "Contactos", docs: "Documentos" };
+  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", docs: "Documentos" };
   function greetingWord() { var h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; }
   function viewTitle() {
     if (state.view !== "home") return VIEW_TITLES[state.view] || "Tablero de tareas";
@@ -4400,8 +4390,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     r.appendChild(tm);
     var mid = el("span", "hmid");
     mid.appendChild(el("span", "htitle", meetingTitle(m)));
-    var who = meetingContacts(m).map(function (c) { return contactTitle(c); });
-    var sub = [who.join(", "), m.mode === "video" ? "Videollamada" : m.mode === "llamada" ? "Llamada" : (m.place || "")].filter(Boolean).join(" · ");
+    var sub = [m.others || "", m.mode === "video" ? "Videollamada" : m.mode === "llamada" ? "Llamada" : (m.place || "")].filter(Boolean).join(" · ");
     if (sub) mid.appendChild(el("span", "hsub plain", sub));
     r.appendChild(mid);
     if (showDay) r.appendChild(el("span", "hmeta", m.status === "cancelled" ? "Cancelada" : "Reunión"));
@@ -4454,7 +4443,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var qa = el("div", "home-actions");
       [["plus", "Nueva tarea", function () { openEditor(null); }],
        ["users", "Nueva reunión", function () { openMeeting(null, { date: today }); }],
-       ["card", "Nuevo contacto", function () { openContact(null); }],
        ["chevR", "Ver el tablero", function () { goBoard(); }]].forEach(function (a, i) {
         var b = el("button", "qa" + (i === 0 ? " primary" : ""));
         b.type = "button";
@@ -4636,45 +4624,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var drawLog = function () { drawEntries(lg, entries, { emptyText: "Todavía no hay actividad." }); };
     drawLog(); resolveActors(entries, drawLog);
     grid.appendChild(w6.box);
-
-    /* 7. contacts */
-    var cs = (state.contacts || []).slice().sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); });
-    var w7 = widget("w-contacts", "card", "Contactos", cs.length, { text: "Ver todos", go: function () { setView("contacts"); } });
-    var withMeet = cs.map(function (c) { return { c: c, m: nextMeetingFor(c.id) }; }).filter(function (x) { return x.m; })
-      .sort(function (a, b) { return whenKey(a.m).localeCompare(whenKey(b.m)); });
-    if (withMeet.length) {
-      var gm = el("div", "hgroup meet");
-      gm.appendChild(el("div", "hgroup-t", "Próximas reuniones con contactos"));
-      withMeet.slice(0, 2).forEach(function (x) {
-        var r = el("button", "hrow hcontact"); r.type = "button";
-        r.appendChild(cAvatar(x.c));
-        var mid = el("span", "hmid");
-        mid.appendChild(el("span", "htitle", contactTitle(x.c)));
-        mid.appendChild(el("span", "hsub plain", relDay(x.m.date) + (x.m.start ? " · " + x.m.start : "") + " · " + meetingTitle(x.m)));
-        r.appendChild(mid);
-        r.onclick = function () { openMeeting(x.m); };
-        gm.appendChild(r);
-      });
-      w7.body.appendChild(gm);
-    }
-    if (cs.length) {
-      var gr = el("div", "hgroup");
-      gr.appendChild(el("div", "hgroup-t", "Agregados recientemente"));
-      cs.slice(0, withMeet.length ? 3 : 4).forEach(function (c) {
-        var r = el("button", "hrow hcontact"); r.type = "button";
-        r.appendChild(cAvatar(c));
-        var mid = el("span", "hmid");
-        mid.appendChild(el("span", "htitle", c.name || c.company || "Sin nombre"));
-        var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
-        if (sub) mid.appendChild(el("span", "hsub plain", sub));
-        r.appendChild(mid);
-        if (c.createdAt) { var d = new Date(c.createdAt); if (!isNaN(d)) r.appendChild(el("span", "hmeta", d.getDate() + " " + MONTHS[d.getMonth()])); }
-        r.onclick = function () { openContact(c); };
-        gr.appendChild(r);
-      });
-      w7.body.appendChild(gr);
-    } else w7.body.appendChild(homeEmpty("Guarda aquí las tarjetas de presentación: con una foto se llenan los datos solos.", "camera"));
-    grid.appendChild(w7.box);
 
     /* 8. recent files */
     var files = [];
@@ -5106,7 +5055,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var row = el("div", "finder-in");
     row.appendChild(icon("search"));
     var q = document.createElement("input");
-    q.type = "search"; q.placeholder = "Buscar tareas, reuniones, contactos, archivos, comentarios…";
+    q.type = "search"; q.placeholder = "Buscar tareas, reuniones, archivos, comentarios…";
     q.setAttribute("aria-label", "Buscar en todo"); q.autocomplete = "off"; q.spellcheck = false;
     row.appendChild(q);
     var esc = el("kbd", null, "Esc"); row.appendChild(esc);
@@ -5126,12 +5075,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var qq = norm(q.value), out = [];
       if (!qq) {
         [["home", "Ir a Inicio", function () { setView("home"); }], ["move", "Ir al Tablero", function () { setView("board"); }],
-         ["cal", "Ir al Calendario", function () { setView("cal"); }], ["card", "Ir a Contactos", function () { setView("contacts"); }],
+         ["cal", "Ir al Calendario", function () { setView("cal"); }],
          ["folder", "Ir a Documentos", function () { setView("docs"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
         if (state.canWrite) {
           [["plus", "Nueva tarea", function () { openEditor(null); }], ["users", "Nueva reunión", function () { openMeeting(null, { date: todayStr() }); }],
-           ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["card", "Nuevo contacto", function () { openContact(null); }],
-           ["scan", "Modo evento (escanear tarjetas)", function () { setView("contacts"); openEventMode(); }], ["archive", "Archivo y papelera", function () { openArchive(); }],
+           ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["archive", "Archivo y papelera", function () { openArchive(); }],
            ["folderplus", "Nueva carpeta de documentos", function () { setView("docs"); newFolder(""); }], ["upload", "Subir documentos", function () { setView("docs"); pickFiles(state.dfolder); }]].forEach(function (x) { out.push({ group: "Crear", ic: x[0], title: x[1], run: x[2] }); });
         }
         return out;
@@ -5146,12 +5094,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         filesOf(t).forEach(function (f) { var ss = score(f.name, qq); if (ss) add("Archivos", "clip", f.name, "En «" + (titleOf(t) || "tarea") + "» · " + fmtSize(f.size), ss, function () { openFile(f, false); }); });
       });
       onePerSeries(state.meetings || []).forEach(function (m) {
-        var s = Math.max(score(meetingTitle(m), qq) * 3, score([m.place, m.others, m.agenda, m.minutes, meetingContacts(m).map(contactTitle).join(" ")].join(" "), qq));
+        var s = Math.max(score(meetingTitle(m), qq) * 3, score([m.place, m.others, m.agenda, m.minutes].join(" "), qq));
         add(isEvent(m) ? "Eventos" : "Reuniones", isEvent(m) ? "flag" : "users", meetingTitle(m), (isMultiDay(m) ? rangeLabel(m) : longDate(m.date) + (m.start ? " · " + m.start : "")) + (m.place ? " · " + m.place : ""), s, function () { openMeeting(m); });
-      });
-      (state.contacts || []).forEach(function (c) {
-        var s = Math.max(score(contactTitle(c), qq) * 3, score([c.company, c.role, c.email, c.phone, c.met, contactTags(c).join(" ")].join(" "), qq) * 2, (function () { var qd = digits(qq).replace(/^0+/, ""); return qd.length >= 4 && (digits(c.phone) + " " + digits(c.phone2)).indexOf(qd) >= 0 ? 4 : 0; })());
-        add("Contactos", "card", contactTitle(c), [c.role, c.name ? c.company : "", formatPhone(c.phone)].filter(Boolean).join(" · "), s, function () { setView("contacts"); openContact(c); });
       });
       state.dIdx.alive.forEach(function (d) {
         var s = Math.max(score(d.name, qq) * 3, isFileDoc(d) ? score(fileExt(d.name), qq) : 0);
@@ -5159,7 +5103,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         else if (isLink(d)) add("Documentos", "shortcut", d.name, "Acceso directo · en " + pathText(d._p), s, function () { openDoc(d); });
         else add("Documentos", "note", d.name, kindInfo(dKind(d)).label + " · " + fmtSize(d.size) + " · en " + pathText(d._p), s, function () { openFile(asFile(d), false); });
       });
-      var order = ["Tareas", "Reuniones", "Eventos", "Contactos", "Documentos", "Pasos", "Comentarios", "Archivos"];
+      var order = ["Tareas", "Reuniones", "Eventos", "Documentos", "Pasos", "Comentarios", "Archivos"];
       out.sort(function (a, b) { return order.indexOf(a.group) - order.indexOf(b.group) || b.s - a.s; });
       var per = {}; return out.filter(function (x) { per[x.group] = (per[x.group] || 0) + 1; return per[x.group] <= 6; });
     }
@@ -7799,7 +7743,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
 
   /* ---------- calendar view ---------- */
-  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", contacts: "contactos", docs: "documentos" };
+  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos" };
   function viewFromHash() {
     var h = String(location.hash || "").replace(/^#/, "").split("/")[0];
     for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
@@ -7867,17 +7811,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("board").hidden = v !== "board";
     $("tabs").hidden = v !== "board";
     $("cal").hidden = v !== "cal";
-    $("contacts").hidden = v !== "contacts";
     $("docs").hidden = v !== "docs";
     var fnote = document.querySelector(".foot-note"); if (fnote) fnote.hidden = v === "docs";
     $("viewDocs").setAttribute("aria-selected", String(v === "docs"));
     $("viewBoard").setAttribute("aria-selected", String(v === "board"));
     $("viewCal").setAttribute("aria-selected", String(v === "cal"));
-    $("viewContacts").setAttribute("aria-selected", String(v === "contacts"));
     $("hint").innerHTML = HINTS[v];
-    $("search").placeholder = v === "contacts" ? "Buscar contactos: nombre, empresa, correo…" : v === "docs" ? "Buscar documentos" : "Buscar tareas, clientes o notas";
-    $("search").setAttribute("aria-label", v === "docs" ? "Buscar documentos" : v === "contacts" ? "Buscar contactos" : "Buscar tareas");
-    $("fab").setAttribute("aria-label", v === "contacts" ? "Nuevo contacto" : v === "docs" ? "Subir o crear" : "Nueva tarea");
+    $("search").placeholder = v === "docs" ? "Buscar documentos" : "Buscar tareas, clientes o notas";
+    $("search").setAttribute("aria-label", v === "docs" ? "Buscar documentos" : "Buscar tareas");
+    $("fab").setAttribute("aria-label", v === "docs" ? "Subir o crear" : "Nueva tarea");
     var h1 = $("boardName"); if (h1) { var vt = viewTitle(); if (h1.textContent !== vt) h1.textContent = vt; }
   }
   state.calMonth = (function () { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
@@ -7887,7 +7829,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     home: "Lo más importante de hoy y de los próximos días · <kbd>N</kbd> nueva tarea · <kbd>R</kbd> nueva reunión",
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
     cal: "<kbd>R</kbd> nueva reunión · arrastra reuniones y tareas a otro día · toca un día para ver su agenda",
-    contacts: "Toma una foto de cada tarjeta al guardarla · <kbd>N</kbd> nuevo contacto",
     docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos · arrastra archivos aquí para subirlos"
   };
   function setView(v) {
@@ -7896,7 +7837,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var hv = v === "docs" ? docsHash() : VIEW_HASH[v];
     try { if (location.hash.replace(/^#/, "") !== hv) history.replaceState(null, "", "#" + hv); } catch (e) {}
     calDir = 0;
-    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderContacts(); renderDocs(); };
+    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderDocs(); };
     if (document.startViewTransition && !reduced() && state.loaded) { try { document.startViewTransition(paint); } catch (e) { paint(); } }
     else paint();
     if (window.scrollY > 200) window.scrollTo({ top: 0, behavior: "auto" });
@@ -8387,1097 +8328,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     });
   }
 
-  /* ---------- business card reader: turns recognized lines into contact fields ---------- */
-  var CARD = (function () {
-    var ROLE_RX = /(^|[\s,(])(gerente|director|directora|presidente|presidenta|vicepresidente|vicepresidenta|ingenier[oa]|ing\.|arquitect[oa]|arq\.|licenciad[oa]|lic\.|coordinador|coordinadora|jefe|jefa|asesor|asesora|ejecutiv[oa]|ventas|comercial|marketing|mercadeo|ceo|cto|coo|cfo|manager|analista|consultor|consultora|abogad[oa]|contador|contadora|socio|socia|fundador|fundadora|asistente|supervisor|supervisora|administrador|administradora|representante|dise[ñn]ador|dise[ñn]adora|t[ée]cnic[oa]|especialista|propietari[oa]|vendedor|vendedora|operaciones|log[íi]stica|compras|proyectos|recursos humanos|rrhh|sales|director of|head of|partner)(?=$|[\s,.)])/i;
-    var COMPANY_RX = /(\bc\.?\s?a\.?\s*$|\bs\.?\s?a\.?\s*$|\bs\.?\s?r\.?\s?l\.?|\bllc\b|\binc\b\.?|\bcorp\b\.?|\bcorporaci[óo]n\b|\bgrupo\b|\binversiones\b|\bindustrias?\b|\bconsultor[íi]a\b|\bconsultores\b|\bservicios\b|\bconstructora\b|\bdistribuidora\b|\bferreter[íi]a\b|\bestudio\b|\basociados\b|\bcompa[ñn][íi]a\b|\bsoluciones\b|\btecnolog[íi]as?\b|\bimportadora\b|\bcomercializadora\b|\bagencia\b|\bfundaci[óo]n\b|\bbanco\b|\bseguros\b|\bcl[íi]nica\b|\bhotel\b|\brestaurante?\b|\bimprenta\b|\bstudio\b|\bgroup\b|\bcompany\b|\bsolutions\b|\bpetr[óo]leos?\b|\benerg[íi]a\b|\blaboratorios?\b|\bcolegio\b|\buniversidad\b|\binstituto\b|\bministerio\b|&)/i;
-    var ADDR_RX = /(^|\s)(av\.?|avda\.?|avenida|calle|carrera|cra\.?|edif\.?|edificio|piso|ofic\.?|oficina|local|urb\.?|urbanizaci[óo]n|sector|zona industrial|centro|torre|c\.\s?c\.|nro\.?|n[°º]|esquina|qta\.?|quinta|residencias|parroquia|municipio|estado|caracas|valencia|maracaibo|barquisimeto|maracay|puerto la cruz|lecher[íi]a|barcelona|m[ée]rida|san crist[óo]bal|puerto ordaz|ciudad guayana|venezuela)(?=$|[\s,.])/i;
-    var SOCIAL_RX = /(linkedin|instagram|facebook|twitter|tiktok|youtube|\bx\.com\b|\big:|\bin\/|(^|\s)@[a-z0-9_.]{3,})/i;
-    var LABEL_RX = /^(tel[eé]fonos?|telfs?|tlfs?|tel|cel(ular)?|m[óo]vil|whatsapp|wsp|ofic(ina)?|fax|e-?mail|correo|email|web|www|direcci[óo]n|dir)(?![a-záéíóúñ])\s*[.:\-]?\s*/i;
-    var HONOR_RX = /^(ing|arq|lic|dr|dra|abg|econ|prof|msc|mba|tsu|sr|sra)\.?\s+/i;
-    var FREE_MAIL = /^(gmail|hotmail|outlook|yahoo|icloud|live|msn|aol|proton|protonmail|cantv)$/i;
-    var SMALL = { de: 1, del: 1, la: 1, las: 1, los: 1, y: 1, e: 1, da: 1, van: 1, von: 1 };
-
-    function letters(s) { return (s.match(/[a-záéíóúüñ]/gi) || []).length; }
-    function digitsOf(s) { return String(s || "").replace(/\D/g, ""); }
-    function isUpper(s) { return letters(s) >= 3 && s === s.toUpperCase(); }
-    function titleCase(s, keepCodes) {
-      return s.toLowerCase().split(/(\s+)/).map(function (w, i) {
-        if (/^\s+$/.test(w) || !w) return w;
-        if (keepCodes && (/\./.test(w) || /^(llc|inc|srl|ca|sa)$/i.test(w))) return w.toUpperCase();
-        if (i > 0 && SMALL[w]) return w;
-        return w.charAt(0).toUpperCase() + w.slice(1);
-      }).join("");
-    }
-    function squash(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]/g, ""); }
-
-    function clean(raw) {
-      return String(raw || "")
-        .replace(/[|¦]/g, " ")
-        .replace(/\s*\(at\)\s*|\s*\[at\]\s*/gi, "@")
-        .replace(/([a-z0-9._%+\-])\s*@\s*([a-z0-9])/gi, "$1@$2")
-        .replace(/[“”«»]/g, "")
-        .replace(/\s+/g, " ")
-        .replace(/^[\s\-–—•·*,;:.]+|[\s\-–—•·*,;]+$/g, "")
-        .trim();
-    }
-
-    var EMAIL_RX = /[a-z0-9._%+\-]+@[a-z0-9\-]+(\.[a-z0-9\-]+)*\.[a-z]{2,}/i;
-    var WEB_RX = /(https?:\/\/)?(www\.)?[a-z0-9][a-z0-9\-]*(\.[a-z0-9\-]+)*\.(com|net|org|ve|co|info|biz|io|app|dev|store|shop|online|site|tech|gob|edu|us|es|mx|com\.ve|net\.ve|org\.ve|gob\.ve)(\/[^\s]*)?(?=$|[\s,;])/i;
-    var PHONE_RX = /(\+?\(?\d[\d\s().\-]{5,}\d)/g;
-
-    function parse(input) {
-      var lines = (input || []).map(function (l) {
-        var o = typeof l === "string" ? { text: l } : l;
-        return { text: clean(o.text), conf: o.conf == null ? 100 : o.conf, h: o.h || 0 };
-      }).filter(function (l) { return l.text && (letters(l.text) + digitsOf(l.text).length) >= 2 && l.conf >= 35; });
-
-      var out = { name: "", role: "", company: "", phone: "", phone2: "", email: "", web: "", address: "", social: "", lines: [] };
-      var used = lines.map(function () { return ""; });
-      var phones = [];
-
-      lines.forEach(function (l, i) {
-        var t = l.text, low = t.toLowerCase(), hit = false;
-        var em = t.match(EMAIL_RX);
-        if (em) {
-          if (!out.email) out.email = em[0].replace(/[.,;]+$/, "").toLowerCase();
-          t = t.replace(em[0], " "); hit = true; used[i] = "email";
-        }
-        var w = t.match(WEB_RX);
-        if (w && !/@/.test(w[0])) {
-          if (!out.web || /www\./i.test(w[0])) out.web = w[0].replace(/[.,;]+$/, "").toLowerCase();
-          t = t.replace(w[0], " "); hit = true; used[i] = used[i] || "web";
-        }
-        if (SOCIAL_RX.test(t) && letters(t) >= 3) {
-          out.social = out.social ? out.social + " · " + t.replace(LABEL_RX, "").trim() : t.replace(LABEL_RX, "").trim();
-          used[i] = used[i] || "social"; return;
-        }
-        var m, found = false;
-        t.split(/\s*[\/|;,]\s*|\s+(?:y|o)\s+/).forEach(function (seg) {
-        PHONE_RX.lastIndex = 0;
-        while ((m = PHONE_RX.exec(seg))) {
-          var d = digitsOf(m[1]);
-          if (d.length < 7 || d.length > 15) continue;
-          var mobile = /cel|m[óo]vil|whats|wsp/i.test(low) || /^(04|584|\+584)/.test(d) || (d.length === 10 && d.charAt(0) === "4");
-          phones.push({ v: m[1].replace(/\s+/g, " ").trim(), mobile: mobile, office: /tel|telf|ofic|fax|master/i.test(low) && !mobile });
-          found = true;
-        }
-        });
-        if (found) { used[i] = used[i] || "phone"; return; }
-        if (hit) return;
-        if (ADDR_RX.test(" " + t) && (digitsOf(t).length > 0 || /,/.test(t) || ADDR_RX.test(" " + t))) {
-          var a = t.replace(LABEL_RX, "").trim();
-          out.address = out.address ? out.address + ", " + a : a;
-          used[i] = "address";
-        }
-      });
-
-      phones.sort(function (a, b) { return (b.mobile ? 1 : 0) - (a.mobile ? 1 : 0); });
-      var seenP = {};
-      phones = phones.filter(function (p) { var k = digitsOf(p.v).slice(-8); if (seenP[k]) return false; seenP[k] = 1; return true; });
-      if (phones[0]) out.phone = phones[0].v;
-      if (phones[1]) out.phone2 = phones[1].v;
-
-      // what is left: name, role and company
-      var rest = [];
-      lines.forEach(function (l, i) {
-        if (used[i]) return;
-        var t = l.text.replace(LABEL_RX, "").trim();
-        if (letters(t) < 3) return;
-        rest.push({ i: i, t: t, h: l.h });
-      });
-      var domain = "";
-      if (out.email) { var dm = out.email.split("@")[1].split(".")[0]; if (!FREE_MAIL.test(dm)) domain = dm; }
-      else if (out.web) domain = out.web.replace(/^https?:\/\//, "").replace(/^www\./, "").split(".")[0];
-
-      var roleIdx = -1, compIdx = -1, nameIdx = -1;
-      rest.forEach(function (r, k) {
-        if (compIdx < 0 && COMPANY_RX.test(r.t) && !ROLE_RX.test(r.t)) compIdx = k;
-      });
-      if (compIdx < 0 && domain && domain.length >= 3) {
-        rest.forEach(function (r, k) {
-          if (compIdx >= 0) return;
-          var sq = squash(r.t);
-          if (sq.length >= 3 && (sq === squash(domain) || (sq.length >= 4 && (squash(domain).indexOf(sq) >= 0 || sq.indexOf(squash(domain)) >= 0)))) compIdx = k;
-        });
-      }
-      rest.forEach(function (r, k) {
-        if (roleIdx < 0 && k !== compIdx && ROLE_RX.test(" " + r.t.replace(HONOR_RX, ""))) roleIdx = k;
-      });
-      // the name: 2-4 words of letters, no digits; on a card it is usually the biggest text
-      var best = -1, bestScore = -1;
-      rest.forEach(function (r, k) {
-        if (k === compIdx || k === roleIdx) return;
-        var t = r.t.replace(HONOR_RX, "");
-        var words = t.split(/\s+/).filter(Boolean);
-        if (words.length < 2 || words.length > 5 || digitsOf(t).length) return;
-        if (COMPANY_RX.test(t)) return;
-        if (!words.every(function (w) { return /^[A-ZÁÉÍÓÚÑÜ]/.test(w) || SMALL[w.toLowerCase()]; })) return;
-        if (letters(t) < t.replace(/\s/g, "").length * 0.85) return;
-        var score = (r.h || 0) * 10 + (rest.length - k);
-        if (score > bestScore) { bestScore = score; best = k; }
-      });
-      nameIdx = best;
-      if (compIdx < 0) {
-        rest.forEach(function (r, k) {
-          if (compIdx >= 0 || k === nameIdx || k === roleIdx) return;
-          if (isUpper(r.t) && r.t.split(/\s+/).length <= 6 && !digitsOf(r.t).length) compIdx = k;
-        });
-      }
-      if (nameIdx >= 0) {
-        var nm = rest[nameIdx].t.replace(HONOR_RX, "");
-        out.name = isUpper(nm) ? titleCase(nm) : nm;
-        used[rest[nameIdx].i] = "name";
-      }
-      if (roleIdx >= 0) {
-        var rl = rest[roleIdx].t;
-        out.role = isUpper(rl) && rl.split(/\s+/).length > 1 ? titleCase(rl) : rl;
-        used[rest[roleIdx].i] = "role";
-      }
-      if (compIdx >= 0) {
-        var cp = rest[compIdx].t;
-        out.company = isUpper(cp) && cp.split(/\s+/).length > 1 ? titleCase(cp, true) : cp;
-        used[rest[compIdx].i] = "company";
-      }
-      out.lines = lines.map(function (l, i) { return { text: l.text, used: used[i] }; });
-      return out;
-    }
-    return { parse: parse };
-  })();
-
-  /* ---------- reading a card photo (Tesseract, runs on the device, loaded on first use) ---------- */
-  var tessLoad = null, ocrWorkerP = null, ocrLogger = null;
-  function loadTesseract() {
-    if (window.Tesseract) return Promise.resolve(window.Tesseract);
-    if (tessLoad) return tessLoad;
-    tessLoad = new Promise(function (resolve, reject) {
-      var s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
-      s.async = true;
-      s.onload = function () { window.Tesseract ? resolve(window.Tesseract) : reject(new Error("lector")); };
-      s.onerror = function () { reject(new Error("lector")); };
-      document.head.appendChild(s);
-    });
-    tessLoad.catch(function () { tessLoad = null; });
-    return tessLoad;
-  }
-  function getOcrWorker() {
-    if (ocrWorkerP) return ocrWorkerP;
-    ocrWorkerP = loadTesseract().then(function (T) {
-      return T.createWorker(["spa", "eng"], 1, { logger: function (m) { if (ocrLogger) ocrLogger(m); } });
-    });
-    ocrWorkerP.catch(function () { ocrWorkerP = null; });
-    return ocrWorkerP;
-  }
-  /* a larger, grey, contrast-stretched copy of the photo reads much better than the stored one */
-  function ocrImage(src) {
-    return new Promise(function (resolve, reject) {
-      var isUrl = typeof src === "string", url = isUrl ? src : URL.createObjectURL(src), img = new Image();
-      img.onload = function () {
-        try {
-          var s = Math.min(2.5, 2000 / Math.max(img.naturalWidth, img.naturalHeight));
-          var w = Math.max(1, Math.round(img.naturalWidth * s)), h = Math.max(1, Math.round(img.naturalHeight * s));
-          var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
-          var cx = cv.getContext("2d");
-          cx.drawImage(img, 0, 0, w, h);
-          var id = cx.getImageData(0, 0, w, h), px = id.data, hist = new Array(256).fill(0), n = w * h, i, g;
-          for (i = 0; i < px.length; i += 4) { g = Math.round(px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114); px[i] = g; hist[g]++; }
-          var lo = 0, hi = 255, acc = 0;
-          for (i = 0; i < 256; i++) { acc += hist[i]; if (acc > n * 0.02) { lo = i; break; } }
-          acc = 0;
-          for (i = 255; i >= 0; i--) { acc += hist[i]; if (acc > n * 0.02) { hi = i; break; } }
-          var span = Math.max(1, hi - lo);
-          for (i = 0; i < px.length; i += 4) { g = Math.max(0, Math.min(255, Math.round((px[i] - lo) * 255 / span))); px[i] = px[i + 1] = px[i + 2] = g; }
-          cx.putImageData(id, 0, 0);
-          if (!isUrl) URL.revokeObjectURL(url);
-          resolve(cv);
-        } catch (e) { reject(e); }
-      };
-      img.onerror = function () { if (!isUrl) URL.revokeObjectURL(url); reject(new Error("imagen")); };
-      img.src = url;
-    });
-  }
-
-  /* ---------- contacts ---------- */
-  state.contacts = [];
-  state.contactsLoaded = false;
-  state.ctag = "";
-  state.csort = "az";
-  try { var cso = localStorage.getItem("tb-csort"); if (cso === "az" || cso === "recent" || cso === "company") state.csort = cso; } catch (e) {}
-  var photoCache = {};
-  var CTAGS = ["Cliente", "Proveedor", "Aliado", "Prospecto"];
-
-  function findContact(id) { for (var i = 0; i < state.contacts.length; i++) if (state.contacts[i].id === id) return state.contacts[i]; return null; }
-  function contactTags(c) { return Array.isArray(c.tags) ? c.tags.filter(function (x) { return typeof x === "string" && x; }) : []; }
-  function contactTitle(c) { return c.name || c.company || "Contacto sin nombre"; }
-  function digits(s) { return String(s || "").replace(/\D/g, ""); }
-  function matchesContact(c) {
-    var q = norm(state.search);
-    if (!q) return true;
-    if (norm([c.name, c.role, c.company, c.phone, c.phone2, c.email, c.web, c.address, c.social, c.met, c.notes, contactTags(c).join(" ")].join(" ")).indexOf(q) >= 0) return true;
-    var qd = digits(q);
-    return qd.length >= 4 && (digits(c.phone) + " " + digits(c.phone2)).indexOf(qd) >= 0;
-  }
-  /* WhatsApp needs the international number; Venezuelan local numbers (0414…) become 58414… */
-  function waNumber(p) {
-    var raw = String(p || "").trim(), d = digits(raw);
-    if (!d) return "";
-    if (raw.charAt(0) === "+" || d.indexOf("00") === 0) return d.replace(/^00/, "");
-    if (d.length === 11 && d.charAt(0) === "0") return "58" + d.slice(1);
-    if (d.length === 10 && d.charAt(0) === "4") return "58" + d;
-    return d;
-  }
-  function webUrl(w) { w = String(w || "").trim(); if (!w) return ""; return /^https?:\/\//i.test(w) ? w : "https://" + w; }
-  function hueFor(s) { var h = 0; s = String(s || "?"); for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return ["p1", "p2", "p3"][h % 3]; }
-  function cAvatar(c) {
-    var a = el("span", "cavatar " + hueFor(norm(c.company || c.name)), initials(c.name || c.company || "?"));
-    a.setAttribute("aria-hidden", "true");
-    return a;
-  }
-  function contactLinks(c) {
-    var out = [];
-    function link(cls, href, ic, label, ext) {
-      var a = el("a", "cact " + cls);
-      a.href = href;
-      if (ext) { a.target = "_blank"; a.rel = "noopener"; }
-      a.appendChild(icon(ic)); a.appendChild(document.createTextNode(label));
-      a.addEventListener("click", function (e) { e.stopPropagation(); });
-      out.push(a);
-    }
-    if (c.phone) link("call", "tel:" + String(c.phone).replace(/[^\d+]/g, ""), "phone", "Llamar");
-    var wa = waNumber(c.phone) || waNumber(c.phone2);
-    if (wa) link("wa", "https://wa.me/" + wa, "chat", "WhatsApp", true);
-    if (c.email) link("mail", "mailto:" + String(c.email).trim(), "mail", "Correo");
-    if (c.web) link("web", webUrl(c.web), "globe", "Web", true);
-    return out;
-  }
-  function shortDate(s) { var d = parseDay(s); return d ? d.getDate() + " " + MONTHS[d.getMonth()] + " " + d.getFullYear() : ""; }
-
-  function contactCard(c) {
-    var card = el("article", "ccard" + (state.flashContact === c.id ? " flash" : ""));
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.setAttribute("aria-label", "Abrir contacto: " + contactTitle(c));
-    var top = el("div", "ccard-top");
-    top.appendChild(cAvatar(c));
-    var who = el("div", "cwho");
-    who.appendChild(el("h3", null, c.name || c.company || "Sin nombre"));
-    var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
-    if (sub) who.appendChild(el("div", "csub", sub));
-    top.appendChild(who);
-    if (c.photo) { var ph = el("span", "cphoto"); ph.title = "Tiene foto de la tarjeta"; ph.appendChild(icon("camera")); top.appendChild(ph); }
-    card.appendChild(top);
-    var tags = contactTags(c);
-    if (tags.length) {
-      var tg = el("div", "ctags");
-      tags.forEach(function (t) { tg.appendChild(el("span", "tag ct", t)); });
-      card.appendChild(tg);
-    }
-    var lines = el("div", "clines");
-    if (c.phone) lines.appendChild(el("span", null, formatPhone(c.phone)));
-    if (c.email) lines.appendChild(el("span", null, c.email));
-    if (lines.childNodes.length) card.appendChild(lines);
-    var links = contactLinks(c);
-    if (links.length) { var acts = el("div", "cacts"); links.forEach(function (a) { acts.appendChild(a); }); card.appendChild(acts); }
-    var meta = [];
-    if (member(c.receivedBy)) meta.push("Recibida por " + member(c.receivedBy).name.split(" ")[0]);
-    if (c.met) meta.push(c.met);
-    if (c.date) meta.push(shortDate(c.date));
-    var nxt = nextMeetingFor(c.id);
-    if (nxt) {
-      var nl = el("div", "cnext"); nl.appendChild(icon("users"));
-      nl.appendChild(el("span", null, "Reunión " + fmtShort(parseDay(nxt.date)) + (nxt.start ? " · " + nxt.start : "") + ": " + meetingTitle(nxt)));
-      nl.addEventListener("click", function (e) { e.stopPropagation(); openMeeting(nxt); });
-      card.appendChild(nl);
-    }
-    if (meta.length) card.appendChild(el("div", "cmeta", meta.join(" · ")));
-    card.addEventListener("click", function () { openContact(c); });
-    card.addEventListener("keydown", function (e) { if (e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openContact(c); } });
-    return card;
-  }
-
-  function renderContacts() {
-    applyView();
-    if (state.view !== "contacts") return;
-    var box = $("contacts");
-    box.textContent = "";
-    var all = state.contacts;
-    var head = el("div", "chead");
-    head.appendChild(el("h2", null, "Contactos"));
-    head.appendChild(el("span", "ccount", String(all.length)));
-    head.appendChild(el("span", "spacer"));
-    var sort = select("c-sort", [{ value: "az", label: "Nombre A–Z" }, { value: "company", label: "Empresa" }, { value: "recent", label: "Más recientes" }], state.csort);
-    sort.className = "csort";
-    sort.setAttribute("aria-label", "Ordenar contactos");
-    sort.onchange = function () { state.csort = sort.value; try { localStorage.setItem("tb-csort", sort.value); } catch (e) {} renderContacts(); };
-    head.appendChild(sort);
-    if (all.length) {
-      var exp = el("button", "btn small cexport"); exp.type = "button";
-      exp.appendChild(icon("download")); exp.appendChild(el("span", "t", "Exportar"));
-      exp.title = "Descargar todos los contactos para Excel o Google Sheets";
-      exp.onclick = exportContactsCsv;
-      head.appendChild(exp);
-    }
-    if (state.canWrite && !state.eventSession) {
-      var evb = el("button", "btn small"); evb.type = "button";
-      evb.appendChild(icon("scan")); evb.appendChild(el("span", "t", "Modo evento"));
-      evb.title = "Escanear varias tarjetas de un mismo evento";
-      evb.onclick = openEventMode;
-      head.appendChild(evb);
-    }
-    if (state.canWrite) {
-      var nb = el("button", "btn primary small"); nb.type = "button";
-      nb.appendChild(icon("plus")); nb.appendChild(document.createTextNode("Nuevo contacto"));
-      nb.onclick = function () { openContact(null); };
-      head.appendChild(nb);
-    }
-    box.appendChild(head);
-    var evBan = eventBanner(); if (evBan) box.appendChild(evBan);
-
-    var counts = {};
-    all.forEach(function (c) { contactTags(c).forEach(function (t) { counts[t] = (counts[t] || 0) + 1; }); });
-    var tagNames = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b, "es"); });
-    if (state.ctag && !counts[state.ctag]) state.ctag = "";
-    if (tagNames.length) {
-      var tf = el("div", "people-pick ctagbar");
-      tf.setAttribute("role", "group"); tf.setAttribute("aria-label", "Filtrar por etiqueta");
-      [""].concat(tagNames).forEach(function (t) {
-        var b = el("button", "chip all", t || "Todas");
-        b.type = "button";
-        b.setAttribute("aria-pressed", String(state.ctag === t));
-        b.appendChild(el("span", "n", String(t ? counts[t] : all.length)));
-        b.onclick = function () { state.ctag = t; renderContacts(); };
-        tf.appendChild(b);
-      });
-      box.appendChild(tf);
-    }
-
-    var list = all.filter(function (c) { return (!state.ctag || contactTags(c).indexOf(state.ctag) >= 0) && matchesContact(c); });
-    list.sort(function (a, b) {
-      if (state.csort === "recent") return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
-      if (state.csort === "company") return (norm(a.company) || "~").localeCompare(norm(b.company) || "~", "es") || norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
-      return norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es");
-    });
-    if (!state.contactsLoaded) {
-      var cg = el("div", "skel-grid");
-      for (var ci = 0; ci < 6; ci++) { var sc = el("div", "skel skel-c"); ["w60", "w80", "w40", "w30"].forEach(function (w) { sc.appendChild(el("div", "skel-line " + w)); }); cg.appendChild(sc); }
-      box.appendChild(cg); return;
-    }
-    if (!list.length) {
-      var em = el("div", "empty cempty");
-      if (!all.length) {
-        em.appendChild(icon("card"));
-        em.appendChild(el("b", null, "Todavía no hay contactos"));
-        em.appendChild(el("span", null, state.canWrite ? "Cuando reciban una tarjeta de presentación, toca «Nuevo contacto», tómale una foto y completa los datos." : "Aquí aparecerán los contactos del equipo."));
-      } else em.appendChild(el("span", null, "Ningún contacto coincide con la búsqueda o la etiqueta elegida."));
-      box.appendChild(em);
-      return;
-    }
-    var grid = el("div", "cgrid");
-    var lastGroup = null;
-    list.forEach(function (c) {
-      if (state.csort === "company") {
-        var g = c.company || "Sin empresa";
-        if (g !== lastGroup) { grid.appendChild(el("div", "cgroup", g)); lastGroup = g; }
-      }
-      grid.appendChild(contactCard(c));
-    });
-    box.appendChild(grid);
-    state.flashContact = null;
-  }
-
-  function resizeImage(file, max, quality) {
-    return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(file), img = new Image();
-      img.onload = function () {
-        try {
-          var s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-          var cv = document.createElement("canvas");
-          cv.width = Math.max(1, Math.round(img.naturalWidth * s));
-          cv.height = Math.max(1, Math.round(img.naturalHeight * s));
-          var cx = cv.getContext("2d");
-          cx.fillStyle = "#ffffff"; cx.fillRect(0, 0, cv.width, cv.height);
-          cx.drawImage(img, 0, 0, cv.width, cv.height);
-          URL.revokeObjectURL(url);
-          resolve(cv.toDataURL("image/jpeg", quality));
-        } catch (e) { reject(e); }
-      };
-      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("imagen")); };
-      img.src = url;
-    });
-  }
-  function prepPhoto(file) {
-    return resizeImage(file, 1400, 0.72).then(function (d) {
-      return d.length <= 1100000 ? d : resizeImage(file, 1000, 0.6);
-    });
-  }
-
-  function vcardFor(c) {
-    var e = function (s) { return String(s || "").replace(/\\/g, "\\\\").replace(/\r?\n/g, "\\n").replace(/([,;])/g, "\\$1"); };
-    var parts = String(c.name || "").trim().split(/\s+/).filter(Boolean);
-    var first = parts.shift() || "", last = parts.join(" ");
-    var L = ["BEGIN:VCARD", "VERSION:3.0", "N:" + e(last) + ";" + e(first) + ";;;", "FN:" + e(contactTitle(c))];
-    if (c.company) L.push("ORG:" + e(c.company));
-    if (c.role) L.push("TITLE:" + e(c.role));
-    if (c.phone) L.push("TEL;TYPE=CELL:" + e(formatPhone(c.phone)));
-    if (c.phone2) L.push("TEL;TYPE=WORK:" + e(formatPhone(c.phone2)));
-    if (c.email) L.push("EMAIL;TYPE=INTERNET:" + e(c.email));
-    if (c.web) L.push("URL:" + e(webUrl(c.web)));
-    if (c.address) L.push("ADR;TYPE=WORK:;;" + e(c.address) + ";;;;");
-    var note = [c.social ? "Redes: " + c.social : "", c.met ? "Nos conocimos: " + c.met : "", c.notes || ""].filter(Boolean).join("\n");
-    if (note) L.push("NOTE:" + e(note));
-    L.push("END:VCARD");
-    return L.join("\r\n") + "\r\n";
-  }
-  function safeName(s) { return String(s || "contacto").replace(/[\\/:*?"<>|]+/g, "").trim().slice(0, 60) || "contacto"; }
-  function downloadText(text, name, type) {
-    try {
-      var blob = new Blob([text], { type: type });
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(blob); a.download = name;
-      document.body.appendChild(a); a.click();
-      setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
-      return true;
-    } catch (e) { toast("No se pudo descargar el archivo en este navegador."); return false; }
-  }
-  function exportContactsCsv() {
-    var cols = [["Nombre", "name"], ["Cargo", "role"], ["Empresa", "company"], ["Teléfono", "phone"], ["Otro teléfono", "phone2"], ["Correo", "email"],
-      ["Sitio web", "web"], ["Dirección", "address"], ["Redes", "social"], ["Etiquetas", "tags"], ["Dónde nos conocimos", "met"], ["Fecha", "date"],
-      ["Recibida por", "receivedBy"], ["Notas", "notes"]];
-    var q = function (v) { v = String(v == null ? "" : v); return /[";\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
-    var rows = [cols.map(function (c) { return c[0]; }).join(";")];
-    state.contacts.slice().sort(function (a, b) { return norm(contactTitle(a)).localeCompare(norm(contactTitle(b)), "es"); }).forEach(function (c) {
-      rows.push(cols.map(function (col) {
-        var v = c[col[1]];
-        if (col[1] === "tags") v = contactTags(c).join(", ");
-        if (col[1] === "receivedBy") v = member(v) ? member(v).name : "";
-        return q(v);
-      }).join(";"));
-    });
-    if (downloadText("\ufeff" + rows.join("\r\n") + "\r\n", "contactos-" + todayStr() + ".csv", "text/csv;charset=utf-8")) toast("Contactos exportados");
-  }
-
-  /* ---------- phone numbers: one format for everyone (+58 414 123 4567) ---------- */
-  function formatPhone(raw) {
-    var s = String(raw || "").trim();
-    if (!s) return "";
-    var ext = "", m = /\s*(?:ext\.?|x)\s*(\d{1,6})\s*$/i.exec(s);
-    if (m) { ext = " ext. " + m[1]; s = s.slice(0, m.index); }
-    var plus = /^\s*(\+|00)/.test(s), d = s.replace(/\D/g, "");
-    if (/^00/.test(s.trim())) d = d.slice(2);
-    function grp(cc, rest) {
-      if (rest.length === 10) return "+" + cc + " " + rest.slice(0, 3) + " " + rest.slice(3, 6) + " " + rest.slice(6);
-      if (rest.length === 9) return "+" + cc + " " + rest.slice(0, 3) + " " + rest.slice(3, 6) + " " + rest.slice(6);
-      return "+" + cc + " " + rest;
-    }
-    if (plus || d.length > 11) {
-      if (/^58/.test(d)) { var r = d.slice(2).replace(/^0/, ""); if (r.length === 10) return grp("58", r) + ext; }
-      if (/^57/.test(d) && d.length === 12) return grp("57", d.slice(2)) + ext;
-      if (/^1/.test(d) && d.length === 11) return grp("1", d.slice(1)) + ext;
-      if (/^34/.test(d) && d.length === 11) return grp("34", d.slice(2)) + ext;
-      return String(raw).trim();
-    }
-    /* Venezuelan numbers written locally: 0414…, 0212…, or without the 0 */
-    if (d.length === 11 && d.charAt(0) === "0") return grp("58", d.slice(1)) + ext;
-    if (d.length === 10 && /^[24]/.test(d)) return grp("58", d) + ext;
-    return String(raw).trim();
-  }
-
-  /* ---------- reading check: fields the photo reader may have got wrong ---------- */
-  var JUNK_RX = /[£€¥©®|¡¿~`^_{}<>\\«»¬°¤§¶•]|[-–—]\s*[-–—]|\s[-–—]\s*$|^[-–—,.;:]+|(?:^|\s)[,.;:]{2,}/;
-  function cleanRead(k, v) {
-    var s = String(v || "");
-    s = s.replace(/[£€¥©®|¡¿~`^_{}<>\\«»¬°¤§¶•]+/g, " ")
-      .replace(/\s*[-–—]\s*[-–—]+\s*/g, " ")
-      .replace(/(?:^|\s)[-–—,.;:]+(?=\s|$)/g, " ");
-    if (k === "address" || k === "company" || k === "role" || k === "name") {
-      /* stray one- or two-letter fragments left at the end by the reader ("… Group A", "… FS A") */
-      s = s.replace(/(?:\s+(?!(?:y|e|o|u|a|de|del|la|el|en|C\.?A\.?|S\.?A\.?)$)[A-Za-zÁÉÍÓÚÑ]{1,2}\.?)+\s*$/g, "");
-    }
-    s = s.replace(/\s*,\s*,+/g, ",").replace(/\s{2,}/g, " ").replace(/^[\s,.;:-]+|[\s,;:-]+$/g, "").trim();
-    if (k === "phone" || k === "phone2") s = formatPhone(s);
-    if (k === "email") s = s.replace(/\s+/g, "").toLowerCase();
-    if (k === "web") s = s.replace(/\s+/g, "").toLowerCase();
-    return s;
-  }
-  function readProblems(k, v, conf) {
-    var s = String(v || ""), why = [];
-    if (!s) return why;
-    if (JUNK_RX.test(s)) why.push("tiene símbolos extraños");
-    if ((k === "address" || k === "company" || k === "role") && /\s[A-Za-zÁÉÍÓÚÑ]{1,2}\.?$/.test(s) && !/\s(?:y|e|o|de|C\.?A\.?|S\.?A\.?)$/i.test(s)) why.push("termina en letras sueltas");
-    if (k === "name" && /\d/.test(s)) why.push("el nombre tiene números");
-    if ((k === "address" || k === "company" || k === "name") && /^[a-záéíóúñ]/.test(s)) why.push("empieza con texto que parece cortado");
-    if (k === "email" && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(s)) why.push("no parece un correo completo");
-    if ((k === "phone" || k === "phone2")) { var n = s.replace(/\D/g, "").length; if (n < 7 || n > 15) why.push("el número parece incompleto"); }
-    if (k === "web" && !/\.[a-z]{2,}/i.test(s)) why.push("no parece una dirección web");
-    if (typeof conf === "number" && conf < 62) why.push("la foto no se leyó con claridad");
-    return why;
-  }
-
-  /* ---------- event mode: many cards from one event, scanned one after another ---------- */
-  function getSession() { try { return JSON.parse(sessionStorage.getItem("tb-event") || "null"); } catch (e) { return null; } }
-  function setSession(s) {
-    try { if (s) sessionStorage.setItem("tb-event", JSON.stringify(s)); else sessionStorage.removeItem("tb-event"); } catch (e) {}
-    state.eventSession = s; renderContacts();
-  }
-  state.eventSession = getSession();
-  function eventCandidates() {
-    var from = fmt(addDays(parseDay(todayStr()), -10)), to = fmt(addDays(parseDay(todayStr()), 10));
-    return (state.meetings || []).filter(function (m) { return m.date >= from && m.date <= to && m.status !== "cancelled"; })
-      .sort(function (a, b) { return Math.abs(dayDiff(a.date)) - Math.abs(dayDiff(b.date)) || whenKey(a).localeCompare(whenKey(b)); });
-  }
-  function linkContactToMeeting(meetingId, contactIds) {
-    var m = findMeeting(meetingId); if (!m || !state.db) return Promise.resolve();
-    if (m._series) {
-      var all = (m.contactIds || []).slice();
-      (contactIds || []).forEach(function (id) { if (all.indexOf(id) < 0) all.push(id); });
-      return detachOccurrence(m, { contactIds: all });
-    }
-    var ids = (m.contactIds || []).slice();
-    contactIds.forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); });
-    if (ids.length === (m.contactIds || []).length) return Promise.resolve();
-    return state.db.doc("meetings/" + meetingId).update({ contactIds: ids, updatedAt: new Date().toISOString() });
-  }
-  function scanNext() { openContact(null, { session: state.eventSession, autoCamera: true }); }
-  function openEventMode() {
-    openPanel(function (p) {
-      p.setAttribute("aria-label", "Modo evento");
-      p.appendChild(el("h2", null, "Modo evento"));
-      p.appendChild(el("div", "help-line", "Para cuando reciben muchas tarjetas en un mismo evento. Eliges el evento una vez y escaneas una tarjeta tras otra: cada contacto queda con el evento, la fecha y la etiqueta, y vinculado a la reunión del calendario."));
-      var cands = eventCandidates();
-      var opts = cands.map(function (m) { return { value: m.id, label: relDay(m.date) + " · " + meetingTitle(m) }; }).concat([{ value: "_other", label: "Otro evento (escribir el nombre)" }]);
-      var sel = select("ev-pick", opts, cands[0] ? cands[0].id : "_other");
-      p.appendChild(field("Evento", sel, cands.length ? "Reuniones y eventos de estos días en el calendario." : "No hay reuniones cerca de hoy en el calendario; escribe el nombre del evento."));
-      var nameIn = input("ev-name", ""); nameIn.placeholder = "p. ej. Foro de energía 2026"; nameIn.maxLength = 120;
-      var dateIn = input("ev-date", todayStr(), "date");
-      var other = el("div", "row2"); other.appendChild(field("Nombre del evento", nameIn)); other.appendChild(field("Fecha", dateIn));
-      p.appendChild(other);
-      var tagIn = input("ev-tag", ""); tagIn.maxLength = 30; tagIn.placeholder = "Opcional, p. ej. Prospecto";
-      var tagHelp = el("div", "people-pick ev-tags");
-      CTAGS.forEach(function (t) {
-        var b = el("button", "chip all", t); b.type = "button";
-        b.onclick = function () { tagIn.value = tagIn.value === t ? "" : t; Array.prototype.forEach.call(tagHelp.children, function (x) { x.setAttribute("aria-pressed", String(x.textContent === tagIn.value)); }); };
-        tagHelp.appendChild(b);
-      });
-      var tf = field("Etiqueta para todos", tagIn); tf.appendChild(tagHelp); p.appendChild(tf);
-      var recv = segmented("ev-recv", state.members.map(function (m) { return { value: m.key, label: m.name.split(" ")[0] }; }), meKey() || (state.members[0] && state.members[0].key));
-      p.appendChild(field("Recibidas por", recv.el));
-
-      /* cards already saved that day without an event can join it too */
-      var back = el("div", "ev-back");
-      p.appendChild(back);
-      var picked = {};
-      function evDate() { if (sel.value === "_other") return dateIn.value || todayStr(); var m = findMeeting(sel.value); return m ? m.date : todayStr(); }
-      function evName() { if (sel.value === "_other") return nameIn.value.trim(); var m = findMeeting(sel.value); return m ? meetingTitle(m) : ""; }
-      function drawBack() {
-        back.textContent = ""; picked = {};
-        var ds = evDate(), dsPrev = fmt(addDays(parseDay(ds), -1));
-        /* cards saved that day or the day before (often typed in the evening after the event) */
-        var near = function (x) { return x === ds || x === dsPrev; };
-        var loose = state.contacts.filter(function (c) { return !c.met && (near(c.date) || (c.createdAt && near(fmt(new Date(c.createdAt))))); });
-        if (!loose.length) return;
-        back.appendChild(el("div", "flabel", "Tarjetas de esos días sin evento (" + loose.length + ")"));
-        back.appendChild(el("div", "help", "Marca las que también son de este evento para vincularlas."));
-        var lst = el("div", "ev-list");
-        loose.forEach(function (c) {
-          var lab = el("label", "ev-item");
-          var cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = true; picked[c.id] = true;
-          cb.onchange = function () { picked[c.id] = cb.checked; };
-          lab.appendChild(cb);
-          lab.appendChild(cAvatar(c));
-          var tx = el("span", "ev-txt"); tx.appendChild(el("b", null, contactTitle(c))); if (c.company && c.name) tx.appendChild(el("span", null, c.company));
-          lab.appendChild(tx);
-          lst.appendChild(lab);
-        });
-        back.appendChild(lst);
-      }
-      function sync() { other.hidden = sel.value !== "_other"; drawBack(); }
-      sel.addEventListener("change", sync); dateIn.addEventListener("change", drawBack);
-      sync();
-      var acts = el("div", "panel-actions");
-      var go = el("button", "btn primary", "Empezar a escanear"); go.type = "button";
-      go.onclick = function () {
-        var name = evName();
-        if (!name) { nameIn.focus(); toast("Escribe el nombre del evento."); return; }
-        var s = { meetingId: sel.value === "_other" ? "" : sel.value, name: name, date: evDate(), tag: tagIn.value.trim(), by: recv.get(), count: 0, ids: [] };
-        var ids = Object.keys(picked).filter(function (k) { return picked[k]; });
-        var jobs = ids.map(function (id) {
-          var c = findContact(id); if (!c) return null;
-          var tags = contactTags(c).slice(); if (s.tag && tags.indexOf(s.tag) < 0) tags.push(s.tag);
-          return state.db.doc("contacts/" + id).update({ met: s.name, tags: tags, updatedAt: new Date().toISOString() });
-        }).filter(Boolean);
-        if (s.meetingId && ids.length) jobs.push(linkContactToMeeting(s.meetingId, ids));
-        go.disabled = true;
-        Promise.all(jobs).then(function () {
-          if (ids.length) { logEntry({ action: "contact_edit", title: plural(ids.length, "contacto vinculado", "contactos vinculados") + " a «" + s.name + "»" }); }
-          s.count = 0; s.linked = ids.length;
-          setSession(s);
-          closePanel();
-          if (ids.length) toast(plural(ids.length, "tarjeta vinculada", "tarjetas vinculadas") + " a «" + s.name + "».");
-          scanNext();
-        }).catch(function (e) { go.disabled = false; handleWriteError(e); });
-      };
-      acts.appendChild(go);
-      var cancel = el("button", "btn", "Cancelar"); cancel.type = "button"; cancel.onclick = closePanel; acts.appendChild(cancel);
-      p.appendChild(acts);
-    });
-  }
-  function eventBanner() {
-    var s = state.eventSession; if (!s) return null;
-    var b = el("div", "ev-banner");
-    var ic = el("span", "ev-ico"); ic.appendChild(icon("scan")); b.appendChild(ic);
-    var tx = el("div", "ev-btxt");
-    tx.appendChild(el("b", null, "Modo evento: " + s.name));
-    tx.appendChild(el("span", null, (s.count ? plural(s.count, "tarjeta guardada", "tarjetas guardadas") : "Todavía ninguna tarjeta") + (s.tag ? " · etiqueta «" + s.tag + "»" : "") + (s.meetingId ? " · se vinculan a la reunión" : "")));
-    b.appendChild(tx);
-    var go = el("button", "btn primary small"); go.type = "button";
-    go.appendChild(icon("camera")); go.appendChild(document.createTextNode("Escanear tarjeta"));
-    go.onclick = scanNext;
-    b.appendChild(go);
-    var end = el("button", "btn small", "Terminar"); end.type = "button";
-    end.onclick = function () { var n = s.count; setSession(null); toast(n ? "Listo: " + plural(n, "tarjeta guardada", "tarjetas guardadas") + " de «" + s.name + "»." : "Modo evento terminado."); };
-    b.appendChild(end);
-    return b;
-  }
-
-  function openContact(c, opts) {
-    opts = opts || {};
-    var isNew = !c, ses = isNew ? opts.session || null : null;
-    c = c || (ses ? { receivedBy: ses.by || meKey() || "", date: ses.date || todayStr(), tags: ses.tag ? [ses.tag] : [], met: ses.name || "" }
-      : { receivedBy: meKey() || "", date: todayStr(), tags: [] });
-    var ro = !state.canWrite;
-    var newPhoto, lastFile = null, ocrBusy = false;
-    var dupArmed = false;
-    openPanel(function (p) {
-      p.setAttribute("aria-label", isNew ? "Nuevo contacto" : "Contacto");
-      p.appendChild(el("h2", null, isNew ? "Nuevo contacto" : contactTitle(c)));
-      if (ses) { var evc = el("div", "ev-chip"); evc.appendChild(icon("scan")); evc.appendChild(document.createTextNode("Modo evento · " + ses.name)); p.appendChild(evc); }
-
-      if (!isNew) {
-        var quick = el("div", "cquick");
-        contactLinks(c).forEach(function (a) { quick.appendChild(a); });
-        var vcf = el("button", "cact"); vcf.type = "button";
-        vcf.appendChild(icon("userplus")); vcf.appendChild(document.createTextNode("Guardar en mi teléfono"));
-        vcf.onclick = function () { if (downloadText(vcardFor(c), safeName(contactTitle(c)) + ".vcf", "text/vcard;charset=utf-8")) toast("Abre el archivo descargado para agregarlo a tus contactos."); };
-        quick.appendChild(vcf);
-        if (state.canWrite) {
-          var fu = el("button", "cact"); fu.type = "button";
-          fu.appendChild(icon("check")); fu.appendChild(document.createTextNode("Tarea de seguimiento"));
-          fu.onclick = function () {
-            var info = [c.name, c.role, c.company, c.phone, c.email].filter(Boolean).join(" · ");
-            openEditor(null, { title: "Seguimiento: " + contactTitle(c) + (c.name && c.company ? " (" + c.company + ")" : ""), client: c.company || "", notes: "Contacto: " + info });
-          };
-          quick.appendChild(fu);
-        }
-        if (state.canWrite) {
-          var sm = el("button", "cact"); sm.type = "button";
-          sm.appendChild(icon("users")); sm.appendChild(document.createTextNode("Agendar reunión"));
-          sm.onclick = function () { openMeeting(null, { contactIds: [c.id], title: "Reunión con " + contactTitle(c), date: todayStr() }); };
-          quick.appendChild(sm);
-        }
-        p.appendChild(quick);
-        var cms = meetingsFor(c.id);
-        if (cms.length) {
-          var mbox = el("div", "cmeets");
-          mbox.appendChild(el("div", "flabel", "Reuniones con " + (c.name ? c.name.split(" ")[0] : contactTitle(c))));
-          cms.slice(0, 6).forEach(function (mm) {
-            var r = el("button", "cmeet-row" + (mm.status === "cancelled" ? " cancelled" : "")); r.type = "button";
-            r.appendChild(el("b", null, fmtShort(parseDay(mm.date)) + (mm.start ? " " + mm.start : "")));
-            r.appendChild(el("span", null, meetingTitle(mm)));
-            if (mm.status === "done") r.appendChild(el("span", "mpill done", "Realizada"));
-            else if (mm.status === "cancelled") r.appendChild(el("span", "mpill cancelled", "Cancelada"));
-            else if (isUpcoming(mm)) r.appendChild(el("span", "mpill", "Próxima"));
-            r.onclick = function () { openMeeting(mm); };
-            mbox.appendChild(r);
-          });
-          if (cms.length > 6) mbox.appendChild(el("div", "help", "Y " + plural(cms.length - 6, "reunión más", "reuniones más") + " en el calendario."));
-          p.appendChild(mbox);
-        }
-      }
-
-      /* card photo */
-      var pbox = el("div", "pbox");
-      var camIn = document.createElement("input");
-      camIn.type = "file"; camIn.accept = "image/*"; camIn.setAttribute("capture", "environment"); camIn.id = "c-cam"; camIn.className = "visually-hidden";
-      var upIn = document.createElement("input");
-      upIn.type = "file"; upIn.accept = "image/*"; upIn.id = "c-up"; upIn.className = "visually-hidden";
-      function drawPhoto(src, msg) {
-        pbox.textContent = "";
-        pbox.classList.remove("zoom");
-        if (msg) { var w = el("div", "pempty"); w.appendChild(el("span", null, msg)); pbox.appendChild(w); return; }
-        if (src) {
-          var img = document.createElement("img");
-          img.src = src; img.alt = "Foto de la tarjeta de presentación"; img.className = "pimg";
-          img.title = "Toca para ampliar";
-          img.onclick = function () { pbox.classList.toggle("zoom"); };
-          pbox.appendChild(img);
-        } else {
-          var em = el("div", "pempty");
-          em.appendChild(icon("card"));
-          em.appendChild(el("span", null, ro ? "Sin foto de la tarjeta" : "Agrega una foto de la tarjeta de presentación"));
-          pbox.appendChild(em);
-        }
-        if (!ro) {
-          var row = el("div", "pacts");
-          var cam = el("label", "btn small"); cam.htmlFor = "c-cam";
-          cam.appendChild(icon("camera")); cam.appendChild(document.createTextNode(src ? "Otra foto" : "Tomar foto"));
-          var up = el("label", "btn small"); up.htmlFor = "c-up";
-          up.appendChild(icon("upload")); up.appendChild(document.createTextNode("Subir imagen"));
-          if (src) {
-            var rd = el("button", "btn small read-btn"); rd.type = "button";
-            rd.appendChild(icon("scan")); rd.appendChild(document.createTextNode("Leer datos de la foto"));
-            rd.onclick = function () { runOcr(lastFile || src); };
-            row.appendChild(rd);
-          }
-          row.appendChild(cam); row.appendChild(up);
-          if (src) {
-            var rm = el("button", "btn small danger", "Quitar foto"); rm.type = "button";
-            rm.onclick = function () { newPhoto = ""; lastFile = null; ocrBox.hidden = true; drawPhoto(""); };
-            row.appendChild(rm);
-          }
-          row.appendChild(camIn); row.appendChild(upIn);
-          pbox.appendChild(row);
-        }
-      }
-      function onFile(input) {
-        var f = input.files && input.files[0];
-        input.value = "";
-        if (!f) return;
-        drawPhoto(null, "Preparando la foto…");
-        prepPhoto(f).then(function (d) {
-          newPhoto = d; lastFile = f; drawPhoto(d);
-          if (!nameIn.value.trim() && !phIn.value.trim() && !emIn.value.trim()) runOcr(f);
-        })
-          .catch(function () { drawPhoto(newPhoto !== undefined ? newPhoto : (photoCache[c.id] || "")); toast("No se pudo leer esa imagen. Prueba con otra foto."); });
-      }
-      camIn.addEventListener("change", function () { onFile(camIn); });
-      upIn.addEventListener("change", function () { onFile(upIn); });
-      if (!isNew && c.photo) {
-        if (photoCache[c.id] != null) drawPhoto(photoCache[c.id]);
-        else {
-          drawPhoto(null, "Cargando la foto…");
-          state.db.contactPhoto(c.id).then(function (img) {
-            photoCache[c.id] = img || "";
-            if (newPhoto === undefined && pbox.isConnected) drawPhoto(img || "");
-          }).catch(function () { if (pbox.isConnected) drawPhoto(""); });
-        }
-      } else drawPhoto("");
-      p.appendChild(pbox);
-      if (opts.autoCamera && !ro) { try { camIn.click(); } catch (e) {} }
-
-      /* reading the card */
-      var ocrBox = el("div", "ocr"); ocrBox.hidden = true; ocrBox.setAttribute("aria-live", "polite");
-      p.appendChild(ocrBox);
-      var FIELD_LABEL = { name: "nombre", role: "cargo", company: "empresa", phone: "teléfono", phone2: "otro teléfono", email: "correo", web: "sitio web", address: "dirección", social: "redes" };
-      function fieldInputs() { return { name: nameIn, role: roleIn, company: compIn, phone: phIn, phone2: ph2In, email: emIn, web: webIn, address: adIn, social: soIn }; }
-      function flash(inp) { inp.classList.remove("filled"); void inp.offsetWidth; inp.classList.add("filled"); }
-      function runOcr(source) {
-        if (ocrBusy || ro) return;
-        ocrBusy = true;
-        ocrBox.hidden = false; ocrBox.textContent = "";
-        var msg = el("div", "ocr-msg", "Preparando el lector de tarjetas…");
-        var bar = el("div", "ocr-bar"), fill = el("span");
-        bar.appendChild(fill);
-        ocrBox.appendChild(msg); ocrBox.appendChild(bar);
-        ocrLogger = function (m) {
-          if (!ocrBox.isConnected) return;
-          if (m.status === "recognizing text") {
-            msg.textContent = "Leyendo la tarjeta… " + Math.round((m.progress || 0) * 100) + "%";
-            fill.style.transform = "translateX(" + ((m.progress || 0) * 60 - 60) + "%)";
-          } else if (/load|initiali/i.test(m.status || "")) {
-            msg.textContent = "Preparando el lector (la primera vez tarda un poco más)…";
-            fill.style.transform = "translateX(" + (Math.max(6, Math.round((m.progress || 0) * 38)) - 100) + "%)";
-          }
-        };
-        Promise.all([getOcrWorker(), ocrImage(source)]).then(function (r) {
-          return r[0].recognize(r[1]);
-        }).then(function (res) {
-          ocrBusy = false; ocrLogger = null;
-          if (!ocrBox.isConnected) return;
-          var d = (res && res.data) || {};
-          var lines = d.lines && d.lines.length
-            ? d.lines.map(function (l) { return { text: l.text, conf: l.confidence, h: l.bbox ? l.bbox.y1 - l.bbox.y0 : 0 }; })
-            : String(d.text || "").split(/\n/).map(function (t) { return { text: t }; });
-          showParsed(CARD.parse(lines));
-        }).catch(function () {
-          ocrBusy = false; ocrLogger = null;
-          if (!ocrBox.isConnected) return;
-          ocrBox.textContent = "";
-          ocrBox.appendChild(el("div", "ocr-msg warn", "No se pudo usar el lector de tarjetas. Revisa tu conexión a internet e inténtalo otra vez."));
-          var again = el("button", "btn small", "Intentar de nuevo"); again.type = "button";
-          again.onclick = function () { runOcr(source); };
-          ocrBox.appendChild(again);
-        });
-      }
-      function showParsed(r) {
-        var inputs = fieldInputs(), filled = [];
-        Object.keys(inputs).forEach(function (k) {
-          if (!r[k] || inputs[k].value.trim()) return;
-          inputs[k].value = r[k];
-          flash(inputs[k]);
-          filled.push(FIELD_LABEL[k]);
-        });
-        ocrBox.textContent = "";
-        if (!r.lines.length) {
-          ocrBox.appendChild(el("div", "ocr-msg warn", "No encontré texto claro en la foto. Prueba con otra: la tarjeta de frente, bien iluminada, sin reflejos y ocupando casi toda la imagen."));
-          return;
-        }
-        var list = filled.length > 1 ? filled.slice(0, -1).join(", ") + " y " + filled[filled.length - 1] : filled[0];
-        var ok = el("div", "ocr-msg " + (filled.length ? "ok" : ""));
-        ok.appendChild(icon(filled.length ? "check" : "scan"));
-        ok.appendChild(el("span", null, filled.length
-          ? "Listo: llené " + list + ". Revisa que todo esté bien antes de guardar."
-          : "Leí la tarjeta, pero no encontré datos nuevos para los campos vacíos. Abajo está el texto por si quieres usar alguna línea."));
-        ocrBox.appendChild(ok);
-        var flagged = 0;
-        Object.keys(inputs).forEach(function (k) {
-          var inp = inputs[k]; if (!inp.value.trim() || filled.indexOf(FIELD_LABEL[k]) < 0) return;
-          var ln = r.lines.filter(function (x) { return x.used === k; })[0];
-          var why = readProblems(k, inp.value, ln && typeof ln.conf === "number" ? ln.conf : undefined);
-          if (k === "phone" || k === "phone2") { var fp = formatPhone(inp.value); if (fp !== inp.value) inp.value = fp; }
-          if (!why.length) return;
-          flagged++;
-          markReview(inp, k, why);
-        });
-        if (flagged) {
-          var sum = el("div", "rv-sum");
-          sum.appendChild(icon("flag"));
-          sum.appendChild(el("span", null, plural(flagged, "campo marcado", "campos marcados") + " en amarillo: la foto pudo leerse mal. Revísalos antes de guardar."));
-          var fixAll = el("button", "btn small", "Limpiar todos"); fixAll.type = "button";
-          fixAll.onclick = function () {
-            Array.prototype.forEach.call(p.querySelectorAll("input.review"), function (inp) { if (inp._rvClean) inp._rvClean(); });
-            sum.remove();
-          };
-          sum.appendChild(fixAll);
-          ocrBox.insertBefore(sum, ok.nextSibling);
-        }
-        var det = document.createElement("details");
-        det.className = "ocr-lines";
-        if (filled.length < 3) det.open = true;
-        det.appendChild(el("summary", null, "Texto encontrado en la tarjeta (" + r.lines.length + (r.lines.length === 1 ? " línea)" : " líneas)")));
-        det.appendChild(el("div", "help", "Si algo quedó en el campo equivocado, elige dónde va cada línea."));
-        r.lines.forEach(function (ln, i) {
-          var row = el("div", "ocr-line");
-          row.appendChild(el("span", "txt", ln.text));
-          if (ln.used && FIELD_LABEL[ln.used]) row.appendChild(el("span", "used", FIELD_LABEL[ln.used]));
-          var sel = document.createElement("select");
-          sel.id = "ocr-use-" + i;
-          sel.setAttribute("aria-label", "Usar «" + ln.text + "» como");
-          [["", "Usar como…"], ["name", "Nombre"], ["role", "Cargo"], ["company", "Empresa"], ["phone", "Teléfono"], ["phone2", "Otro teléfono"],
-           ["email", "Correo"], ["web", "Sitio web"], ["address", "Dirección"], ["social", "Redes"], ["notes", "Agregar a notas"]].forEach(function (o) {
-            var op = document.createElement("option"); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op);
-          });
-          sel.onchange = function () {
-            var k = sel.value; if (!k) return;
-            if (k === "notes") { notesIn.value = notesIn.value ? notesIn.value + "\n" + ln.text : ln.text; flash(notesIn); }
-            else { var inp = fieldInputs()[k]; inp.value = ln.text; flash(inp); }
-            sel.value = "";
-            toast("Línea copiada a " + (k === "notes" ? "notas" : FIELD_LABEL[k]));
-          };
-          row.appendChild(sel);
-          det.appendChild(row);
-        });
-        ocrBox.appendChild(det);
-      }
-
-      /* a field the reader may have misread: yellow, with a one-tap cleanup; editing it by hand clears the mark */
-      function markReview(inp, k, why) {
-        inp.classList.add("review");
-        var f = inp.closest(".field");
-        var old = f && f.querySelector(".rv-note"); if (old) old.remove();
-        var note = el("div", "rv-note");
-        note.appendChild(icon("flag"));
-        note.appendChild(el("span", null, "Revisa: " + why.join(", ") + "."));
-        var cleaned = cleanRead(k, inp.value);
-        var done = function () { inp.classList.remove("review"); note.remove(); };
-        if (cleaned && cleaned !== inp.value) {
-          var fx = el("button", null, "Limpiar"); fx.type = "button";
-          fx.title = "Quedaría: " + cleaned;
-          inp._rvClean = function () { inp.value = cleanRead(k, inp.value); flash(inp); done(); };
-          fx.onclick = inp._rvClean;
-          note.appendChild(fx);
-        }
-        var okb = el("button", null, "Está bien"); okb.type = "button"; okb.onclick = done; note.appendChild(okb);
-        if (f) f.appendChild(note);
-        inp.addEventListener("input", function once() { done(); inp.removeEventListener("input", once); });
-      }
-
-      /* fields */
-      var nameIn = input("c-name", c.name); nameIn.className = "title-in" + (isNew ? " autofocus" : ""); nameIn.maxLength = 120;
-      nameIn.placeholder = "Nombre y apellido"; nameIn.autocomplete = "off";
-      p.appendChild(field("Nombre", nameIn));
-      var roleIn = input("c-role", c.role); roleIn.maxLength = 120; roleIn.placeholder = "p. ej. Gerente de compras";
-      var compIn = input("c-company", c.company); compIn.maxLength = 120; compIn.placeholder = "Empresa u organización";
-      var dl = document.createElement("datalist"); dl.id = "c-companies";
-      var seen = {};
-      state.contacts.forEach(function (x) { if (x.company && !seen[norm(x.company)]) { seen[norm(x.company)] = 1; var o = document.createElement("option"); o.value = x.company; dl.appendChild(o); } });
-      compIn.setAttribute("list", "c-companies");
-      var r1 = el("div", "row2"); r1.appendChild(field("Cargo", roleIn)); r1.appendChild(field("Empresa", compIn)); p.appendChild(r1); p.appendChild(dl);
-      var phIn = input("c-phone", c.phone, "tel"); phIn.maxLength = 40; phIn.placeholder = "0414-1234567";
-      var ph2In = input("c-phone2", c.phone2, "tel"); ph2In.maxLength = 40; ph2In.placeholder = "Oficina u otro";
-      var r2 = el("div", "row2"); r2.appendChild(field("Teléfono", phIn)); r2.appendChild(field("Otro teléfono", ph2In)); p.appendChild(r2);
-      var emIn = input("c-email", c.email, "email"); emIn.maxLength = 160; emIn.placeholder = "nombre@empresa.com"; emIn.autocapitalize = "off";
-      var webIn = input("c-web", c.web, "url"); webIn.maxLength = 200; webIn.placeholder = "empresa.com"; webIn.autocapitalize = "off";
-      var r3 = el("div", "row2"); r3.appendChild(field("Correo", emIn)); r3.appendChild(field("Sitio web", webIn)); p.appendChild(r3);
-      var adIn = input("c-address", c.address); adIn.maxLength = 240; adIn.placeholder = "Dirección de la oficina";
-      p.appendChild(field("Dirección", adIn));
-      var soIn = input("c-social", c.social); soIn.maxLength = 200; soIn.placeholder = "LinkedIn, Instagram…";
-      p.appendChild(field("Redes sociales", soIn));
-
-      /* tags */
-      var chosen = contactTags(c).slice();
-      var tagBox = el("div", "people-pick"); tagBox.id = "c-tags"; tagBox.setAttribute("role", "group");
-      var pool = CTAGS.slice();
-      state.contacts.forEach(function (x) { contactTags(x).forEach(function (t) { if (pool.indexOf(t) < 0) pool.push(t); }); });
-      chosen.forEach(function (t) { if (pool.indexOf(t) < 0) pool.push(t); });
-      function drawTags() {
-        tagBox.textContent = "";
-        pool.forEach(function (t) {
-          var b = el("button", "chip all", t); b.type = "button";
-          b.setAttribute("aria-pressed", String(chosen.indexOf(t) >= 0));
-          b.disabled = ro;
-          b.onclick = function () {
-            var i = chosen.indexOf(t);
-            if (i >= 0) chosen.splice(i, 1); else chosen.push(t);
-            drawTags();
-          };
-          tagBox.appendChild(b);
-        });
-      }
-      drawTags();
-      var tagIn = input("c-newtag", ""); tagIn.maxLength = 30; tagIn.placeholder = "Otra etiqueta y Enter";
-      tagIn.addEventListener("keydown", function (e) {
-        if (e.key !== "Enter") return;
-        e.preventDefault();
-        var v = tagIn.value.trim();
-        if (!v) return;
-        v = v.charAt(0).toUpperCase() + v.slice(1);
-        if (pool.indexOf(v) < 0) pool.push(v);
-        if (chosen.indexOf(v) < 0) chosen.push(v);
-        tagIn.value = ""; drawTags();
-      });
-      var tf = field("Etiquetas", tagBox);
-      tf.appendChild(tagIn);
-      p.appendChild(tf);
-
-      var metIn = input("c-met", c.met); metIn.maxLength = 160; metIn.placeholder = "p. ej. Feria de la construcción";
-      var dateIn = input("c-date", c.date, "date");
-      var r4 = el("div", "row2"); r4.appendChild(field("Dónde nos conocimos", metIn)); r4.appendChild(field("Fecha", dateIn)); p.appendChild(r4);
-      var recv = segmented("c-recv", state.members.map(function (m) { return { value: m.key, label: m.name.split(" ")[0] }; }).concat([{ value: "", label: "Sin indicar" }]), member(c.receivedBy) ? c.receivedBy : "");
-      p.appendChild(field("Recibida por", recv.el));
-      var notesIn = document.createElement("textarea"); notesIn.id = "c-notes"; notesIn.value = c.notes || ""; notesIn.maxLength = 4000;
-      notesIn.placeholder = "Qué necesita, qué le ofrecimos, cuándo volver a escribirle…";
-      p.appendChild(field("Notas", notesIn));
-
-      var dup = el("div", "dupwarn"); dup.hidden = true; dup.setAttribute("role", "alert");
-      p.appendChild(dup);
-
-      if (ro) Array.prototype.forEach.call(p.querySelectorAll("input, select, textarea, button.chip"), function (x) { x.disabled = true; });
-
-      if (!isNew && c.updatedAt) {
-        var d = new Date(c.updatedAt);
-        if (!isNaN(d)) p.appendChild(el("div", "stamp", "Último cambio: " + d.getDate() + " " + MONTHS[d.getMonth()] + ", " + pad(d.getHours()) + ":" + pad(d.getMinutes())));
-      }
-
-      var acts = el("div", "panel-actions");
-      if (!ro) {
-        var save = el("button", "btn primary", isNew ? "Guardar contacto" : "Guardar cambios"); save.type = "button";
-        save.onclick = function () {
-          var name = nameIn.value.trim(), company = compIn.value.trim();
-          if (!name && !company) {
-            nameIn.focus(); nameIn.classList.remove("shake"); void nameIn.offsetWidth; nameIn.classList.add("shake");
-            toast("Escribe al menos el nombre o la empresa.");
-            return;
-          }
-          if (!state.db) { toast("El tablero no está conectado, así que no se puede guardar."); return; }
-          var now = new Date().toISOString();
-          var data = {
-            name: name, role: roleIn.value.trim(), company: company,
-            phone: formatPhone(phIn.value), phone2: formatPhone(ph2In.value), email: emIn.value.trim(), web: webIn.value.trim(),
-            address: adIn.value.trim(), social: soIn.value.trim(), tags: chosen.slice(),
-            met: metIn.value.trim(), date: dateIn.value || "", receivedBy: recv.get(), notes: notesIn.value.trim(),
-            photo: newPhoto === undefined ? !!c.photo : !!newPhoto,
-            createdAt: c.createdAt || now, updatedAt: now
-          };
-          if (!dupArmed) {
-            var em = data.email.toLowerCase(), pd = digits(data.phone).slice(-8);
-            var same = state.contacts.filter(function (x) {
-              if (x.id === c.id) return false;
-              if (em && String(x.email || "").trim().toLowerCase() === em) return true;
-              if (pd.length >= 7 && (digits(x.phone).slice(-8) === pd || digits(x.phone2).slice(-8) === pd)) return true;
-              return !!name && norm(x.name) === norm(name) && norm(x.company) === norm(company);
-            })[0];
-            if (same) {
-              dupArmed = true;
-              dup.textContent = "";
-              dup.appendChild(el("span", null, "Ya existe «" + contactTitle(same) + "»" + (same.company && same.name ? " (" + same.company + ")" : "") + " con datos parecidos. Puedes abrirlo para completarlo, o tocar «Guardar igual»."));
-              var open = el("button", "btn small", "Abrir «" + contactTitle(same) + "»"); open.type = "button";
-              open.onclick = function () { openContact(same); };
-              dup.appendChild(open);
-              dup.hidden = false;
-              save.textContent = "Guardar igual";
-              dup.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "nearest" });
-              return;
-            }
-          }
-          save.disabled = true;
-          var ref = isNew ? state.db.collection("contacts").doc() : state.db.doc("contacts/" + c.id);
-          var id = ref.id;
-          ref.set(data)
-            .then(function () { return newPhoto !== undefined ? state.db.setContactPhoto(id, newPhoto).then(function () { photoCache[id] = newPhoto; }) : null; })
-            .then(function () {
-              logEntry({ action: isNew ? "contact_create" : "contact_edit", contactId: id, title: name || company });
-              state.flashContact = id;
-              closePanel();
-              var cur = state.eventSession;
-              if (ses && cur) {
-                cur.count = (cur.count || 0) + 1; cur.ids = (cur.ids || []).concat([id]);
-                setSession(cur);
-                if (cur.meetingId) linkContactToMeeting(cur.meetingId, [id]).catch(function () {});
-                toast("Guardado (" + cur.count + " de «" + cur.name + "»).", scanNext, "Escanear otra");
-                return;
-              }
-              renderContacts();
-              toast(isNew ? "Contacto guardado" : "Cambios guardados");
-            })
-            .catch(function (e) {
-              save.disabled = false;
-              if (e && /imagen/i.test(e.message || "")) toast("El contacto se guardó, pero la foto no. Prueba con una foto más pequeña.");
-              else handleWriteError(e);
-            });
-        };
-        acts.appendChild(save);
-      }
-      var cancel = el("button", "btn", ro ? "Cerrar" : "Cancelar"); cancel.type = "button"; cancel.onclick = closePanel;
-      acts.appendChild(cancel);
-      if (!isNew && !ro) {
-        acts.appendChild(el("span", "spacer"));
-        var del = el("button", "btn danger", "Borrar"); del.type = "button";
-        del.onclick = function () {
-          if (!del.classList.contains("armed")) {
-            del.classList.add("armed"); del.textContent = "Confirmar borrado";
-            setTimeout(function () { if (del.isConnected) { del.classList.remove("armed"); del.textContent = "Borrar"; } }, 4000);
-            return;
-          }
-          del.disabled = true;
-          var copy = Object.assign({}, c); delete copy.id; delete copy._deleted;
-          state.db.doc("contacts/" + c.id).delete().then(function () {
-            logEntry({ action: "contact_delete", contactId: c.id, title: contactTitle(c) });
-            closePanel();
-            toast("Contacto borrado", function () {
-              state.db.doc("contacts/" + c.id).set(copy).then(function () {
-                logEntry({ action: "contact_restore", contactId: c.id, title: contactTitle(c) });
-                toast("Contacto restaurado");
-              }).catch(handleWriteError);
-            });
-          }).catch(function (e) { del.disabled = false; handleWriteError(e); });
-        };
-        acts.appendChild(del);
-      }
-      p.appendChild(acts);
-    });
-  }
-
   /* ---------- meetings ---------- */
   state.meetings = [];
   var MODES = [{ value: "presencial", label: "Presencial" }, { value: "video", label: "Videollamada" }, { value: "llamada", label: "Llamada" }];
@@ -9551,15 +8401,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function minutesBetween(a, b) { var x = a.split(":"), y = b.split(":"); return ((+y[0]) * 60 + (+y[1])) - ((+x[0]) * 60 + (+x[1])); }
   function timeRange(m) { return m.start ? m.start + (m.end ? "–" + m.end : "") : "Todo el día"; }
-  function meetingContacts(m) { return (Array.isArray(m.contactIds) ? m.contactIds : []).map(findContact).filter(Boolean); }
   function meetingTitle(m) { return m.title || "Reunión"; }
   function meetingLabels(m) { return (Array.isArray(m && m.labels) ? m.labels : []).filter(function (id) { return labelById(id); }); }
   function matchesMeeting(m) {
     if (!labelFilterOk(meetingLabels(m))) return false;
     var q = norm(state.search);
     if (!q) return true;
-    return norm([m.title, m.place, m.link, m.others, m.agenda, m.minutes,
-      meetingContacts(m).map(function (c) { return contactTitle(c) + " " + (c.company || ""); }).join(" ")].join(" ")).indexOf(q) >= 0;
+    return norm([m.title, m.place, m.link, m.others, m.agenda, m.minutes].join(" ")).indexOf(q) >= 0;
   }
   function meetingsByDay() {
     var map = {};
@@ -9577,14 +8425,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function isUpcoming(m) {
     var d = todayStr();
     return m.status !== "cancelled" && (m.date > d || (m.date === d && (!m.start || (m.end || m.start) >= nowHM())));
-  }
-  function nextMeetingFor(cid) {
-    return state.meetings.filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0 && isUpcoming(m); })
-      .sort(function (a, b) { return whenKey(a).localeCompare(whenKey(b)); })[0] || null;
-  }
-  function meetingsFor(cid) {
-    return onePerSeries(state.meetings).filter(function (m) { return (m.contactIds || []).indexOf(cid) >= 0; })
-      .sort(function (a, b) { return whenKey(b).localeCompare(whenKey(a)); });
   }
   function inviteText(m) {
     var lines = ["Reunión: " + meetingTitle(m), longDate(m.date) + (m.start ? ", " + timeRange(m) : "")];
@@ -9613,22 +8453,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     return c;
   }
-  function personChip(c, onRemove) {
-    var b = el(onRemove ? "span" : "button", "pchip-s");
-    if (!onRemove) b.type = "button";
-    b.appendChild(cAvatar(c));
-    b.appendChild(document.createTextNode(contactTitle(c)));
-    if (onRemove) {
-      var x = el("button", "x", "×"); x.type = "button";
-      x.setAttribute("aria-label", "Quitar a " + contactTitle(c));
-      x.onclick = function (e) { e.stopPropagation(); onRemove(); };
-      b.appendChild(x);
-    } else {
-      b.title = "Abrir contacto";
-      b.addEventListener("click", function (e) { e.stopPropagation(); openContact(c); });
-    }
-    return b;
-  }
   function meetingCard(m) {
     var card = el("article", "mcard" + (m.status === "cancelled" ? " cancelled" : "") + (m.status === "done" ? " mdone" : ""));
     card.tabIndex = 0;
@@ -9653,11 +8477,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     body.appendChild(row);
     var stx = seriesText(m);
     if (stx) { var rr = el("div", "mrow"); rr.appendChild(icon("repeat")); rr.appendChild(el("span", null, stx)); body.appendChild(rr); }
-    var ppl = meetingContacts(m);
     var team = (m.team || []).filter(function (k) { return member(k); });
-    if (ppl.length || team.length || m.others) {
+    if (team.length || m.others) {
       var pp = el("div", "mpeople");
-      ppl.forEach(function (c) { pp.appendChild(personChip(c)); });
       if (m.others) pp.appendChild(el("span", "pchip-s plain", m.others));
       if (team.length) {
         var st = el("span", "stack"); st.title = "Del equipo: " + namesOf(team);
@@ -9672,12 +8494,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       j.appendChild(icon("video")); j.appendChild(document.createTextNode("Unirse"));
       j.addEventListener("click", function (e) { e.stopPropagation(); });
       acts.appendChild(j);
-    }
-    if (m.mode === "llamada" && ppl[0] && ppl[0].phone && m.status !== "cancelled") {
-      var cl = el("a", "cact call"); cl.href = "tel:" + String(ppl[0].phone).replace(/[^\d+]/g, "");
-      cl.appendChild(icon("phone")); cl.appendChild(document.createTextNode("Llamar a " + contactTitle(ppl[0]).split(" ")[0]));
-      cl.addEventListener("click", function (e) { e.stopPropagation(); });
-      acts.appendChild(cl);
     }
     if (acts.childNodes.length) body.appendChild(acts);
     card.appendChild(body);
@@ -9752,7 +8568,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var base = { date: state.calSel || todayStr(), start: "10:00", end: "11:00", mode: "presencial", team: meKey() ? [meKey()] : [], contactIds: [], status: "scheduled" };
     m = m || Object.assign(base, preset || {});
     var ro = !state.canWrite;
-    var chosen = (m.contactIds || []).filter(function (id) { return findContact(id); });
+    var chosen = (m.contactIds || []).slice();
     var conflictArmed = false;
     var series = m._series ? findMeetingDoc(m._series) : null;
     openPanel(function (p) {
@@ -9770,13 +8586,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var j = el("a", "cact web"); j.href = m.link; j.target = "_blank"; j.rel = "noopener";
           j.appendChild(icon("video")); j.appendChild(document.createTextNode("Unirse a la videollamada")); quick.appendChild(j);
         }
-        var withPhone = meetingContacts(m).filter(function (c) { return waNumber(c.phone) || waNumber(c.phone2); })[0];
-        if (withPhone) {
-          var wa = el("a", "cact wa"); wa.target = "_blank"; wa.rel = "noopener";
-          wa.href = "https://wa.me/" + (waNumber(withPhone.phone) || waNumber(withPhone.phone2)) + "?text=" + encodeURIComponent(inviteText(m));
-          wa.appendChild(icon("chat")); wa.appendChild(document.createTextNode("Confirmar por WhatsApp a " + contactTitle(withPhone).split(" ")[0]));
-          quick.appendChild(wa);
-        }
         var cp = el("button", "cact"); cp.type = "button";
         cp.appendChild(icon("copy")); cp.appendChild(document.createTextNode("Copiar invitación"));
         cp.onclick = function () {
@@ -9788,9 +8597,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var fu = el("button", "cact"); fu.type = "button";
           fu.appendChild(icon("check")); fu.appendChild(document.createTextNode("Tarea de seguimiento"));
           fu.onclick = function () {
-            var first = meetingContacts(m)[0];
             var d = parseDay(m.date) || parseDay(todayStr());
-            openEditor(null, { title: "Seguimiento: " + meetingTitle(m), due: fmt(addDays(d, 2)), client: first && first.company || "",
+            openEditor(null, { title: "Seguimiento: " + meetingTitle(m), due: fmt(addDays(d, 2)), client: "",
               notes: (m.minutes ? "Acuerdos: " + m.minutes : m.agenda ? "Temas: " + m.agenda : "") + "\nReunión del " + longDate(m.date) });
           };
           quick.appendChild(fu);
@@ -9865,62 +8673,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var placeF = field("Lugar", placeIn);
       var linkIn = input("m-link", m.link, "url"); linkIn.maxLength = 400; linkIn.placeholder = "https://meet.google.com/…"; linkIn.autocapitalize = "off";
       var linkF = field("Enlace de la videollamada", linkIn);
-      var callHelp = el("div", "help", "Se llama al teléfono del contacto. Lo verás como botón en la reunión.");
+      var callHelp = el("div", "help", "Anota en «Con quién» a quién se llama y en «Temas» el número si hace falta.");
       p.appendChild(placeF); p.appendChild(linkF); p.appendChild(callHelp);
       function syncMode() { var v = mode.get(); placeF.hidden = v !== "presencial"; linkF.hidden = v !== "video"; callHelp.hidden = v !== "llamada"; }
       mode.onChange(syncMode); syncMode();
 
-      /* contacts picker */
-      var pick = el("div", "cpick"); pick.id = "m-contacts";
-      var chips = el("div", "mpeople");
-      var search = input("m-csearch", ""); search.placeholder = state.contacts.length ? "Buscar un contacto guardado…" : "Todavía no hay contactos guardados";
-      search.autocomplete = "off"; search.disabled = ro || !state.contacts.length;
-      search.setAttribute("aria-label", "Buscar contacto para agregar");
-      var results = el("div", "cpick-results"); results.hidden = true;
-      function drawChosen() {
-        chips.textContent = "";
-        chosen.forEach(function (id) {
-          var c = findContact(id); if (!c) return;
-          chips.appendChild(personChip(c, ro ? null : function () { chosen.splice(chosen.indexOf(id), 1); drawChosen(); }));
-        });
-        chips.hidden = !chosen.length;
-      }
-      function drawResults() {
-        var q = norm(search.value);
-        results.textContent = "";
-        if (!q) { results.hidden = true; return; }
-        var hits = state.contacts.filter(function (c) {
-          return chosen.indexOf(c.id) < 0 && norm([c.name, c.company, c.role, c.email].join(" ")).indexOf(q) >= 0;
-        }).slice(0, 6);
-        if (!hits.length) {
-          results.appendChild(el("div", "cpick-none", "No hay contactos con «" + search.value.trim() + "». Escríbelo en «Otros asistentes» o guárdalo antes en Contactos."));
-        }
-        hits.forEach(function (c) {
-          var b = el("button"); b.type = "button";
-          b.appendChild(cAvatar(c));
-          var t = el("span");
-          t.appendChild(document.createTextNode(contactTitle(c)));
-          var sub = [c.role, c.name ? c.company : ""].filter(Boolean).join(" · ");
-          if (sub) t.appendChild(el("small", null, sub));
-          b.appendChild(t);
-          b.onclick = function () {
-            chosen.push(c.id); search.value = ""; drawResults(); drawChosen(); search.focus();
-            if (!titleIn.value.trim()) { titleIn.value = "Reunión con " + contactTitle(c); titleIn.classList.remove("filled"); void titleIn.offsetWidth; titleIn.classList.add("filled"); }
-          };
-          results.appendChild(b);
-        });
-        results.hidden = false;
-      }
-      search.addEventListener("input", drawResults);
-      search.addEventListener("keydown", function (e) {
-        if (e.key === "Enter") { e.preventDefault(); var f = results.querySelector("button"); if (f) f.click(); }
-        if (e.key === "Escape" && search.value) { e.stopPropagation(); search.value = ""; drawResults(); }
-      });
-      pick.appendChild(chips); pick.appendChild(search); pick.appendChild(results);
-      drawChosen();
-      p.appendChild(field("Con quién (contactos guardados)", pick));
-      var othersIn = input("m-others", m.others); othersIn.maxLength = 240; othersIn.placeholder = "Personas que no están en Contactos";
-      p.appendChild(field("Otros asistentes", othersIn));
+      var othersIn = input("m-others", m.others); othersIn.maxLength = 240; othersIn.placeholder = "Nombres de quienes asisten";
+      p.appendChild(field("Con quién", othersIn));
 
       var teamSel = (m.team || []).slice();
       var teamBox = el("div", "people-pick"); teamBox.id = "m-team"; teamBox.setAttribute("role", "group");
@@ -9983,10 +8742,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var save = el("button", "btn primary", isNew ? "Agendar reunión" : "Guardar cambios"); save.type = "button";
         save.onclick = function () {
           var title = titleIn.value.trim();
-          if (!title && chosen.length) title = "Reunión con " + contactTitle(findContact(chosen[0]));
           if (!title) {
             titleIn.focus(); titleIn.classList.remove("shake"); void titleIn.offsetWidth; titleIn.classList.add("shake");
-            toast("Ponle un nombre a la reunión o elige con quién es.");
+            toast("Ponle un nombre a la reunión.");
             return;
           }
           if (!dateIn.value) { dateIn.focus(); toast("Elige la fecha."); return; }
@@ -10124,12 +8882,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
   $("fab").onclick = function () { openAddMenu(); };
-  $("viewContacts").onclick = function () { setView("contacts"); };
   $("teamBtn").onclick = openTeam;
   $("logBtn").onclick = openLog;
   $("meBtn").onclick = openMe;
-  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); renderContacts(); renderDocs(); }
-  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); renderContacts(); renderDocs(); });
+  function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); renderDocs(); }
+  $("search").addEventListener("input", function () { state.search = this.value; $("searchClear").hidden = !this.value; renderBoard(); renderCal(); renderDocs(); });
   $("viewBoard").onclick = function () { setView("board"); };
   $("viewHome").onclick = function () { setView("home"); };
   $("brandHome").onclick = function (e) { e.preventDefault(); setView("home"); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); };
@@ -10446,7 +9203,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function openAbout() {
     var dg = dialog({ title: "Acerca de este tablero" });
     var pub = new Date(document.lastModified), when = isNaN(pub) ? "" : pub.getDate() + " de " + MONTHS_LONG[pub.getMonth()] + " de " + pub.getFullYear();
-    dg.box.appendChild(el("p", "dlg-help", "Tablero del equipo de Colven Business Corp.: tareas, calendario, contactos y documentos."));
+    dg.box.appendChild(el("p", "dlg-help", "Tablero del equipo de Colven Business Corp.: tareas, calendario y documentos."));
     var dl = el("dl", "keys-list");
     [["Versión", when ? "Publicada el " + when : "Sin fecha"], ["Tema", themePref() === "dark" ? "Oscuro" : themePref() === "light" ? "Claro" : "Igual que el dispositivo"], ["Conexión", navigator.onLine === false ? "Sin señal" : "En línea"]]
       .forEach(function (r) { dl.appendChild(el("dt", null, r[0])); dl.appendChild(el("dd", null, r[1])); });
@@ -10472,17 +9229,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       ditems.push(["plus", "Nueva tarea", function () { openEditor(null); }]);
       return showMenu(ditems);
     }
-    if (state.view === "contacts") {
-      if (state.eventSession) { scanNext(); return; }
-      closeAddMenu();
-      var citems = [["card", "Nuevo contacto", function () { openContact(null); }], ["scan", "Modo evento", openEventMode]];
-      return showMenu(citems);
-    }
     closeAddMenu();
     var items = [["plus", "Nueva tarea", function () { openEditor(null, state.view === "cal" ? { due: state.calSel } : null); }],
       ["users", "Nueva reunión", function () { openMeeting(null, { date: state.view === "cal" ? state.calSel : todayStr() }); }],
       ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: state.view === "cal" ? state.calSel : todayStr() }); }]];
-    if (state.view === "home") items.push(["card", "Nuevo contacto", function () { openContact(null); }]);
     if (window.ADD_EXTRA) window.ADD_EXTRA(items);
     showMenu(items);
   }
@@ -10517,7 +9267,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (e.key === "n" || e.key === "N") newFolder(into); else pickFiles(into);
       return;
     }
-    if ((e.key === "n" || e.key === "N") && state.canWrite) { e.preventDefault(); if (state.view === "contacts") openContact(null); else openEditor(null); }
+    if ((e.key === "n" || e.key === "N") && state.canWrite) { e.preventDefault(); openEditor(null); }
     else if ((e.key === "r" || e.key === "R") && state.canWrite) { e.preventDefault(); openMeeting(null, { date: state.view === "cal" ? state.calSel : todayStr() }); }
     else if (e.key === "/") { e.preventDefault(); $("search").focus(); }
   });
@@ -10559,7 +9309,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* A small stand-in for the db API the board was written against, backed by key-checked Supabase functions. */
   function makeDb(key, onLocked) {
-    var cache = { tasks: {}, contacts: {}, meetings: {}, docs: {}, settings: null, log: [], loaded: false };
+    var cache = { tasks: {}, meetings: {}, docs: {}, settings: null, log: [], loaded: false };
     function docsFrom(d) { var o = {}; (d && d.docs || []).forEach(function (x) { o[x.id] = x.data; }); return o; }
     var subs = [];
     var pending = 0, loading = null, again = false, channel = null;
@@ -10584,7 +9334,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     function runQuery(q) {
       if (q.coll === "tasks") return Object.keys(cache.tasks).map(function (id) { return docSnap(id, cache.tasks[id]); });
-      if (q.coll === "contacts") return Object.keys(cache.contacts).map(function (id) { return docSnap(id, cache.contacts[id]); });
       if (q.coll === "meetings") return Object.keys(cache.meetings).map(function (id) { return docSnap(id, cache.meetings[id]); });
       if (q.coll === "docs") return Object.keys(cache.docs).map(function (id) { return docSnap(id, cache.docs[id]); });
       if (q.coll === "log") {
@@ -10614,9 +9363,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var t = {};
         (d && d.tasks || []).forEach(function (x) { t[x.id] = x.data; });
         cache.tasks = t;
-        var cs = {};
-        (d && d.contacts || []).forEach(function (x) { cs[x.id] = x.data; });
-        cache.contacts = cs;
         var ms = {};
         (d && d.meetings || []).forEach(function (x) { ms[x.id] = x.data; });
         cache.meetings = ms;
@@ -10632,11 +9378,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var saved = null;
         if (!cache.loaded) { try { saved = JSON.parse(localStorage.getItem("tb-offline") || "null"); } catch (er) { saved = null; } }
         if (saved && saved.d) {
-          var d = saved.d, t = {}, cs = {}, ms = {};
+          var d = saved.d, t = {}, ms = {};
           (d.tasks || []).forEach(function (x) { t[x.id] = x.data; });
-          (d.contacts || []).forEach(function (x) { cs[x.id] = x.data; });
           (d.meetings || []).forEach(function (x) { ms[x.id] = x.data; });
-          cache.tasks = t; cache.contacts = cs; cache.meetings = ms; cache.docs = docsFrom(d); cache.settings = d.settings || null;
+          cache.tasks = t; cache.meetings = ms; cache.docs = docsFrom(d); cache.settings = d.settings || null;
           cache.log = (d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
           cache.loaded = true;
           emit();
@@ -10682,14 +9427,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         if (path === "board/settings") return write("settings_set", { p_data: data }, function () { cache.settings = data; });
         if (coll === "tasks") return write("task_set", { p_id: id, p_data: data }, function () { cache.tasks[id] = data; });
         if (coll === "log") return write("log_add", { p_id: id, p_data: data }, function () { cache.log.unshift({ id: id, data: data }); });
-        if (coll === "contacts") return write("contact_set", { p_id: id, p_data: data }, function () { cache.contacts[id] = data; });
         if (coll === "meetings") return write("meeting_set", { p_id: id, p_data: data }, function () { cache.meetings[id] = data; });
         if (coll === "docs") return write("doc_set", { p_id: id, p_data: data }, function () { cache.docs[id] = data; });
         return Promise.resolve();
       };
       ref.update = function (data) {
         data = clone(data);
-        if (coll === "contacts") return ref.set(Object.assign({}, cache.contacts[id] || {}, data));
         if (coll === "meetings") return ref.set(Object.assign({}, cache.meetings[id] || {}, data));
         if (coll !== "tasks") return ref.set(data);
         return write("task_update", { p_id: id, p_data: data }, function () {
@@ -10697,7 +9440,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         });
       };
       ref.delete = function () {
-        if (coll === "contacts") return write("contact_delete", { p_id: id }, function () { delete cache.contacts[id]; });
         if (coll === "meetings") return write("meeting_delete", { p_id: id }, function () { delete cache.meetings[id]; });
         if (coll !== "tasks") return Promise.resolve();
         return write("task_delete", { p_id: id }, function () { delete cache.tasks[id]; });
@@ -10751,8 +9493,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       },
       calendarToken: function () { return rpc("calendar_token"); },
       calendarTokenReset: function () { return rpc("calendar_token_reset"); },
-      contactPhoto: function (id) { return rpc("contact_photo_get", { p_id: id }); },
-      setContactPhoto: function (id, img) { return rpc("contact_photo_set", { p_id: id, p_img: img }); },
       fileCall: function (body) {
         return sb.functions.invoke("adjuntos", { body: Object.assign({ key: key }, body) }).then(function (r) {
           if (r.error) {
@@ -10906,7 +9646,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     db.collection("meetings").onSnapshot(function (snap) {
       state.meetingDocs = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
       state.meetings = expandMeetings(state.meetingDocs);
-      renderHero(); renderCal(); renderContacts(); renderHome();
+      renderHero(); renderCal(); renderHome();
     });
     db.collection("docs").onSnapshot(function (snap) {
       var list = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
@@ -10919,11 +9659,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (sig === docSig && !first) return;
       docSig = sig;
       renderDocs(); renderHome();
-    });
-    db.collection("contacts").onSnapshot(function (snap) {
-      state.contacts = snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); });
-      state.contactsLoaded = true;
-      renderContacts(); renderHome();
     });
   }
 
