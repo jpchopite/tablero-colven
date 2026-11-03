@@ -2077,7 +2077,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <form id="gateForm" autocomplete="on">
       <div class="gate-eyebrow">Acceso del equipo</div>
       <h1 class="gate-title">Tablero de tareas</h1>
-      <p class="gate-sub">Escribe la clave que comparte el equipo para ver y mover las tareas.</p>
+      <p class="gate-sub">Escribe la clave que comparte el equipo. Con «Recordar en este dispositivo», esta computadora no la vuelve a pedir.</p>
       <label class="flabel" for="gateKey">Clave del equipo</label>
       <div class="gate-row">
         <input id="gateKey" name="password" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" placeholder="palabra-palabra-palabra-00">
@@ -9402,9 +9402,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   var SUPABASE_URL = "https://twtenusvpnqntkeiejvk.supabase.co";
   var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR3dGVudXN2cG5xbnRrZWllanZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5OTU1NjcsImV4cCI6MjEwNzU3MTU2N30.wXljnWHst2x4TwtjE_K319ffis3jxvuj55FQJ_3MyAM";
   var KEY_STORE = "tb-team-key";
-  /* Open access (for now): the page carries this key, so the board opens without asking for a password.
-     To require the team password again, set OPEN_KEY to "" and empty private.open_keys in Supabase. */
-  var OPEN_KEY = "abierto-5a5b12b57a8082355ffd";
+  /* Open access is off: the board asks for the team password, and "Recordar en este dispositivo" keeps it in this browser.
+     To open it without a password again, put a key here and register it in private.open_keys in Supabase. */
+  var OPEN_KEY = "";
   var activeKey = "";
   var sb = null;
   try {

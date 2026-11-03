@@ -13,13 +13,12 @@ Los archivos de las tarjetas se guardan en el almacenamiento privado `adjuntos` 
 La función `adjuntos` comprueba la clave del equipo antes de dar enlaces temporales para subir, ver o descargar.
 Al quitar un adjunto, el archivo guardado se borra solo si ninguna tarjeta (ni una en la papelera) lo usa.
 
-## Acceso abierto (temporal)
+## Acceso con clave
 
-Por ahora el tablero abre sin pedir clave: la página lleva su propia clave de acceso (`OPEN_KEY` en index.html), registrada en `private.open_keys`.
-La clave del equipo sigue funcionando. Para volver a pedirla:
+El tablero pide la clave del equipo. Con «Recordar en este dispositivo» (marcado por defecto) la clave queda guardada en ese navegador (`tb-team-key`) y esa computadora o teléfono entra directo las próximas veces; sin marcarlo, se pide de nuevo al cerrar el navegador.
+«Cerrar sesión en este dispositivo» (en Opciones y al pie de la página) borra la clave guardada. Si la clave cambia, todos los dispositivos la vuelven a pedir.
 
-1. En index.html, deja `OPEN_KEY = ""`.
-2. En Supabase, ejecuta `delete from private.open_keys;`
+Antes el tablero abría sin clave con `OPEN_KEY`, registrada en `private.open_keys`. Ahora `OPEN_KEY = ""`; para que esa clave vieja deje de servir también en el servidor, hay que vaciar `private.open_keys` en Supabase.
 
 ## App instalable y sin conexión
 
