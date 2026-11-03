@@ -53,6 +53,7 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 - Accesos directos: filas `type: "link"` con `target` (el id del original). Si el original se borra, el acceso directo queda «roto» y ofrece restaurarlo o borrarse.
 - Acceso rápido: carpetas o archivos con `pinnedAt`; lo ven todos.
 - Copiar crea filas nuevas que apuntan al mismo archivo guardado; el archivo solo se elimina cuando ya nadie lo usa (`attachment_in_use`).
+- Descargar carpetas: clic derecho en una carpeta (o en el fondo de una carpeta abierta) → «Descargar (.zip)», o «Descargar» en la barra de selección con varios elementos. La página arma el .zip en el navegador (sin comprimir, con las subcarpetas, también las vacías) a partir de los enlaces firmados de cada archivo; los anexos van junto a su archivo, los accesos directos a archivos traen el original y los accesos directos a carpetas se omiten. Por encima de 500 MB pide confirmar.
 
 ## Opciones y tema
 

@@ -5290,6 +5290,121 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }
     return out;
   }
+  /* ---------- downloading folders as a .zip ---------- */
+  /* Folders (and any mix of selected items) download as one .zip built in the browser: each file is fetched through its
+     signed link and stored as is (no compression, so it is quick and light on phones). Subfolders keep their place, empty
+     ones included; annexes go next to their file; shortcuts to files bring the original, shortcuts to folders are skipped. */
+  var CRC_T = null;
+  function crc32(u8) {
+    if (!CRC_T) { CRC_T = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_T[n] = c >>> 0; } }
+    var crc = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) crc = CRC_T[(crc ^ u8[i]) & 0xFF] ^ (crc >>> 8);
+    return (crc ^ 0xFFFFFFFF) >>> 0;
+  }
+  /* entries: [{ name: "a/b.pdf", data: Uint8Array }] or [{ name: "a/", dir: true }] → Blob (zip "stored", UTF-8 names) */
+  function makeZip(entries, when) {
+    var enc = new TextEncoder(), parts = [], central = [], off = 0;
+    var d = when || new Date();
+    var dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+    var dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    entries.forEach(function (e) {
+      var name = enc.encode(e.name), data = e.dir ? new Uint8Array(0) : e.data, crc = e.dir ? 0 : crc32(data);
+      var h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint16(10, dosTime, true); h.setUint16(12, dosDate, true); h.setUint32(14, crc, true);
+      h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, name.length, true); h.setUint16(28, 0, true);
+      var c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true); c.setUint16(10, 0, true);
+      c.setUint16(12, dosTime, true); c.setUint16(14, dosDate, true); c.setUint32(16, crc, true);
+      c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, name.length, true);
+      c.setUint32(38, e.dir ? 0x10 : 0, true); c.setUint32(42, off, true);
+      parts.push(h.buffer, name, data); central.push(c.buffer, name);
+      off += 30 + name.length + data.length;
+    });
+    var cSize = central.reduce(function (s, p) { return s + p.byteLength; }, 0);
+    var end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+    end.setUint32(12, cSize, true); end.setUint32(16, off, true);
+    return new Blob(parts.concat(central, [end.buffer]), { type: "application/zip" });
+  }
+  function zipSafe(s) { return String(s || "").replace(/[\\/:*?"<>|\u0000-\u001f]+/g, "_").replace(/[. ]+$/, "").trim() || "sin nombre"; }
+  /* the list of what goes in the zip for these items: { name, file } for files, { name, dir } for folders */
+  function zipPlan(ds) {
+    var out = [], used = {}, skipped = 0, seenFolder = {};
+    function unique(dir, name, isDir) {
+      var key = (dir + name).toLowerCase(), n = 2, m = /^(.*?)(\.[^.]{1,8})?$/.exec(name), base = name, ext = "";
+      if (!isDir && m) { base = m[1] || name; ext = m[2] || ""; }
+      while (used[key]) { name = base + " (" + n++ + ")" + ext; key = (dir + name).toLowerCase(); }
+      used[key] = 1; return name;
+    }
+    function addFile(d, dir, label) {
+      var f = asFile(d); if (!f || !f.path) { skipped++; return; }
+      out.push({ name: dir + unique(dir, zipSafe(label || f.name), false), file: f });
+      (state.dIdx.kids[d.id] || []).forEach(function (a) { if (isFileDoc(a)) addFile(a, dir); });
+    }
+    function addFolder(d, dir) {
+      if (seenFolder[d.id]) return; seenFolder[d.id] = 1;
+      var p = dir + unique(dir, zipSafe(d.name), true) + "/";
+      out.push({ name: p, dir: true });
+      (state.dIdx.kids[d.id] || []).forEach(function (c) { add(c, p); });
+    }
+    function add(d, dir) {
+      if (isFolder(d)) addFolder(d, dir);
+      else if (isLink(d)) { var t = resolve(d); if (t && isFileDoc(t)) addFile(t, dir, d.name); else skipped++; }
+      else if (isFileDoc(d)) addFile(d, dir);
+    }
+    ds.forEach(function (d) { add(d, ""); });
+    return { entries: out, skipped: skipped };
+  }
+  var zipBusy = false;
+  function downloadZip(ids) {
+    var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
+    if (!ds.length) return;
+    if (zipBusy) { toast("Ya se está preparando una descarga."); return; }
+    if (ds.length === 1 && !isFolder(ds[0]) && !(isLink(ds[0]) && isFolder(resolve(ds[0])))) { openFile(asFile(ds[0]), true); return; }
+    if (ds.length === 1 && isLink(ds[0])) ds = [resolve(ds[0])];
+    var plan = zipPlan(ds), files = plan.entries.filter(function (e) { return e.file; });
+    var total = files.reduce(function (s, e) { return s + (Number(e.file.size) || 0); }, 0);
+    var zipName = zipSafe(ds.length === 1 ? ds[0].name : "Documentos " + todayStr()) + ".zip";
+    function go() {
+      zipBusy = true;
+      var done = 0, failed = [];
+      toast(files.length ? "Preparando «" + zipName + "»: 0 de " + files.length + "…" : "Preparando «" + zipName + "»…");
+      var chunks = [];
+      for (var i = 0; i < files.length; i += 50) chunks.push(files.slice(i, i + 50).map(function (e) { return e.file; }));
+      chunks.reduce(function (p, c) { return p.then(function () { return signFiles(c); }); }, Promise.resolve())
+        .then(function () {
+          /* three at a time: quick, without opening dozens of downloads at once */
+          var next = 0;
+          function worker() {
+            if (next >= files.length) return Promise.resolve();
+            var e = files[next++], u = urlFor(e.file);
+            var p = u ? fetch(u.download).then(function (r) { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); }) : Promise.reject(new Error("sin enlace"));
+            return p.then(function (buf) { e.data = new Uint8Array(buf); }, function () { failed.push(e.name); })
+              .then(function () { done++; toast("Preparando «" + zipName + "»: " + done + " de " + files.length + "…"); return worker(); });
+          }
+          return Promise.all([worker(), worker(), worker()]);
+        })
+        .then(function () {
+          var entries = plan.entries.filter(function (e) { return e.dir || e.data; });
+          if (files.length && failed.length === files.length) { toast("No se pudo descargar. Revisa tu conexión."); return; }
+          var blob = makeZip(entries), a = document.createElement("a");
+          a.href = URL.createObjectURL(blob); a.download = zipName;
+          document.body.appendChild(a); a.click();
+          setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+          var msg = "Descargado «" + zipName + "»";
+          if (failed.length) msg += (failed.length === 1 ? ": faltó 1 archivo" : ": faltaron " + failed.length + " archivos") + " (sin conexión o ya no está)";
+          else if (plan.skipped) msg += " (sin " + plural(plan.skipped, "acceso directo a carpeta", "accesos directos a carpetas") + ")";
+          toast(msg);
+        })
+        .catch(function () { toast("No se pudo preparar la descarga."); })
+        .then(function () { zipBusy = false; });
+    }
+    if (total > 500 * 1048576) confirmBig(); else go();
+    function confirmBig() {
+      toast("Son " + fmtSize(total) + " en " + plural(files.length, "archivo", "archivos") + ". Puede tardar un rato.", go, "Descargar");
+    }
+  }
   function isInside(id, folderId) { var cur = docFolder(id), n = 0; while (cur && n < 50) { if (cur.id === folderId) return true; cur = docFolder(cur._p); n++; } return false; }
   function folderStats(id, memo) {
     if (memo[id]) return memo[id];
@@ -6025,7 +6140,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var allPinned = ds.length && ds.every(function (d) { var t = resolve(d); return t && t.pinnedAt; });
     var acts = [];
     if (one) acts.push(["eye", "Abrir", function () { openDoc(one); }]);
-    if (one && isFileDoc(resolve(one))) acts.push(["download", "Descargar", function () { openFile(asFile(one), true); }]);
+    if (ds.some(function (d) { return resolve(d); })) acts.push(["download", "Descargar", function () { downloadZip(ids); }]);
     if (state.canWrite) {
       acts.push(["move", "Mover", function () { moveDialog(ids); }]);
       acts.push(["shortcut", "Acceso directo", function () { shortcutDialog(ids); }]);
@@ -6058,7 +6173,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     if (isLink(d)) {
       items.push([t && isFolder(t) ? "folder" : "eye", t && isFolder(t) ? "Abrir carpeta" : "Abrir", function () { openDoc(d); }, "strong", "Enter"]);
       items.push(["search", "Abrir ubicación del original", function () { showInFolder(d); }]);
-    } else if (isFolder(d)) items.push(["folder", "Abrir", function () { openFolder(d.id); }, "strong", "Enter"]);
+      if (t) items.push(["download", isFolder(t) ? "Descargar (.zip)" : "Descargar", function () { downloadZip([d.id]); }]);
+    } else if (isFolder(d)) {
+      items.push(["folder", "Abrir", function () { openFolder(d.id); }, "strong", "Enter"]);
+      items.push(["download", "Descargar (.zip)", function () { downloadZip([d.id]); }]);
+    }
     else {
       items.push(["eye", "Abrir", function () { openDoc(d); }, "strong", "Enter"]);
       items.push(["download", "Descargar", function () { openFile(asFile(d), true); }]);
@@ -6094,6 +6213,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ds = ids.map(function (id) { return state.dIdx.byId[id]; }).filter(Boolean);
     var allPinned = ds.every(function (d) { var t = resolve(d); return t && t.pinnedAt; });
     items.push(["check", many(ids.length) + " seleccionados", function () {}, "pm-title"]);
+    items.push(["download", "Descargar (.zip)", function () { downloadZip(ids); }]);
     if (w) {
       items.push("-");
       items.push(["scissors", "Cortar", function () { clipSet("cut", ids); }, "", "Ctrl+X"]);
@@ -6125,7 +6245,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     items.push([state.dview === "list" ? "check" : "rows", "Ver como lista", function () { setDview("list"); }, state.dview === "list" ? "on" : ""]);
     items.push("-");
     if (docOrder.length) items.push(["check", "Seleccionar todo", function () { setSel(docOrder.slice()); }, "", "Ctrl+A"]);
-    if (here && docFolder(here)) items.push(["info", "Propiedades de la carpeta", function () { propsDialog(docFolder(here)); }]);
+    if (here && docFolder(here)) {
+      items.push(["download", "Descargar esta carpeta (.zip)", function () { downloadZip([here]); }]);
+      items.push(["info", "Propiedades de la carpeta", function () { propsDialog(docFolder(here)); }]);
+    }
     popMenu(items, at);
   }
   function setDview(v) { state.dview = v; try { localStorage.setItem("tb-dview", v); } catch (e) {} dirAnim = "fade"; renderDocs(); }
