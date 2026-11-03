@@ -9436,6 +9436,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     function docsFrom(d) { var o = {}; (d && d.docs || []).forEach(function (x) { o[x.id] = x.data; }); return o; }
     var subs = [];
     var pending = 0, loading = null, again = false, channel = null;
+    /* the last answer from board_load as text: a poll that brings back the same thing redraws nothing (that redraw was the
+       flicker every 25 s). Cleared on every local change, so a failed save still puts the page back as the server has it. */
+    /* It still redraws when the day changes or every 10 min, which keeps «hoy» and «hace 5 min» current. */
+    var lastRaw = null, lastEmit = 0, lastDay = "";
 
     function rpc(fn, args) {
       return sb.rpc(fn, Object.assign({ p_key: key }, args || {})).then(function (r) {
@@ -9483,6 +9487,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (loading) { again = true; return loading; }
       loading = rpc("board_load").then(function (d) {
         if (pending > 0) { again = true; return; }
+        var raw = null; try { raw = JSON.stringify(d); } catch (e) { raw = null; }
+        var on0 = $("notice"); if (on0 && on0.classList.contains("offline-note")) { on0.hidden = true; on0.classList.remove("offline-note"); }
+        if (cache.loaded && raw !== null && raw === lastRaw && todayStr() === lastDay && Date.now() - lastEmit < 600000) return;
+        lastRaw = raw; lastDay = todayStr(); lastEmit = Date.now();
         var t = {};
         (d && d.tasks || []).forEach(function (x) { t[x.id] = x.data; });
         cache.tasks = t;
@@ -9494,7 +9502,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         cache.log = (d && d.log || []).map(function (x) { return { id: x.id, data: x.data }; });
         cache.loaded = true;
         try { localStorage.setItem("tb-offline", JSON.stringify({ at: new Date().toISOString(), d: d })); } catch (e) {}
-        var on = $("notice"); if (on && on.classList.contains("offline-note")) { on.hidden = true; on.classList.remove("offline-note"); }
         emit();
       }).catch(function (e) {
         if (e.code === "locked") return;
@@ -9524,6 +9531,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     function ping() { try { if (channel) channel.send({ type: "broadcast", event: "changed", payload: { at: Date.now() } }); } catch (e) {} }
     function write(fn, args, optimistic) {
       if (optimistic) { optimistic(); emit(); }
+      lastRaw = null;
       pending++;
       return rpc(fn, args).then(function () { pending--; ping(); load(); },
         function (e) { pending--; load(); throw e; });
