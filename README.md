@@ -70,8 +70,11 @@ Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: 
 
 ## Agregar una reunión a tu calendario
 
-El calendario suscrito por enlace (función `calendario` en Supabase) no trae avisos, y Google Calendar no da recordatorios para calendarios suscritos.
-Para que el calendario del teléfono avise antes de una reunión, cada reunión tiene dos botones:
+El calendario suscrito por enlace (función `calendario` en Supabase) se actualiza solo, pero no trae avisos, y Google Calendar no da recordatorios para calendarios suscritos (y los revisa cada pocas horas).
+
+- Sincronizado y con avisos en Android: la app ICSx⁵ se suscribe al enlace (botón «Suscribirse en este teléfono», un enlace `webcal://`), lo revisa cada 15 minutos y agrega un aviso predeterminado a cada reunión; el calendario se ve en Google Calendar y Samsung Calendar. En iPhone el mismo botón abre la suscripción del Calendario.
+
+Para una copia suelta de una reunión, cada reunión tiene dos botones:
 
 - «Agregar a Google Calendar»: abre Google Calendar con la reunión ya escrita (hora de Caracas, lugar o enlace, temas). Queda como evento propio y usa los recordatorios de esa persona. Una reunión que se repite se agrega como serie («Agregar la serie…») desde esa fecha, con su fecha final.
 - «Otro calendario (.ics)»: descarga un archivo para Samsung Calendar, iPhone u Outlook con avisos 1 hora, 30 y 10 minutos antes (los de todo el día, a las 7:00).

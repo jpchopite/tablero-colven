@@ -8398,6 +8398,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         a.href = gcal; a.target = "_blank"; a.rel = "noopener";
         a.appendChild(icon("cal")); a.appendChild(document.createTextNode("Agregar a Google Calendar"));
         body.appendChild(a);
+        /* webcal:// opens the phone's own subscribe screen: iPhone's Calendar, or ICSx⁵ on Android */
+        var wc = el("a", "btn sub-main");
+        wc.href = url.replace(/^https:/, "webcal:");
+        wc.appendChild(icon("phone")); wc.appendChild(document.createTextNode("Suscribirse en este teléfono"));
+        body.appendChild(wc);
 
         var f = el("div", "field");
         var l = el("label", "flabel", "Enlace del calendario"); l.htmlFor = "subUrl";
@@ -8416,8 +8421,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(f);
 
         var steps = el("ol", "steps");
-        [["Android y Samsung", "Google solo deja suscribirse desde una computadora: abre este panel en la computadora, toca «Agregar a Google Calendar» y confirma con «Agregar» (con la misma cuenta de Google del teléfono). Después, en la app de Google Calendar del teléfono, abre Configuración, toca «" + calName + "» y activa «Sincronizar». Samsung Calendar lo muestra si tu cuenta de Google está sincronizada."],
-         ["iPhone", "Ajustes → Calendario → Cuentas → Agregar cuenta → Otra → Agregar calendario suscrito, y pega el enlace."],
+        [["Android, con avisos", "Instala la app ICSx⁵ (Play Store). Luego, en el teléfono, toca «Suscribirse en este teléfono» (o pega el enlace en ICSx⁵ con «+»). En ICSx⁵ activa «Agregar aviso predeterminado» con los minutos que quieras y, en su configuración, sincroniza cada 15 minutos. El calendario aparece en Google Calendar y Samsung Calendar del teléfono, se actualiza solo y avisa antes de cada reunión."],
+         ["Android, sin avisos", "Google solo deja suscribirse desde una computadora: abre este panel en la computadora, toca «Agregar a Google Calendar» y confirma con «Agregar» (con la misma cuenta de Google del teléfono). Después, en la app de Google Calendar del teléfono, abre Configuración, toca «" + calName + "» y activa «Sincronizar». Google lo actualiza cada pocas horas y no da avisos para calendarios suscritos."],
+         ["iPhone", "Toca «Suscribirse en este teléfono» y confirma con «Suscribirse». Si no se abre, ve a Ajustes → Calendario → Cuentas → Agregar cuenta → Otra → Agregar calendario suscrito, y pega el enlace."],
          ["Outlook", "Agregar calendario → Suscribirse desde la web, y pega el enlace."]].forEach(function (s) {
           var li = el("li");
           li.appendChild(el("b", null, s[0] + ": "));
@@ -8426,7 +8432,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         });
         body.appendChild(steps);
         body.appendChild(el("p", "help", "Google Calendar revisa el enlace cada pocas horas, así que un cambio puede tardar en aparecer. El enlace es privado: quien lo tenga puede ver las tareas con fecha, pero no cambiarlas."));
-        body.appendChild(el("p", "help", "Google Calendar no da avisos para un calendario suscrito. Para que tu calendario te avise antes de una reunión, ábrela aquí y toca «Agregar a Google Calendar» (o «Otro calendario (.ics)»): queda como evento tuyo, con tus recordatorios. Si la reunión cambia después, agrégala de nuevo."));
+        body.appendChild(el("p", "help", "Lo que agregues o cambies aquí llega solo al calendario suscrito. «Agregar a Google Calendar» dentro de una reunión, en cambio, crea una copia que no se actualiza."));
 
         if (state.canWrite) {
           var reset = el("button", "btn danger small", "Crear un enlace nuevo"); reset.type = "button";
