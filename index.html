@@ -8098,6 +8098,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       sub.onclick = openSubscribe;
       head.appendChild(sub);
     }
+    if (state.db) {
+      var rem = el("button", "btn small sub-btn"); rem.type = "button";
+      rem.title = "Avisos en este teléfono antes de cada reunión"; rem.setAttribute("aria-label", "Avisos antes de las reuniones");
+      rem.appendChild(icon("bell")); rem.appendChild(el("span", "t", "Avisos"));
+      rem.onclick = openReminders;
+      head.appendChild(rem);
+    }
     box.appendChild(head);
     var legend = el("div", "cal-legend");
     [["lg-meet", "Reunión"], ["lg-event", "Evento"], ["lg-task", "Entrega de tarea"], ["lg-late", "Atrasada"]].forEach(function (x) {
@@ -8382,6 +8389,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       p.setAttribute("aria-label", "Suscribirse en tu calendario");
       p.appendChild(el("h2", null, "Suscribirse en tu calendario"));
       p.appendChild(el("div", "help-line", "Las tareas con fecha aparecen como eventos de todo el día en tu calendario, con el nombre «" + calName + "», y se actualizan solas. Las fechas se cambian aquí en el tablero."));
+      var tip = el("button", "btn small"); tip.type = "button";
+      tip.appendChild(icon("bell")); tip.appendChild(document.createTextNode("¿Solo quieres avisos antes de las reuniones? Actívalos aquí"));
+      tip.onclick = function () { closePanel(); setTimeout(openReminders, 260); };
+      p.appendChild(tip);
       var body = el("div", "sub-body");
       body.appendChild(el("div", "empty", "Preparando tu enlace…"));
       p.appendChild(body);
@@ -9347,6 +9358,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           ? "«Las mías» son las que tienen a " + me.name.split(" ")[0] + " en «Del equipo». Las que no tienen a nadie marcado avisan a todos."
           : "Para «Las mías», elige quién eres en Opciones → ¿Quién eres?. Mientras tanto avisa de todas."));
         body.appendChild(el("p", "help", "Los avisos previos funcionan como una alarma: vibran, se quedan hasta que los cierras y traen «Posponer 5 min»; al tocarlos se abre la reunión en pantalla completa. Son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
+        /* Android decides per site whether a notice pops up over the screen or only shows in the bar; Chrome's default is the bar */
+        if (/Android/i.test(navigator.userAgent)) {
+          var pop = el("div", "rem-note");
+          pop.appendChild(el("b", null, "Para que el aviso salga encima de la pantalla: "));
+          pop.appendChild(document.createTextNode(isStandalone()
+            ? "mantén presionado el ícono de Colven → Información de la app → Notificaciones, y activa «Mostrar en pantalla» (en Samsung: «Ventana emergente») y el sonido."
+            : "Ajustes del teléfono → Apps → Chrome → Notificaciones → Sitios → jpchopite.github.io, y activa «Mostrar en pantalla» (en Samsung: «Ventana emergente») y el sonido."));
+          body.appendChild(pop);
+        }
         var change = function () {
           savePushPrefs(current());
           if (on) saveSub(sub).then(function () { toast("Recordatorios guardados."); }, function () { toast("No se pudo guardar. Revisa la conexión."); });
