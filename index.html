@@ -9360,11 +9360,23 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(el("p", "help", "Los avisos previos funcionan como una alarma: vibran, se quedan hasta que los cierras y traen «Posponer 5 min»; al tocarlos se abre la reunión en pantalla completa. Son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de la mañana. Lo cancelado no avisa."));
         /* Android decides per site whether a notice pops up over the screen or only shows in the bar; Chrome's default is the bar */
         if (/Android/i.test(navigator.userAgent)) {
+          var samsung = /SM-|Samsung/i.test(navigator.userAgent);
           var pop = el("div", "rem-note");
-          pop.appendChild(el("b", null, "Para que el aviso salga encima de la pantalla: "));
-          pop.appendChild(document.createTextNode(isStandalone()
-            ? "mantén presionado el ícono de Colven → Información de la app → Notificaciones, y activa «Mostrar en pantalla» (en Samsung: «Ventana emergente») y el sonido."
-            : "Ajustes del teléfono → Apps → Chrome → Notificaciones → Sitios → jpchopite.github.io, y activa «Mostrar en pantalla» (en Samsung: «Ventana emergente») y el sonido."));
+          pop.appendChild(el("b", null, "Para que el aviso salga encima de la pantalla:"));
+          var where = isStandalone() ? "Mantén presionado el ícono de Colven → Información de la app → Notificaciones"
+            : "Ajustes → Apps → Chrome → Notificaciones";
+          var popSteps = samsung ? [
+            "Ajustes → Notificaciones → Estilo de ventana emergente → «Detallado». Con «Breve» solo se ilumina el borde de la pantalla.",
+            where + " → Categorías de notificación. En cada una (por ejemplo «jpchopite.github.io» o «General») elige «Alertar», no «Silencio», y activa «Mostrar como ventana emergente» y un sonido.",
+            "Con el teléfono en silencio no suena; la ventana emergente sigue saliendo."
+          ] : [
+            where + (isStandalone() ? "" : " → Sitios → jpchopite.github.io") + ": elige «Predeterminado» o «Alertar» y activa «Mostrar en pantalla» y el sonido.",
+            "Con el teléfono en silencio o en No molestar, el aviso puede quedarse solo en la barra."
+          ];
+          var pol = el("ol", "steps");
+          popSteps.forEach(function (s) { pol.appendChild(el("li", null, s)); });
+          pop.appendChild(pol);
+          pop.appendChild(el("div", null, "Después toca «Enviar una prueba» y cierra el tablero: el aviso debería bajar desde arriba."));
           body.appendChild(pop);
         }
         var change = function () {
