@@ -82,7 +82,7 @@ Para una copia suelta de una reunión, cada reunión tiene dos botones:
 
 ## Recordatorios de reuniones
 
-Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o computadora: un resumen a las 7:00 con las reuniones y eventos del día, y avisos 1 hora, 30 minutos y 10 minutos antes de cada reunión (cada uno se puede apagar), de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.
+El botón «Avisos» del Calendario (o Opciones → «Recordatorios de reuniones») activa avisos en cada teléfono o computadora: un resumen a las 7:00 con las reuniones y eventos del día, y avisos 1 hora, 30 minutos y 10 minutos antes de cada reunión (cada uno se puede apagar), de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.
 
 - Android: Chrome. iPhone y iPad: solo con el tablero agregado a la pantalla de inicio (iOS 16.4 o más reciente).
 - Cada dispositivo es una fila de `push_subs` (la página la guarda con `push_sub_set`, que exige la clave del equipo). `push_sent` evita avisar dos veces la misma fecha.
@@ -90,5 +90,6 @@ Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o co
 - Los avisos previos son para reuniones y eventos con hora; los de todo el día solo salen en el resumen de las 7:00, que no se envía si ese día no hay nada. Lo cancelado o realizado no avisa. La hora es la de Caracas (UTC-4).
 - Cada dispositivo guarda `leads` (60, 30, 10) y `morning` en `push_subs`. Si alguien activa los avisos 25 minutos antes de una reunión, recibe solo el aviso más reciente (30 min), no todos los atrasados.
 - Los avisos previos funcionan como una alarma: vibran, se quedan hasta que se cierran y traen «Posponer 5 min» y «Listo». Al tocarlos, el tablero muestra la reunión en pantalla completa (parámetro `?alarma=` o un mensaje de `sw.js` si ya está abierto); si el tablero está abierto cuando llega el aviso, suena y vibra. «Posponer 5 min» guarda el aviso en `push_sent` como `pospuesto@<hora>@<aviso>` y la función lo vuelve a enviar a los 5 minutos.
-- Que el aviso aparezca encima de la pantalla en Android depende del teléfono: Ajustes → Apps → Chrome → Notificaciones → Sitios → jpchopite.github.io → «Mostrar en pantalla».
+- Que el aviso aparezca encima de la pantalla en Android depende del teléfono: Ajustes → Apps → Chrome → Notificaciones → Sitios → jpchopite.github.io → «Mostrar en pantalla» («Ventana emergente» en Samsung). El panel de recordatorios lo explica en Android.
+- El ícono pequeño de la barra de estado es `assets/badge-96.png`: Android solo usa su transparencia, por eso es la espiral en blanco sobre fondo transparente.
 - La configuración de Supabase está en `supabase/recordatorios.sql`.

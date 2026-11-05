@@ -1,8 +1,8 @@
 /* Colven board as an installable app.
    The page itself is fetched fresh whenever there is signal (so updates show right away) and kept for when there is none;
    icons, the logo, fonts and the libraries are kept after the first visit. Calls to the database are never cached. */
-var CACHE = "colven-v3";
-var CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/colven-logo.png", "./assets/app-icon-192.png", "./assets/app-icon-512.png", "./assets/favicon-32.png"];
+var CACHE = "colven-v4";
+var CORE = ["./", "./index.html", "./manifest.webmanifest", "./assets/colven-logo.png", "./assets/app-icon-192.png", "./assets/app-icon-512.png", "./assets/favicon-32.png", "./assets/badge-96.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));
 });
@@ -45,7 +45,10 @@ self.addEventListener("push", function (e) {
     body: d.body || "",
     tag: d.tag || undefined,
     icon: "assets/app-icon-192.png",
-    badge: "assets/favicon-32.png",
+    // the small icon in Android's status bar: only its transparency is used, so it is the white swirl on a clear background
+    badge: "assets/badge-96.png",
+    lang: "es",
+    timestamp: d.alarm && d.alarm.day && d.alarm.start ? Date.parse(d.alarm.day + "T" + d.alarm.start + ":00-04:00") || Date.now() : Date.now(),
     data: { url: d.url || "./#calendario", alarm: d.alarm || null, payload: d },
     renotify: !!d.tag
   };
