@@ -684,7 +684,8 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .alarm .al-top { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .alarm .al-bell { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,212,83,.14); color: #ffd453; }
 .alarm .al-bell .ico { width: 30px; height: 30px; }
-.alarm.ring .al-bell { animation: al-ring 1.2s ease-in-out infinite; }
+/* "ringing", not "ring": .ring is the progress circle on Inicio and would shrink the whole screen to 64 px */
+.alarm.ringing .al-bell { animation: al-ring 1.2s ease-in-out infinite; }
 @keyframes al-ring { 0%, 50%, 100% { transform: rotate(0); } 10%, 30% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
 .alarm .al-kind { font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd453; }
 .alarm .al-time { font-family: var(--font-display); font-size: clamp(56px, 18vw, 96px); font-weight: 800; line-height: 1; letter-spacing: -.02em; }
@@ -692,10 +693,10 @@ button.pchip-s:hover { border-color: var(--line-strong); }
 .alarm h2 { margin: 0 auto; max-width: 560px; font-size: clamp(22px, 6vw, 30px); line-height: 1.2; font-weight: 700; overflow-wrap: anywhere; text-wrap: balance; }
 .alarm .al-when { font-size: 17px; font-weight: 600; color: #ffd453; }
 .alarm .al-where { font-size: 15px; color: rgba(255,255,255,.75); overflow-wrap: anywhere; }
-.alarm .al-acts { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; margin: 0 auto; }
+.alarm .al-acts { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto; }
 .alarm .al-acts button { min-height: 52px; border-radius: 12px; font-size: 16px; font-weight: 700; border: 1px solid rgba(255,255,255,.22); background: transparent; color: #fff; }
 .alarm .al-acts .al-done { background: #ffd453; border-color: #ffd453; color: #121a41; }
-@media (prefers-reduced-motion: reduce) { .alarm.ring .al-bell { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .alarm.ringing .al-bell { animation: none; } }
 /* short screens (small phones, landscape): tighter, so it all fits without scrolling when it can */
 @media (max-height: 640px) {
   .alarm { gap: 16px; padding-top: calc(18px + env(safe-area-inset-top, 0px)); padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px)); }
@@ -9238,7 +9239,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function showAlarm(a, live) {
     if (!a || !a.title) return;
     closeAlarm();
-    var box = el("div", "alarm" + (live ? " ring" : ""));
+    var box = el("div", "alarm" + (live ? " ringing" : ""));
     box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-label", "Recordatorio: " + a.title);
     var top = el("div", "al-top");
     var bell = el("div", "al-bell"); bell.appendChild(icon("bell")); top.appendChild(bell);
