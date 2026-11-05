@@ -68,6 +68,15 @@ Una reunión (o evento) puede repetirse con las mismas opciones que las tareas: 
 - Arrastrar una fecha en el calendario mueve solo esa fecha.
 - No hizo falta cambiar Supabase: todo vive en el JSON de cada reunión.
 
+## Agregar una reunión a tu calendario
+
+El calendario suscrito por enlace (función `calendario` en Supabase) no trae avisos, y Google Calendar no da recordatorios para calendarios suscritos.
+Para que el calendario del teléfono avise antes de una reunión, cada reunión tiene dos botones:
+
+- «Agregar a Google Calendar»: abre Google Calendar con la reunión ya escrita (hora de Caracas, lugar o enlace, temas). Queda como evento propio y usa los recordatorios de esa persona. Una reunión que se repite se agrega como serie («Agregar la serie…») desde esa fecha, con su fecha final.
+- «Otro calendario (.ics)»: descarga un archivo para Samsung Calendar, iPhone u Outlook con avisos 1 hora, 30 y 10 minutos antes (los de todo el día, a las 7:00).
+- Son copias: si la reunión cambia en el tablero, hay que agregarla de nuevo. Las fechas sueltas cambiadas o quitadas de una serie no se copian.
+
 ## Recordatorios de reuniones
 
 Opciones → «Recordatorios de reuniones» activa avisos en cada teléfono o computadora: un resumen a las 7:00 con las reuniones y eventos del día, y avisos 1 hora, 30 minutos y 10 minutos antes de cada reunión (cada uno se puede apagar), de «las mías» (las que tienen a esa persona en «Del equipo»; las que no tienen a nadie marcado avisan a todos) o de todas. Llegan aunque el tablero esté cerrado.

@@ -8416,7 +8416,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(f);
 
         var steps = el("ol", "steps");
-        [["Android y Samsung", "Toca «Agregar a Google Calendar» y confirma con «Agregar». Si el teléfono no te ofrece esa opción, hazlo una vez desde una computadora. Después, en la app de Google Calendar, abre Configuración, toca «" + calName + "» y activa «Sincronizar». Samsung Calendar lo muestra si tu cuenta de Google está sincronizada."],
+        [["Android y Samsung", "Google solo deja suscribirse desde una computadora: abre este panel en la computadora, toca «Agregar a Google Calendar» y confirma con «Agregar» (con la misma cuenta de Google del teléfono). Después, en la app de Google Calendar del teléfono, abre Configuración, toca «" + calName + "» y activa «Sincronizar». Samsung Calendar lo muestra si tu cuenta de Google está sincronizada."],
          ["iPhone", "Ajustes → Calendario → Cuentas → Agregar cuenta → Otra → Agregar calendario suscrito, y pega el enlace."],
          ["Outlook", "Agregar calendario → Suscribirse desde la web, y pega el enlace."]].forEach(function (s) {
           var li = el("li");
@@ -8426,6 +8426,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         });
         body.appendChild(steps);
         body.appendChild(el("p", "help", "Google Calendar revisa el enlace cada pocas horas, así que un cambio puede tardar en aparecer. El enlace es privado: quien lo tenga puede ver las tareas con fecha, pero no cambiarlas."));
+        body.appendChild(el("p", "help", "Google Calendar no da avisos para un calendario suscrito. Para que tu calendario te avise antes de una reunión, ábrela aquí y toca «Agregar a Google Calendar» (o «Otro calendario (.ics)»): queda como evento tuyo, con tus recordatorios. Si la reunión cambia después, agrégala de nuevo."));
 
         if (state.canWrite) {
           var reset = el("button", "btn danger small", "Crear un enlace nuevo"); reset.type = "button";
@@ -8556,6 +8557,83 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     else if (m.place) lines.push("Lugar: " + m.place);
     if (m.agenda) lines.push("", "Temas: " + m.agenda);
     return lines.join("\n");
+  }
+
+  /* "Agregar a mi calendario": the meeting as a real event in the person's own calendar, so the phone's usual reminders
+     apply (Google Calendar never gives reminders for a calendar subscribed by link). Google Calendar opens a pre-filled
+     new event; other apps get a .ics with alerts 1 h, 30 min and 10 min before. Times are Caracas time (UTC-4, no DST).
+     A recurring meeting goes as a recurring event from that date on; single dates changed or taken out here are not carried. */
+  function calStamp(ds, hm) { return ds.replace(/-/g, "") + "T" + hm.replace(":", "") + "00"; }
+  function calUtc(ds, hm) {
+    var d = parseDay(ds), p = hm.split(":");
+    return new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate(), (+p[0]) + 4, +p[1] || 0)).toISOString().replace(/[-:]|\.\d+/g, "");
+  }
+  function calTimes(m) {
+    if (!m.start) return { allDay: true, from: m.date, to: fmt(addDays(parseDay(mEnd(m)), 1)) };
+    var end = m.end && (isMultiDay(m) || m.end > m.start) ? m.end : addMinutes(m.start, 60);
+    return { allDay: false, from: m.date, start: m.start, to: mEnd(m), end: end };
+  }
+  function calRrule(m) {
+    var doc = m._series ? findMeetingDoc(m._series) : null;
+    if (!doc || !isSeries(doc)) return "";
+    var r = doc.repeat, BD = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"], n = Math.max(1, Math.min(99, parseInt(r.interval, 10) || 1));
+    var s = "FREQ=" + { day: "DAILY", week: "WEEKLY", month: "MONTHLY", year: "YEARLY" }[r.freq] + (n > 1 ? ";INTERVAL=" + n : "");
+    /* the board moves the 29th–31st to the last day of shorter months; BYSETPOS=-1 does the same */
+    var day = function (d) { return d > 28 ? "BYMONTHDAY=" + [28, 29, 30, 31].filter(function (x) { return x <= d; }).join(",") + ";BYSETPOS=-1" : "BYMONTHDAY=" + d; };
+    if (r.freq === "week") s += ";BYDAY=" + (Array.isArray(r.weekdays) && r.weekdays.length ? r.weekdays : [parseDay(m.date).getDay()]).map(function (x) { return BD[Number(x)]; }).join(",");
+    if (r.freq === "year") s += ";BYMONTH=" + ((Number(r.month) || 0) + 1);
+    if (r.freq === "month" || r.freq === "year") {
+      if (r.monthMode === "nth") s += ";BYDAY=" + Number(r.nth) + BD[Number(r.weekday)];
+      else if (r.freq === "month" && r.monthMode === "days") { var ds = monthDaysOf(r); s += ";" + (ds.length === 1 ? day(ds[0] === -1 ? 31 : ds[0]) : "BYMONTHDAY=" + ds.join(",")); }
+      else { var md = Number(r.monthDay) || parseDay(m.date).getDate(); s += ";" + day(md === -1 ? 31 : md); }
+    }
+    if (doc.until && doc.until >= m.date) s += ";UNTIL=" + (m.start ? calUtc(doc.until, "23:59") : doc.until.replace(/-/g, ""));
+    return "RRULE:" + s;
+  }
+  function calPlace(m) { return m.mode === "video" ? m.link || "Videollamada" : m.mode === "llamada" ? "Llamada telefónica" : m.place || ""; }
+  function calDetails(m) {
+    return (m.agenda ? "Temas: " + m.agenda + "\n\n" : "") + "Tablero del equipo: https://jpchopite.github.io/tablero-colven/#calendario";
+  }
+  function gcalUrl(m) {
+    var t = calTimes(m), rr = calRrule(m);
+    return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(meetingTitle(m)) + "&dates=" +
+      (t.allDay ? t.from.replace(/-/g, "") + "/" + t.to.replace(/-/g, "") : calStamp(t.from, t.start) + "/" + calStamp(t.to, t.end)) +
+      "&ctz=America%2FCaracas&details=" + encodeURIComponent(calDetails(m)) + (calPlace(m) ? "&location=" + encodeURIComponent(calPlace(m)) : "") +
+      (rr ? "&recur=" + encodeURIComponent(rr) : "");
+  }
+  function meetingIcs(m) {
+    var t = calTimes(m), rr = calRrule(m), now = new Date().toISOString().replace(/[-:]|\.\d+/g, "");
+    var esc = function (x) { return String(x || "").replace(/[\\;,]/g, function (c) { return "\\" + c; }).replace(/\r?\n/g, "\\n"); };
+    var L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tablero Colven//ES", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+      "UID:" + (m._series || m.id || m.date) + "-mio@tablero-colven", "DTSTAMP:" + now];
+    if (t.allDay) L.push("DTSTART;VALUE=DATE:" + t.from.replace(/-/g, ""), "DTEND;VALUE=DATE:" + t.to.replace(/-/g, ""));
+    else L.push("DTSTART:" + calUtc(t.from, t.start), "DTEND:" + calUtc(t.to, t.end));
+    if (rr) L.push(rr);
+    L.push("SUMMARY:" + esc(meetingTitle(m)), "DESCRIPTION:" + esc(calDetails(m)));
+    if (calPlace(m)) L.push("LOCATION:" + esc(calPlace(m)));
+    (t.allDay ? [["PT7H", "Hoy"]] : [["-PT1H", "En 1 hora"], ["-PT30M", "En 30 minutos"], ["-PT10M", "En 10 minutos"]]).forEach(function (a) {
+      L.push("BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:" + a[0], "DESCRIPTION:" + esc(a[1] + ": " + meetingTitle(m)), "END:VALARM");
+    });
+    L.push("END:VEVENT", "END:VCALENDAR");
+    /* lines longer than 75 bytes continue on the next line, which starts with a space */
+    var enc = new TextEncoder();
+    return L.map(function (line) {
+      var out = "", cur = "", bytes = 0;
+      Array.from(line).forEach(function (ch) {
+        var b = enc.encode(ch).length;
+        if (bytes + b > 74) { out += cur + "\r\n "; cur = ""; bytes = 1; }
+        cur += ch; bytes += b;
+      });
+      return out + cur;
+    }).join("\r\n") + "\r\n";
+  }
+  function downloadIcs(m) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([meetingIcs(m)], { type: "text/calendar;charset=utf-8" }));
+    a.download = (meetingTitle(m).replace(/[\\\/:*?"<>|]+/g, " ").trim().slice(0, 60) || "reunion") + ".ics";
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    toast("Descargado «" + a.download + "». Ábrelo para agregarlo a tu calendario con sus avisos.");
   }
 
   function meetChip(m, ds) {
@@ -8716,6 +8794,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           catch (e) { toast("No se pudo copiar en este navegador."); }
         };
         quick.appendChild(cp);
+        var gc = el("a", "cact"); gc.href = gcalUrl(m); gc.target = "_blank"; gc.rel = "noopener";
+        gc.title = "Crea la reunión en tu Google Calendar, con los recordatorios que usas en tu calendario";
+        gc.appendChild(icon("cal")); gc.appendChild(document.createTextNode(m._series ? "Agregar la serie a Google Calendar" : "Agregar a Google Calendar"));
+        quick.appendChild(gc);
+        var ic = el("button", "cact"); ic.type = "button";
+        ic.title = "Archivo para Samsung Calendar, iPhone u Outlook, con avisos 1 hora, 30 y 10 minutos antes";
+        ic.appendChild(icon("download")); ic.appendChild(document.createTextNode("Otro calendario (.ics)"));
+        ic.onclick = function () { downloadIcs(m); };
+        quick.appendChild(ic);
         if (state.canWrite) {
           var fu = el("button", "cact"); fu.type = "button";
           fu.appendChild(icon("check")); fu.appendChild(document.createTextNode("Tarea de seguimiento"));
