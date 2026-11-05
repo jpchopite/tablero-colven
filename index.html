@@ -9198,7 +9198,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       return sub.unsubscribe().catch(function () {}).then(function () { return state.db.pushSubDelete(ep).catch(function () {}); });
     });
   }
-  /* keeps the saved row in step with the device: a browser can renew its subscription, and the person can change */
   /* ---------- the alarm screen ---------- */
   /* A reminder notification carries `alarm` ({ id, day, start, end, where, title, kind }). Opening it (or the reminder
      arriving while the board is open and visible) shows the meeting full screen, with "Ver reunión", "Posponer 5 min"
@@ -9377,8 +9376,21 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           var test = btn("Enviar una prueba");
           test.onclick = function () {
             test.disabled = true;
-            state.db.pushTest(sub.endpoint).then(function () { toast("Prueba enviada: debería llegar en unos segundos. Tócala para ver la pantalla de alarma."); },
-              function () { toast("No se pudo enviar la prueba."); }).then(function () { test.disabled = false; });
+            var sent = function () { toast("Prueba enviada: debería llegar en unos segundos. Tócala para ver la pantalla de alarma."); };
+            /* the device's row can be missing (it was never saved, or the server dropped it) or its subscription can have
+               expired: save it again, or subscribe anew, and send the test once more */
+            state.db.pushTest(sub.endpoint).then(sent, function (e) {
+              if (e.code === "sin-dispositivo") return saveSub(sub).then(function () { return state.db.pushTest(sub.endpoint); }).then(sent);
+              if (e.code === "dispositivo-caducado") return pushOff().then(pushOn).then(function (s) { sub = s; return state.db.pushTest(s.endpoint); }).then(sent);
+              throw e;
+            }).catch(function (e) {
+              var why = !e ? "" : e.code === "clave" ? "La clave guardada en este dispositivo ya no sirve: cierra sesión y vuelve a entrar con la clave del equipo."
+                : e.code === "red" ? "No hubo conexión con el servidor. Revisa la señal e inténtalo de nuevo."
+                : e.code === "denied" ? "El navegador no dio permiso para avisos."
+                : e.code === "demasiados dispositivos" || e.code === "quota_exceeded" ? "Hay demasiados dispositivos registrados."
+                : "Motivo: " + (e.code || e.message || "desconocido") + ".";
+              toast("No se pudo enviar la prueba. " + why);
+            }).then(function () { test.disabled = false; });
           };
           var off = btn("Desactivar", "danger");
           off.onclick = function () { off.disabled = true; pushOff().then(function () { toast("Recordatorios desactivados en este dispositivo."); draw(null); }); };
@@ -9732,8 +9744,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       pushSnooze: function (endpoint, payload) {
         return sb.functions.invoke("recordatorios", { body: { snooze: true, endpoint: endpoint, payload: payload } }).then(function (r) { if (r.error) throw r.error; return r.data; });
       },
+      /* a failed test says why: e.code is the function's error ("sin-dispositivo", "dispositivo-caducado", "clave") or "red" */
       pushTest: function (endpoint) {
-        return sb.functions.invoke("recordatorios", { body: { test: true, key: key, endpoint: endpoint } }).then(function (r) { if (r.error) throw r.error; return r.data; });
+        return sb.functions.invoke("recordatorios", { body: { test: true, key: key, endpoint: endpoint } }).then(function (r) {
+          if (!r.error) return r.data;
+          var res = r.error.context, e = new Error(r.error.message || "prueba");
+          e.code = "red"; e.status = res && res.status;
+          if (!res || typeof res.json !== "function") throw e;
+          return res.json().then(function (j) { e.code = (j && j.error) || "error-" + e.status; throw e; }, function () { e.code = "error-" + e.status; throw e; });
+        });
       },
       calendarToken: function () { return rpc("calendar_token"); },
       calendarTokenReset: function () { return rpc("calendar_token_reset"); },
