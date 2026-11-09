@@ -1424,6 +1424,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 }
 
 /* ---------- indicators (Indicadores) ---------- */
+.locked { opacity: .38; cursor: default; }
 .ind { display: flex; flex-direction: column; gap: 14px; }
 .ind-cur { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 7px 10px; font: inherit; font-size: 13.5px; }
 .fx-tbl td.ind-lbl { white-space: normal; padding-right: 10px; }
@@ -5150,7 +5151,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (!qq) {
         [["home", "Ir a Inicio", function () { setView("home"); }], ["move", "Ir al Tablero", function () { setView("board"); }],
          ["cal", "Ir al Calendario", function () { setView("cal"); }],
-         ["folder", "Ir a Documentos", function () { setView("docs"); }], ["receipt", "Ir a Facturación", function () { setView("fact"); }], ["trend", "Ir a Indicadores", function () { setView("ind"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
+         ["folder", "Ir a Documentos", function () { setView("docs"); }], ["receipt", "Ir a Facturación", function () { setView("fact"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
         if (state.canWrite) {
           [["plus", "Nueva tarea", function () { openEditor(null); }], ["users", "Nueva reunión", function () { openMeeting(null, { date: todayStr() }); }],
            ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["archive", "Archivo y papelera", function () { openArchive(); }],
@@ -8356,6 +8357,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   var IND_LABEL = {};
   IND_GROUPS.forEach(function (g) { g.fields.forEach(function (f) { IND_LABEL[f[0]] = f[1]; }); });
   var indb = { ym: "", drafts: {}, saving: false, upd: [] };
+  /* on hold for now: its menu buttons are greyed out and only a triple click opens it (until the page reloads) */
+  var indOpen = false;
   function indSaved() { var s = state.settingsRaw && state.settingsRaw.ind; return s && typeof s === "object" ? s : {}; }
   /* a month nobody has filled yet starts empty, with the opening balances carried from last month's closing ones */
   function indBlank(ym) {
@@ -8504,7 +8507,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos", fact: "facturacion", ind: "indicadores" };
   function viewFromHash() {
     var h = String(location.hash || "").replace(/^#/, "").split("/")[0];
-    for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
+    for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k === "ind" && !indOpen ? "home" : k;
     return "home";
   }
   state.view = viewFromHash();
@@ -8595,6 +8598,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     ind: ""
   };
   function setView(v) {
+    if (v === "ind" && !indOpen) v = "home";
     state.view = v;
     try { localStorage.setItem("tb-view", v); } catch (e) {}
     var hv = v === "docs" ? docsHash() : VIEW_HASH[v];
@@ -9761,6 +9765,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   $("viewFact").onclick = function () { setView("fact"); };
   $("viewInd").onclick = function () { setView("ind"); };
   Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v], #side [data-v]"), function (b) { b.onclick = function () { setView(b.dataset.v); }; });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v="ind"], #viewInd'), function (b) {
+    b.classList.add("locked"); b.title = "En preparación"; b.setAttribute("aria-disabled", "true");
+    var n = 0, t = 0;
+    b.onclick = function () {
+      var now = Date.now(); n = now - t < 600 ? n + 1 : 1; t = now;
+      if (n < 3) return;
+      n = 0; indOpen = true; setView("ind");
+    };
+  });
   $("sideAdd").onclick = function () { $("addBtn").click(); };
   $("labelsBtn").onclick = function () { openLabels(); };
   $("finderBtn").onclick = openFinder;
