@@ -56,6 +56,8 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 
 ## Indicadores
 
+Por ahora está en pausa: el botón aparece en gris y solo se abre con tres clics seguidos (hasta recargar la página); el enlace `#indicadores` lleva a Inicio.
+
 La sección «Indicadores» (`#indicadores`) reúne los indicadores financieros para la junta:
 
 - Flujo de efectivo y liquidez.
