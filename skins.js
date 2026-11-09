@@ -1,4 +1,4 @@
-/* Design options: a "Diseño" button in the header that switches between the original look and Aire (skins.css),
+/* Design options: a "Diseño" entry in the board's Opciones menu (window.tbSkins.open) that switches between the original look and Aire (skins.css),
    and turns the optional dock on or off: the sections as a floating bar at the bottom centre of the screen.
    It only sets data-skin, data-mode and data-dock on <html>; the dock's buttons press the board's own section buttons,
    so the board itself is untouched. Choices are kept per device ("tb-skin", "tb-dock"); ?skin=aire and ?dock=1 also work. */
@@ -45,7 +45,6 @@
   if (window.MutationObserver) new MutationObserver(syncMode).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
   function el(tag, cls, text) { var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-  var PALETTE = '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.7-1.7h2.2a4.3 4.3 0 0 0 4.3-4.3C21 6.7 17 3.5 12 3.5z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15.5" cy="8" r="1.2"/></svg>';
 
   /* ---------- the dock: a copy of the sections that presses the board's own section buttons ---------- */
   var dock;
@@ -81,7 +80,7 @@
     if (window.MutationObserver) new MutationObserver(sync).observe(side, { subtree: true, attributes: true, attributeFilter: ["aria-current"] });
   }
 
-  /* ---------- the "Diseño" button in the header and its menu ---------- */
+  /* ---------- the "Diseño" menu, opened from Opciones and placed under that button ---------- */
   var btn, menu;
   function render() {
     if (!menu) return;
@@ -109,13 +108,8 @@
     return b;
   }
   function build() {
-    var actions = document.querySelector(".hero-actions");
-    if (!actions) return;
-    btn = el("button", "hbtn skin-btn"); btn.type = "button"; btn.id = "skinBtn";
-    btn.setAttribute("aria-haspopup", "menu"); btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-label", "Diseño"); btn.title = "Diseño del tablero";
-    btn.innerHTML = PALETTE + '<span class="t">Diseño</span>';
-    var opts = document.getElementById("optsBtn");
-    actions.insertBefore(btn, opts || null);
+    btn = document.getElementById("optsBtn");
+    if (!btn) return;
 
     menu = el("div", "skin-menu"); menu.hidden = true; menu.setAttribute("role", "menu"); menu.setAttribute("aria-label", "Diseño del tablero");
     var h = el("div", "skin-h"); h.appendChild(el("span", null, "Diseño")); h.appendChild(el("span", null, "solo en este equipo")); menu.appendChild(h);
@@ -130,7 +124,6 @@
     t.addEventListener("click", function () { var on = !root.hasAttribute("data-dock"); setDock(on); save(DOCK, on ? "1" : ""); render(); });
     document.body.appendChild(menu);
 
-    btn.addEventListener("click", function () { open(menu.hidden); });
     menu.addEventListener("keydown", function (e) {
       var items = Array.prototype.slice.call(menu.querySelectorAll(".skin-item")), i = items.indexOf(document.activeElement);
       if (e.key === "Escape") { e.stopPropagation(); open(false); btn.focus(); }
@@ -138,23 +131,12 @@
       else if (e.key === "ArrowUp" && i >= 0) { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
       else if (e.key === "Tab") open(false);
     });
-    document.addEventListener("pointerdown", function (e) { if (!menu.hidden && !menu.contains(e.target) && !btn.contains(e.target)) open(false); });
+    document.addEventListener("pointerdown", function (e) { if (!menu.hidden && !menu.contains(e.target)) open(false); });
     window.addEventListener("resize", function () { if (!menu.hidden) place(); });
-    /* on phones the header button is hidden; the Opciones menu gets a "Diseño" entry instead */
-    var opts2 = document.getElementById("optsBtn");
-    if (opts2) opts2.addEventListener("click", function () {
-      setTimeout(function () {
-        var m = document.getElementById("addMenu");
-        if (!phone() || !m || m.querySelector(".skin-entry")) return;
-        var b = el("button", "skin-entry"); b.type = "button"; b.setAttribute("role", "menuitem");
-        var d = el("span", "am-ico"); d.innerHTML = PALETTE; b.appendChild(d); b.appendChild(document.createTextNode("Diseño"));
-        b.addEventListener("click", function () { var s = document.getElementById("addScrim"); if (s) s.click(); setTimeout(function () { open(true); }, 0); });
-        m.appendChild(b);
-      }, 0);
-    });
     window.addEventListener("scroll", function () { if (!menu.hidden && !phone()) open(false); }, { passive: true });
     render();
     buildDock();
+    window.tbSkins = { open: function () { setTimeout(function () { open(true); }, 0); } };
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", build); else build();
 })();

@@ -1553,7 +1553,6 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
 .keys-list dt { font-weight: 600; color: var(--muted); font-size: 13.5px; }
 .keys-list dd { margin: 0; font-size: 14px; }
 .keys-list kbd { font-family: var(--font-mono); font-size: 12px; color: var(--ink); background: var(--lane); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
-#themeBtn { padding: 9px 11px; }
 .dlg-scrim { position: fixed; inset: 0; z-index: 60; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fade .15s ease; }
 .dlg { width: min(430px, 100%); max-height: calc(100vh - 32px); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-lg); padding: 20px; display: flex; flex-direction: column; gap: 14px; animation: menuin2 .2s cubic-bezier(.2,.8,.2,1); }
 .dlg-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
@@ -2124,7 +2123,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 @media (max-width: 1180px) { .wg.w-chain { grid-column: 1 / -1; } }
 </style>
 <link rel="stylesheet" href="skins.css?v=4">
-<script src="skins.js?v=4"></script>
+<script src="skins.js?v=5"></script>
 </head>
 <body>
 <div class="gate" id="gate" hidden>
@@ -2168,12 +2167,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         <p class="greet" id="greet">Cada tarea tiene a alguien asignado. Si no está en el tablero, todavía no es una tarea.</p>
       </div>
       <div class="hero-actions">
-        <button class="hbtn" id="installBtn" type="button" hidden title="Instalar Colven como app en este dispositivo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/></svg><span class="t">Instalar app</span></button>
         <button class="hbtn" id="finderBtn" type="button" title="Buscar en todo (Ctrl + K)" aria-label="Buscar en todo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="t">Buscar</span><kbd class="t">Ctrl K</kbd></button>
         <button class="hbtn" id="meBtn" type="button" hidden>¿Quién eres?</button>
         <button class="hbtn" id="logBtn" type="button" aria-label="Actividad"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span class="t">Actividad</span></button>
-        <button class="hbtn" id="teamBtn" type="button" aria-label="Equipo y nombre del tablero"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.7 3.1 2.4 3.5 5.2"/></svg><span class="t">Equipo</span></button>
-        <button class="hbtn" id="themeBtn" type="button"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
         <button class="hbtn" id="optsBtn" type="button" aria-label="Opciones" aria-haspopup="menu" title="Opciones"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="t">Opciones</span></button>
         <button class="hbtn primary" id="addBtn" type="button"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva tarea <kbd>N</kbd></button>
       </div>
@@ -2319,6 +2315,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     moon: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
     bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
     belloff: '<path d="M8.5 5.6A6 6 0 0 1 18 11v4M6 11v5l-1.5 2H17"/><path d="M10 20.5a2 2 0 0 0 4 0M4 4l16 16"/>',
+    palette: '<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-.5-.2-.9-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1 .8-1.7 1.7-1.7h2.2a4.3 4.3 0 0 0 4.3-4.3C21 6.7 17 3.5 12 3.5z"/><circle cx="7.5" cy="11.5" r="1.2"/><circle cx="10.5" cy="7.5" r="1.2"/><circle cx="15.5" cy="8" r="1.2"/>',
     monitor: '<rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/>',
     receipt: '<path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
     trend: '<path d="M3.5 17 9 11.5l4 4 7.5-8"/><path d="M15 7.5h5.5V13"/>',
@@ -2745,7 +2742,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     eb.appendChild(el("span", "eb-date", "| " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
     $("fab").hidden = !state.canWrite;
-    $("teamBtn").hidden = !state.canWrite;
     var g = $("greet");
     var m = member(meKey());
     if (!state.loaded) {
@@ -5198,8 +5194,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- installable app ---------- */
   var installEvt = null;
-  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; var b = $("installBtn"); if (b) b.hidden = false; });
-  window.addEventListener("appinstalled", function () { installEvt = null; var b = $("installBtn"); if (b) b.hidden = true; toast("Listo: Colven quedó instalada como app."); });
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); installEvt = e; });
+  window.addEventListener("appinstalled", function () { installEvt = null; toast("Listo: Colven quedó instalada como app."); });
   if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
     window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
   }
@@ -9534,7 +9530,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   /* ---------- wiring ---------- */
   $("addBtn").onclick = function () { openEditor(null); };
   $("fab").onclick = function () { openAddMenu(); };
-  $("teamBtn").onclick = openTeam;
   $("logBtn").onclick = openLog;
   $("meBtn").onclick = openMe;
   function setSearch(v) { state.search = v; $("search").value = v; $("searchClear").hidden = !v; renderBoard(); renderCal(); renderDocs(); }
@@ -9549,33 +9544,22 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   $("sideAdd").onclick = function () { $("addBtn").click(); };
   $("labelsBtn").onclick = function () { openLabels(); };
   $("finderBtn").onclick = openFinder;
-  $("installBtn").onclick = function () {
+  function installApp() {
     if (!installEvt) return;
     installEvt.prompt();
-    installEvt.userChoice.then(function () { installEvt = null; $("installBtn").hidden = true; }).catch(function () {});
-  };
+    installEvt.userChoice.then(function () { installEvt = null; }).catch(function () {});
+  }
   document.addEventListener("keydown", function (e) {
     if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === "k" || e.key === "K")) { e.preventDefault(); openFinder(); }
   });
   $("archiveBtn").onclick = function () { openArchive(); };
 
   /* ---------- light / dark theme: "light", "dark" or "" (follow the device), remembered per device ---------- */
-  var darkMq = null; try { darkMq = window.matchMedia("(prefers-color-scheme: dark)"); } catch (e) {}
   function themePref() { var t = document.documentElement.getAttribute("data-theme"); return t === "light" || t === "dark" ? t : ""; }
-  function isDark() { var t = themePref(); return t ? t === "dark" : !!(darkMq && darkMq.matches); }
   function setTheme(t) {
     if (t) document.documentElement.setAttribute("data-theme", t); else document.documentElement.removeAttribute("data-theme");
     try { if (t) localStorage.setItem("tb-theme", t); else localStorage.removeItem("tb-theme"); } catch (e) {}
-    renderThemeBtn();
   }
-  function renderThemeBtn() {
-    var b = $("themeBtn"), dark = isDark(), lbl = dark ? "Cambiar a modo claro" : "Cambiar a modo oscuro";
-    b.textContent = ""; b.appendChild(icon(dark ? "sun" : "moon"));
-    b.title = lbl; b.setAttribute("aria-label", lbl); b.setAttribute("aria-pressed", dark ? "true" : "false");
-  }
-  $("themeBtn").onclick = function () { setTheme(isDark() ? "light" : "dark"); };
-  if (darkMq) { var onMq = function () { if (!themePref()) renderThemeBtn(); }; if (darkMq.addEventListener) darkMq.addEventListener("change", onMq); else if (darkMq.addListener) darkMq.addListener(onMq); }
-  renderThemeBtn();
 
   /* ---------- meeting reminders on this device (web push) ---------- */
   /* Each phone or computer turns reminders on for itself. The browser gives a subscription; the page saves it in Supabase
@@ -9860,6 +9844,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       ["sun", "Modo claro", function () { setTheme("light"); }, t === "light" ? "on" : ""],
       ["moon", "Modo oscuro", function () { setTheme("dark"); }, t === "dark" ? "on" : ""],
       ["monitor", "Igual que el dispositivo", function () { setTheme(""); }, !t ? "on" : ""],
+      window.tbSkins ? ["palette", "Diseño del tablero", window.tbSkins.open] : null,
       "-",
       state.canWrite && state.db ? ["users", me ? "Cambiar de persona (eres " + me.name + ")" : "¿Quién eres?", openMe] : null,
       state.canWrite ? ["pencil", "Equipo y nombre del tablero", openTeam] : null,
@@ -9867,7 +9852,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       state.db ? ["refresh", "Actualizar datos", function () {
         Promise.resolve(state.db.reload()).then(function () { toast("Tablero actualizado."); });
       }] : null,
-      installEvt ? ["download", "Instalar como app", function () { $("installBtn").click(); }] : null,
+      installEvt ? ["download", "Instalar como app", installApp] : null,
       "-",
       isPhone() ? null : ["keyboard", "Atajos de teclado", openShortcuts],
       ["info", "Acerca de este tablero", openAbout],
