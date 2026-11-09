@@ -1072,7 +1072,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 @media (max-width: 680px) {
   body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
   .viewswitch, .fab { display: none !important; }
-  .bnav { display: grid; grid-template-columns: repeat(6, 1fr); align-items: end; position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(18,26,65,.08); }
+  .bnav { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(18,26,65,.08); }
   .bnav button { border: none; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; font-size: 11.5px; font-weight: 700; color: var(--muted); border-radius: 12px; transition: color .15s; }
   .bnav button .ico { width: 22px; height: 22px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
   .bnav button[aria-current="page"] { color: var(--ink); }
@@ -1423,6 +1423,21 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
   .fx-crude { padding: 2px 6px; font-size: 11px; }
 }
 
+/* ---------- indicators (Indicadores) ---------- */
+.ind { display: flex; flex-direction: column; gap: 14px; }
+.ind-cur { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 7px 10px; font: inherit; font-size: 13.5px; }
+.fx-tbl td.ind-lbl { white-space: normal; padding-right: 10px; }
+.ind .fx-tbl input.wide { min-width: 120px; }
+.ind-out { display: flex; flex-direction: column; }
+.ind-kv { align-items: baseline; }
+.ind-kv > span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.ind-kv small { font-size: 11.5px; color: var(--muted); }
+.ind-kv b { white-space: nowrap; }
+@media (max-width: 520px) { .ind .fx-tbl input.wide { min-width: 96px; } }
+
+/* more sections in the phone's bottom bar: smaller labels so they all fit */
+@media (max-width: 420px) { #bnav button { padding-left: 0; padding-right: 0; font-size: 10px; letter-spacing: -.01em; } }
+
 .dhead .btn .nb { background: var(--late-soft); color: var(--late); border-radius: 999px; padding: 0 7px; font-size: 12px; font-weight: 700; }
 .dviewsw { display: inline-flex; background: var(--lane); border-radius: 10px; padding: 3px; gap: 2px; }
 .dviewsw button { border: none; background: transparent; width: 32px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); padding: 0; }
@@ -1634,7 +1649,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   .dclear { margin-left: 0; }
   /* five sections in the bottom bar; + floats above it on the right */
   body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
-  .bnav { grid-template-columns: repeat(5, 1fr); }
+  .bnav { grid-template-columns: repeat(6, 1fr); }
   .bnav button { font-size: 11px; letter-spacing: 0; }
   .bnav .bnav-add { position: fixed; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); margin: 0; z-index: 19; width: 58px; height: 58px; }
   .add-menu { left: auto; right: 16px; transform: none; bottom: calc(148px + env(safe-area-inset-bottom, 0px)); transform-origin: bottom right; animation: menuin3 .2s cubic-bezier(.2,.8,.2,1); }
@@ -2152,6 +2167,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <button type="button" data-v="home"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
     <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
     <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+    <button type="button" data-v="ind"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 17 9 11.5l4 4 7.5-8"/><path d="M15 7.5h5.5V13"/></svg>Indicadores</button>
     <button type="button" data-v="fact"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg>Facturación</button>
     <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
   </nav>
@@ -2202,6 +2218,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       <button type="button" id="viewHome" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
       <button type="button" id="viewBoard" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
       <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+      <button type="button" id="viewInd" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 17 9 11.5l4 4 7.5-8"/><path d="M15 7.5h5.5V13"/></svg>Indicadores</button>
       <button type="button" id="viewFact" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg>Facturación</button>
       <button type="button" id="viewDocs" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
     </div>
@@ -2222,6 +2239,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
   <section class="docs" id="docs" aria-label="Documentos" hidden></section>
   <section class="fact" id="fact" aria-label="Facturación" hidden></section>
+  <section class="ind" id="ind" aria-label="Indicadores" hidden></section>
 
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
 </div>
@@ -2232,8 +2250,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg><span>Tablero</span></button>
   <button type="button" class="bnav-add" id="bnavAdd" aria-label="Agregar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
+  <button type="button" data-v="ind"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 17 9 11.5l4 4 7.5-8"/><path d="M15 7.5h5.5V13"/></svg><span>Indicadores</span></button>
   <button type="button" data-v="fact"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg><span>Facturación</span></button>
-  <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg><span>Documentos</span></button>
+  <button type="button" data-v="docs" aria-label="Documentos"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg><span>Docs</span></button>
 </nav>
 <div id="panelRoot"></div>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -2731,13 +2750,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     renderDocs();
     renderHome();
     renderFact();
+    renderInd();
   }
 
   function renderHero() {
     $("boardName").textContent = viewTitle();
     var now = new Date();
     var eb = $("today"); eb.textContent = "";
-    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", docs: "Documentos", fact: "Facturación" }[state.view] || "";
+    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", docs: "Documentos", fact: "Facturación", ind: "Indicadores" }[state.view] || "";
     eb.appendChild(el("span", "eb-sec", sec));
     eb.appendChild(el("span", "eb-date", "| " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
@@ -4152,7 +4172,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
-    var place = state.view !== "home" && state.view !== "docs" && state.view !== "fact" && state.db && state.loaded;
+    var place = state.view !== "home" && state.view !== "docs" && state.view !== "fact" && state.view !== "ind" && state.db && state.loaded;
     var show = !!(place && state.labels.length);
     var lb = $("labelsBtn");
     if (lb) lb.hidden = !(place && !state.labels.length && state.canWrite);
@@ -4385,7 +4405,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- home (Inicio): the most important things from every part of the page ---------- */
   state.recentLog = [];
-  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", docs: "Documentos", fact: "Facturación" };
+  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", docs: "Documentos", fact: "Facturación", ind: "Indicadores" };
   function greetingWord() { var h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; }
   function viewTitle() {
     if (state.view !== "home") return VIEW_TITLES[state.view] || "Tablero de tareas";
@@ -5130,7 +5150,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (!qq) {
         [["home", "Ir a Inicio", function () { setView("home"); }], ["move", "Ir al Tablero", function () { setView("board"); }],
          ["cal", "Ir al Calendario", function () { setView("cal"); }],
-         ["folder", "Ir a Documentos", function () { setView("docs"); }], ["receipt", "Ir a Facturación", function () { setView("fact"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
+         ["folder", "Ir a Documentos", function () { setView("docs"); }], ["receipt", "Ir a Facturación", function () { setView("fact"); }], ["trend", "Ir a Indicadores", function () { setView("ind"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
         if (state.canWrite) {
           [["plus", "Nueva tarea", function () { openEditor(null); }], ["users", "Nueva reunión", function () { openMeeting(null, { date: todayStr() }); }],
            ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["archive", "Archivo y papelera", function () { openArchive(); }],
@@ -8284,8 +8304,204 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     fxRefresh();
   }
 
+  /* ---------- indicators view (Indicadores) ---------- */
+  /* The usual finance-office indicators for the board meeting: cash flow and liquidity, profitability, receivable and
+     payable turnover, and property, plant and equipment. The page holds no figures of its own: each month someone types
+     the inputs from the month's statements, every indicator shows once its inputs are there, and until then it says
+     what is missing. Months are saved in the board settings («ind»), like Facturación. Opening balances of a new month
+     are taken from the previous month's closing figures when that month was saved. */
+  var IND_GROUPS = [
+    { id: "liq", title: "Flujo de efectivo y liquidez", ic: "card",
+      fields: [["cash0", "Efectivo al inicio del mes", "m"], ["cin", "Cobros del mes (entradas de efectivo)", "m"], ["cout", "Pagos del mes (salidas de efectivo)", "m"],
+        ["ac", "Activo corriente al cierre", "m"], ["inv", "Inventarios al cierre", "m"], ["pc", "Pasivo corriente al cierre", "m"]],
+      res: [
+        ["Flujo neto del mes", "m", ["cin", "cout"], function (v) { return v.cin - v.cout; }, "Cobros − pagos"],
+        ["Efectivo al cierre", "m", ["cash0", "cin", "cout"], function (v) { return v.cash0 + v.cin - v.cout; }, "Inicio + cobros − pagos"],
+        ["Razón corriente", "x", ["ac", "pc"], function (v) { return v.ac / v.pc; }, "Activo corriente ÷ pasivo corriente"],
+        ["Prueba ácida", "x", ["ac", "inv", "pc"], function (v) { return (v.ac - v.inv) / v.pc; }, "(Activo corriente − inventarios) ÷ pasivo corriente"],
+        ["Capital de trabajo", "m", ["ac", "pc"], function (v) { return v.ac - v.pc; }, "Activo corriente − pasivo corriente"]] },
+    { id: "rent", title: "Rentabilidad", ic: "trend",
+      fields: [["rev", "Ingresos del mes", "m"], ["cogs", "Costo de ventas del mes", "m"], ["opex", "Gastos de operación del mes (sin depreciación ni amortización)", "m"],
+        ["da", "Depreciación y amortización del mes", "m"], ["ni", "Utilidad neta del mes (estado de resultados)", "m"], ["ta", "Activo total al cierre", "m"], ["eq", "Patrimonio al cierre", "m"]],
+      res: [
+        ["Margen bruto", "%", ["rev", "cogs"], function (v) { return (v.rev - v.cogs) / v.rev; }, "(Ingresos − costo de ventas) ÷ ingresos"],
+        ["EBITDA", "m", ["rev", "cogs", "opex"], function (v) { return v.rev - v.cogs - v.opex; }, "Ingresos − costo de ventas − gastos de operación"],
+        ["Margen EBITDA", "%", ["rev", "cogs", "opex"], function (v) { return (v.rev - v.cogs - v.opex) / v.rev; }, "EBITDA ÷ ingresos"],
+        ["Utilidad operativa (EBIT)", "m", ["rev", "cogs", "opex", "da"], function (v) { return v.rev - v.cogs - v.opex - v.da; }, "EBITDA − depreciación y amortización"],
+        ["Margen operativo", "%", ["rev", "cogs", "opex", "da"], function (v) { return (v.rev - v.cogs - v.opex - v.da) / v.rev; }, "EBIT ÷ ingresos"],
+        ["Margen neto", "%", ["ni", "rev"], function (v) { return v.ni / v.rev; }, "Utilidad neta ÷ ingresos"],
+        ["ROA del mes", "%", ["ni", "ta"], function (v) { return v.ni / v.ta; }, "Utilidad neta ÷ activo total"],
+        ["ROE del mes", "%", ["ni", "eq"], function (v) { return v.ni / v.eq; }, "Utilidad neta ÷ patrimonio"]] },
+    { id: "cxc", title: "Rotación de cuentas por cobrar", ic: "clock",
+      fields: [["sales", "Ventas a crédito del mes", "m"], ["ar0", "Cuentas por cobrar al inicio", "m"], ["ar1", "Cuentas por cobrar al cierre", "m"]],
+      res: [
+        ["Cuentas por cobrar promedio", "m", ["ar0", "ar1"], function (v) { return (v.ar0 + v.ar1) / 2; }, "(Inicio + cierre) ÷ 2"],
+        ["Rotación del mes", "x", ["sales", "ar0", "ar1"], function (v) { return v.sales / ((v.ar0 + v.ar1) / 2); }, "Ventas a crédito ÷ CxC promedio"],
+        ["Días de cobro", "d", ["sales", "ar0", "ar1"], function (v, d) { return (v.ar0 + v.ar1) / 2 / v.sales * d; }, "CxC promedio ÷ ventas a crédito × días del mes"]] },
+    { id: "cxp", title: "Rotación de cuentas por pagar", ic: "clock",
+      fields: [["buys", "Compras a crédito del mes", "m"], ["ap0", "Cuentas por pagar al inicio", "m"], ["ap1", "Cuentas por pagar al cierre", "m"]],
+      res: [
+        ["Cuentas por pagar promedio", "m", ["ap0", "ap1"], function (v) { return (v.ap0 + v.ap1) / 2; }, "(Inicio + cierre) ÷ 2"],
+        ["Rotación del mes", "x", ["buys", "ap0", "ap1"], function (v) { return v.buys / ((v.ap0 + v.ap1) / 2); }, "Compras a crédito ÷ CxP promedio"],
+        ["Días de pago", "d", ["buys", "ap0", "ap1"], function (v, d) { return (v.ap0 + v.ap1) / 2 / v.buys * d; }, "CxP promedio ÷ compras a crédito × días del mes"],
+        ["Días de cobro − días de pago", "d", ["sales", "ar0", "ar1", "buys", "ap0", "ap1"], function (v, d) { return ((v.ar0 + v.ar1) / 2 / v.sales - (v.ap0 + v.ap1) / 2 / v.buys) * d; }, "Positivo: se cobra después de pagar"]] },
+    { id: "ppe", title: "Propiedad, planta y equipo", ic: "grid",
+      fields: [["gross", "PP&E bruta al cierre", "m"], ["acc", "Depreciación acumulada al cierre", "m"], ["capex", "Adiciones del mes (inversiones)", "m"], ["dep", "Depreciación del mes", "m"]],
+      res: [
+        ["PP&E neta", "m", ["gross", "acc"], function (v) { return v.gross - v.acc; }, "Bruta − depreciación acumulada"],
+        ["Porción depreciada", "%", ["gross", "acc"], function (v) { return v.acc / v.gross; }, "Depreciación acumulada ÷ PP&E bruta"],
+        ["Rotación de activos fijos (mes)", "x", ["rev", "gross", "acc"], function (v) { return v.rev / (v.gross - v.acc); }, "Ingresos del mes ÷ PP&E neta"],
+        ["Inversión ÷ depreciación", "x", ["capex", "dep"], function (v) { return v.capex / v.dep; }, "Mayor que 1: los activos crecen"]] }
+  ];
+  var IND_LABEL = {};
+  IND_GROUPS.forEach(function (g) { g.fields.forEach(function (f) { IND_LABEL[f[0]] = f[1]; }); });
+  var indb = { ym: "", drafts: {}, saving: false, upd: [] };
+  function indSaved() { var s = state.settingsRaw && state.settingsRaw.ind; return s && typeof s === "object" ? s : {}; }
+  /* a month nobody has filled yet starts empty, with the opening balances carried from last month's closing ones */
+  function indBlank(ym) {
+    var p = indSaved()[fxShift(ym, -1)], v = {}, from = "";
+    if (p && p.v) {
+      var pv = p.v;
+      if (isFinite(n0(pv.cash0)) && isFinite(n0(pv.cin)) && isFinite(n0(pv.cout))) v.cash0 = pv.cash0 + pv.cin - pv.cout;
+      if (isFinite(n0(pv.ar1))) v.ar0 = pv.ar1;
+      if (isFinite(n0(pv.ap1))) v.ap0 = pv.ap1;
+      if (Object.keys(v).length) from = fxShift(ym, -1);
+    }
+    return { v: v, cur: p && p.cur || "", from: from };
+  }
+  function indCur() { return indb.drafts[indb.ym] || indSaved()[indb.ym] || (indb.drafts[indb.ym] = indBlank(indb.ym)); }
+  function indEdit() { if (!indb.drafts[indb.ym]) indb.drafts[indb.ym] = clone(indCur()); return indb.drafts[indb.ym]; }
+  function indFmt(v, kind, cur) {
+    if (!isFinite(v)) return "–";
+    if (kind === "%") return fxNum(v * 100, 1) + " %";
+    if (kind === "x") return fxNum(v, 2);
+    if (kind === "d") return fxNum(v, 0) + " días";
+    return (cur ? cur + " " : "") + fxNum(v, 2);
+  }
+  /* one result: its value, or which inputs it still needs */
+  function indOne(r, M, days) {
+    var v = {}, miss = [];
+    r[2].forEach(function (k) { var x = n0((M.v || {})[k]); if (isFinite(x)) v[k] = x; else miss.push(k); });
+    var val = miss.length ? NaN : r[3](v, days);
+    return { val: isFinite(val) ? val : NaN, miss: miss, zero: !miss.length && !isFinite(val) };
+  }
+  function indSave() {
+    var d = indb.drafts[indb.ym];
+    if (!d || indb.saving || !state.db) return;
+    var rec = clone(d); delete rec.from;
+    var me = state.settingsLoaded ? member(meKey()) : null;
+    rec.by = me ? me.name : ""; rec.at = new Date().toISOString();
+    var all = Object.assign({}, indSaved()); all[indb.ym] = rec;
+    var keys = Object.keys(all).sort(); while (keys.length > 36) delete all[keys.shift()];
+    indb.saving = true; renderInd(true);
+    saveSettings({ ind: all }).then(function () { delete indb.drafts[indb.ym]; toast("Indicadores de " + fxMonthName(indb.ym).toLowerCase() + " guardados"); },
+      function () { toast("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."); })
+      .then(function () { indb.saving = false; renderInd(true); });
+  }
+  function indRefresh() { var M = indCur(); indb.upd.forEach(function (f) { f(M); }); }
+
+  function renderInd(force) {
+    var box = $("ind");
+    if (!box || state.view !== "ind") return;
+    if (!indb.ym) { var t = new Date(); indb.ym = fxShift(t.getFullYear() + "-" + pad(t.getMonth() + 1), -1); }
+    /* board updates call this too: rebuild only when the saved month changes, and never over a draft */
+    var sig = [indb.ym, JSON.stringify(indSaved()[indb.ym] || null), state.canWrite].join("|");
+    if (!force && box.firstChild && (box.dataset.sig === sig || indb.drafts[indb.ym])) return;
+    box.dataset.sig = sig;
+    box.textContent = "";
+    indb.upd = [];
+    var M = indCur(), p = indb.ym.split("-"), days = new Date(+p[0], +p[1], 0).getDate();
+
+    /* month, currency, state and save */
+    var head = el("div", "fx-head"), mon = el("div", "fx-month");
+    var prev = el("button", "navbtn"); prev.type = "button"; prev.appendChild(icon("chevL")); prev.setAttribute("aria-label", "Mes anterior");
+    prev.onclick = function () { indb.ym = fxShift(indb.ym, -1); renderInd(true); };
+    var next = el("button", "navbtn"); next.type = "button"; next.appendChild(icon("chevR")); next.setAttribute("aria-label", "Mes siguiente");
+    next.onclick = function () { indb.ym = fxShift(indb.ym, 1); renderInd(true); };
+    mon.appendChild(prev); mon.appendChild(el("h2", null, fxMonthName(indb.ym))); mon.appendChild(next);
+    head.appendChild(mon);
+    var curSel = el("select", "ind-cur"); curSel.setAttribute("aria-label", "Moneda de las cifras");
+    [["", "Moneda…"], ["$", "Dólares ($)"], ["Bs", "Bolívares (Bs)"]].forEach(function (c) { var o = el("option", null, c[1]); o.value = c[0]; curSel.appendChild(o); });
+    curSel.value = M.cur || ""; curSel.disabled = !state.canWrite;
+    curSel.onchange = function () { indEdit().cur = curSel.value; indRefresh(); };
+    head.appendChild(curSel);
+    var stP = el("p", "fx-state"), undo = btn("Descartar", "small"), sv = btn(indb.saving ? "Guardando…" : "Guardar", "small primary", "check");
+    head.appendChild(stP);
+    undo.onclick = function () { delete indb.drafts[indb.ym]; renderInd(true); };
+    sv.onclick = function () { indEdit(); indSave(); };
+    if (state.canWrite) { head.appendChild(undo); head.appendChild(sv); }
+    box.appendChild(head);
+    if (M.from) box.appendChild(el("div", "notice", "Los saldos al inicio vienen del cierre de " + fxMonthName(M.from).toLowerCase() + "."));
+
+    /* the headline: are we making or losing money, and the cash that moved */
+    var tiles = el("div", "fx-tiles");
+    function tile(label, cls, fill) {
+      var t = el("div", "fx-tile" + (cls ? " " + cls : "")), b = el("b"), sm = el("span", "fx-sm");
+      t.appendChild(el("span", "fx-tl", label)); t.appendChild(b); t.appendChild(sm); tiles.appendChild(t);
+      indb.upd.push(function (M) { fill(b, sm, M); });
+    }
+    function need(keys) { return "Falta: " + keys.map(function (k) { return IND_LABEL[k].replace(/ \(.*\)$/, "").toLowerCase(); }).join(", "); }
+    tile("¿Ganando o perdiendo?", "main", function (b, sm, M) {
+      var ni = n0((M.v || {}).ni);
+      if (!isFinite(ni)) { b.textContent = "–"; sm.textContent = need(["ni"]); return; }
+      b.textContent = ni > 0 ? "Ganando" : ni < 0 ? "Perdiendo" : "En equilibrio";
+      sm.textContent = "Utilidad neta del mes: " + indFmt(ni, "m", M.cur);
+    });
+    [[0, 0, "Flujo neto de caja"], [0, 2, "Razón corriente"], [2, 2, "Días de cobro"], [3, 2, "Días de pago"]].forEach(function (x) {
+      var r = IND_GROUPS[x[0]].res[x[1]];
+      tile(x[2], "", function (b, sm, M) {
+        var o = indOne(r, M, days);
+        b.textContent = indFmt(o.val, r[1], M.cur);
+        sm.textContent = o.miss.length ? need(o.miss) : o.zero ? "No se puede dividir entre cero" : r[4];
+      });
+    });
+    box.appendChild(tiles);
+
+    /* one card per area: the inputs, then what they give */
+    var grid = el("div", "fx-grid");
+    IND_GROUPS.forEach(function (g) {
+      var c = fxCard(g.title, g.ic);
+      var T = fxTable(["Dato del mes", "Valor"]);
+      g.fields.forEach(function (f) {
+        var tr = el("tr"); tr.appendChild(el("td", "ind-lbl", f[1]));
+        var td = el("td"), i = el("input", "wide"); i.type = "text"; i.inputMode = "decimal"; i.setAttribute("autocomplete", "off");
+        i.value = fxShow((indCur().v || {})[f[0]]);
+        if (!state.canWrite) i.readOnly = true;
+        i.oninput = function () { var M = indEdit(); M.v = M.v || {}; M.v[f[0]] = fxParse(i.value); indRefresh(); };
+        i.onblur = function () { var v = (indCur().v || {})[f[0]]; if (v !== null && isFinite(v)) i.value = fxShow(v); };
+        td.appendChild(i); tr.appendChild(td); T.body.appendChild(tr);
+      });
+      c.appendChild(fxScroll(T.t));
+      var out = el("div", "ind-out"); c.appendChild(out);
+      indb.upd.push(function (M) {
+        out.textContent = "";
+        g.res.forEach(function (r) {
+          var o = indOne(r, M, days), row = el("div", "fx-kv ind-kv"), l = el("span");
+          l.appendChild(el("span", null, r[0]));
+          l.appendChild(el("small", null, o.miss.length ? need(o.miss) : o.zero ? "No se puede dividir entre cero" : r[4]));
+          row.appendChild(l); row.appendChild(el("b", null, indFmt(o.val, r[1], M.cur)));
+          out.appendChild(row);
+        });
+      });
+      grid.appendChild(c);
+    });
+    box.appendChild(grid);
+
+    /* the state line and the buttons follow the typing */
+    indb.upd.push(function () {
+      var d = indb.drafts[indb.ym], sd = indSaved()[indb.ym], typed = d && (d.cur || Object.keys(d.v || {}).some(function (k) { return isFinite(n0(d.v[k])); }));
+      stP.textContent = sd && !d ? "Guardado" + (sd.by ? " por " + sd.by : "") + (sd.at ? " el " + fxWhen(sd.at) : "") + "."
+        : d && sd ? "Cambios sin guardar en este dispositivo."
+        : typed ? "Mes nuevo: todavía no se ha guardado." : "Sin datos para este mes.";
+      stP.classList.toggle("dirty", !!(d && (sd || typed)));
+      undo.hidden = !(d && (sd || typed));
+      sv.disabled = indb.saving || !typed && !(d && sd);
+    });
+    indRefresh();
+  }
+
   /* ---------- calendar view ---------- */
-  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos", fact: "facturacion" };
+  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos", fact: "facturacion", ind: "indicadores" };
   function viewFromHash() {
     var h = String(location.hash || "").replace(/^#/, "").split("/")[0];
     for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
@@ -8349,13 +8565,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("home").hidden = v !== "home";
     $("archiveBtn").hidden = v !== "board" || !state.db;
     $("viewHome").setAttribute("aria-selected", String(v === "home"));
-    document.querySelector(".toolbar .search").hidden = v === "home" || v === "fact";
+    document.querySelector(".toolbar .search").hidden = v === "home" || v === "fact" || v === "ind";
     $("board").hidden = v !== "board";
     $("tabs").hidden = v !== "board";
     $("cal").hidden = v !== "cal";
     $("docs").hidden = v !== "docs";
     $("fact").hidden = v !== "fact";
     $("viewFact").setAttribute("aria-selected", String(v === "fact"));
+    $("ind").hidden = v !== "ind";
+    $("viewInd").setAttribute("aria-selected", String(v === "ind"));
     $("viewDocs").setAttribute("aria-selected", String(v === "docs"));
     $("viewBoard").setAttribute("aria-selected", String(v === "board"));
     $("viewCal").setAttribute("aria-selected", String(v === "cal"));
@@ -8373,7 +8591,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar",
     cal: "<kbd>R</kbd> nueva reunión",
     docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos",
-    fact: ""
+    fact: "",
+    ind: ""
   };
   function setView(v) {
     state.view = v;
@@ -8381,7 +8600,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var hv = v === "docs" ? docsHash() : VIEW_HASH[v];
     try { if (location.hash.replace(/^#/, "") !== hv) history.replaceState(null, "", "#" + hv); } catch (e) {}
     calDir = 0;
-    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderDocs(); renderFact(); };
+    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderDocs(); renderFact(); renderInd(); };
     if (document.startViewTransition && !reduced() && state.loaded) { try { document.startViewTransition(paint); } catch (e) { paint(); } }
     else paint();
     if (window.scrollY > 200) window.scrollTo({ top: 0, behavior: "auto" });
@@ -9540,6 +9759,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   $("viewCal").onclick = function () { setView("cal"); };
   $("viewDocs").onclick = function () { setView("docs"); };
   $("viewFact").onclick = function () { setView("fact"); };
+  $("viewInd").onclick = function () { setView("ind"); };
   Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v], #side [data-v]"), function (b) { b.onclick = function () { setView(b.dataset.v); }; });
   $("sideAdd").onclick = function () { $("addBtn").click(); };
   $("labelsBtn").onclick = function () { openLabels(); };

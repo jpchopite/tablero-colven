@@ -54,6 +54,25 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 - Copiar crea filas nuevas que apuntan al mismo archivo guardado; el archivo solo se elimina cuando ya nadie lo usa (`attachment_in_use`).
 - Descargar carpetas: clic derecho en una carpeta (o en el fondo de una carpeta abierta) → «Descargar (.zip)», o «Descargar» en la barra de selección con varios elementos. La página arma el .zip en el navegador (sin comprimir, con las subcarpetas, también las vacías) a partir de los enlaces firmados de cada archivo; los anexos van junto a su archivo, los accesos directos a archivos traen el original y los accesos directos a carpetas se omiten. Por encima de 500 MB pide confirmar.
 
+## Indicadores
+
+La sección «Indicadores» (`#indicadores`) reúne los indicadores financieros para la junta:
+
+- Flujo de efectivo y liquidez.
+- Rentabilidad.
+- Rotación de cuentas por cobrar.
+- Rotación de cuentas por pagar.
+- Propiedad, planta y equipo.
+
+Arriba muestra «¿Ganando o perdiendo?» (según la utilidad neta del mes), el flujo neto de caja, la razón corriente y los días de cobro y de pago.
+
+- La página no trae cifras. Cada mes se escriben los datos de los estados financieros de ese mes.
+- Cada indicador muestra su fórmula y aparece cuando están sus datos. Mientras tanto dice cuáles faltan.
+- Los meses se guardan con «Guardar» en la configuración del tablero (`ind`).
+- Un mes nuevo toma como saldos de inicio (efectivo, cuentas por cobrar y cuentas por pagar) los del cierre del mes anterior, si ese mes se guardó.
+- La moneda (dólares o bolívares) se elige en cada mes.
+- El conjunto de indicadores es una primera propuesta; Carlos dará recomendaciones después.
+
 ## Facturación
 
 La sección «Facturación» (`#facturacion`) calcula el precio por campo de los contratos CPPH de las subcuencas Barinas (Maporal, Silvestre, Hato Viejo, Sinco Zona 2 y Sinco Zona 3) y Apure (Guafita y La Victoria), y el monto a facturar por subcuenca, igual que el libro «Cálculo Factura».
