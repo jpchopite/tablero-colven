@@ -54,6 +54,27 @@ La sección «Documentos» (`#documentos`) guarda carpetas y archivos del equipo
 - Copiar crea filas nuevas que apuntan al mismo archivo guardado; el archivo solo se elimina cuando ya nadie lo usa (`attachment_in_use`).
 - Descargar carpetas: clic derecho en una carpeta (o en el fondo de una carpeta abierta) → «Descargar (.zip)», o «Descargar» en la barra de selección con varios elementos. La página arma el .zip en el navegador (sin comprimir, con las subcarpetas, también las vacías) a partir de los enlaces firmados de cada archivo; los anexos van junto a su archivo, los accesos directos a archivos traen el original y los accesos directos a carpetas se omiten. Por encima de 500 MB pide confirmar.
 
+## Facturación
+
+La sección «Facturación» (`#facturacion`) calcula el precio por campo de los contratos CPPH de las subcuencas Barinas (Maporal, Silvestre, Hato Viejo, Sinco Zona 2 y Sinco Zona 3) y Apure (Guafita y La Victoria), y el monto a facturar por subcuenca, igual que el libro «Cálculo Factura».
+
+- Premisas de cada mes:
+  - Marcadores internacionales (Mars, Brent, Dubái y Omán), de Platts.
+  - Factor K por crudo y factor AGA por campo, de la resolución del ministerio (cerca del 15).
+  - IPC de EE.UU., que ajusta el ACC.
+  - Producción del acta y °API por campo. El °API decide el crudo: Merey 16, Mesa 30 o Santa Bárbara.
+  - Factores de ponderación, que vienen en el oficio anual del ministerio.
+- El IPC (CPI-U sin ajuste estacional, serie `CUUR0000SA0`) se trae solo del BLS y queda guardado en el dispositivo (`tb-cpi`). El ACC de cada punto de entrega es el de enero de 2024 (base 308,417) multiplicado por IPC del mes / 308,417. El de enero de 2024 se compone de 0,0045 $/bl por km, más 0,9778 de manejo y 0,25 de honorarios.
+- Precio por mercado:
+  - Merey 16: 0,9 × Mars (Golfo y Caribe), 0,85 × Brent (Europa) y 0,9 × promedio Dubái–Omán (Asia).
+  - Mesa 30: Mars, 0,95 × Brent y el promedio Dubái–Omán, sin descuento.
+  - A cada uno se le suma K y AGA y se le resta el ACC. El precio del campo es la suma ponderada por los factores.
+- Volumen a pagar:
+  - Si la producción del acta de la subcuenca está por debajo del tope, se paga la producción por encima de la base diaria. Ese excedente se reparte entre los campos según su peso en el acta.
+  - Desde el tope en adelante se paga la participación económica de toda la producción.
+  - Barinas: base 4.400 b/d, tope 9.200, participación 53 %. Apure: base 3.700, tope 8.800, participación 58 %.
+- Los meses se guardan con «Guardar» en la configuración del tablero (`fact`), para que todo el equipo vea las mismas cifras. Lo que se escribe queda como borrador en el dispositivo hasta guardar. Un mes nuevo empieza con los valores del anterior. Septiembre de 2026 trae los valores del Excel.
+
 ## Opciones y tema
 
 El botón «Opciones» del encabezado reúne el tema (claro, oscuro o igual que el dispositivo), cambiar de persona, equipo y nombre del tablero, actualizar datos, instalar la app, atajos de teclado y «Acerca de».
