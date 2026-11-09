@@ -1053,10 +1053,16 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .lane.drop .cards::after { content: "Soltar aquí"; display: block; border: 2px dashed var(--lane-c, var(--focus)); border-radius: 12px; padding: 16px; text-align: center; font-weight: 700; font-size: 13px; color: var(--lane-c, var(--focus)); animation: fade .15s ease; }
 
 /* ================= view transitions ================= */
-::view-transition-old(root) { animation: vt-out .16s ease both; }
-::view-transition-new(root) { animation: vt-in .24s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes vt-out { to { opacity: 0; } }
-@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+/* changing section: the page on its way out fades and lifts a little; the new one settles in from below,
+   slowly, coming into focus. The side menu and the phone's bottom bar are their own layers, so they stay put
+   (only the highlighted section moves, and the menu tucking away on Tablero glides into place). */
+.side { view-transition-name: side-menu; }
+.bnav { view-transition-name: bottom-bar; }
+::view-transition-old(root) { animation: vt-out .28s cubic-bezier(.4, 0, 1, 1) both; }
+::view-transition-new(root) { animation: vt-in .56s cubic-bezier(.22, 1, .36, 1) .1s both; }
+::view-transition-group(side-menu), ::view-transition-group(bottom-bar) { animation-duration: .5s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+@keyframes vt-out { to { opacity: 0; transform: translateY(-6px); filter: blur(2px); } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); filter: blur(3px); } }
 .view-in { animation: vt-in .26s cubic-bezier(.2,.8,.2,1); }
 
 /* ================= phone: bottom bar, compact header, stats strip ================= */
