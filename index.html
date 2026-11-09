@@ -49,7 +49,6 @@
 .peek .pk-more { color: var(--muted); font-size: 12px; }
 .peek .pk-quote { color: var(--ink); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .peek .pk-quote b { font-weight: 600; }
-.peek .pk-hint { margin-top: 9px; font-size: 11.5px; color: var(--muted); }
 @media (hover: none), (pointer: coarse) { .peek { display: none !important; } }
 </style>
 <script>try { var th = localStorage.getItem("tb-theme"); if (th === "light" || th === "dark") document.documentElement.setAttribute("data-theme", th); } catch (e) {}</script>
@@ -303,7 +302,6 @@ kbd { font-family: var(--font-mono); font-size: 11px; border: 1px solid currentC
 .card.landed { animation: land .6s cubic-bezier(.2,.8,.2,1); }
 @keyframes land { 0% { opacity: 0; transform: translateY(-10px) scale(.97); box-shadow: 0 0 0 3px var(--accent); } 55% { opacity: 1; transform: none; box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: var(--shadow-sm); } }
 
-.foot-note { color: var(--muted); font-size: 13.5px; border-top: 1px solid var(--line); padding-top: 14px; max-width: 75ch; margin: 6px 0 0; }
 
 .fab { display: none; position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: 60px; height: 60px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-ink); place-items: center; box-shadow: 0 12px 30px rgba(18,26,65,.35); z-index: 15; transition: transform .12s; }
 .fab:active { transform: scale(.92); }
@@ -1482,7 +1480,6 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
 .dempty-acts .btn { display: inline-flex; gap: 7px; align-items: center; }
 .dempty-acts .ico { width: 17px; height: 17px; }
 .dempty-hint { font-size: 12.5px; margin-top: 4px; }
-.dhint { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); text-align: center; }
 
 /* menus and dialogs */
 .pop-scrim { position: fixed; inset: 0; z-index: 25; }
@@ -2003,7 +2000,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   .side-nav .ico { width: 18px; height: 18px; }
   .side-add { margin-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #ffd453; background: transparent; color: #ffd453; border-radius: 8px; padding: 9px 12px; font-weight: 600; font-size: 14px; }
   .side-add:hover { background: rgba(255,212,83,.1); }
-  .side-foot { margin-top: auto; border-top: 1px solid #2a3160; padding: 14px 8px 0; color: #aab2cc; font-size: 12.5px; line-height: 1.4; }
   .viewswitch, .hero .brand, #addBtn { display: none !important; }
   /* on the board the menu tucks away to a thin rail and slides out over the page, so the five columns get the full width */
   /* the rail is 30px; the board loses those pixels from its own side padding, so the columns keep their width */
@@ -2100,7 +2096,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
   </nav>
   <button type="button" class="side-add" id="sideAdd"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva tarea</button>
-  <div class="side-foot">Colven HQ<br>Tareas, calendario y documentos del equipo.</div>
 </aside>
 <header class="hero">
   <div class="wrap hero-inner">
@@ -2160,7 +2155,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <button class="tbtn" id="labelsBtn" type="button" hidden><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7a1 1 0 0 1 .7.3l8 8a1 1 0 0 1 0 1.4l-7.7 7.7a1 1 0 0 1-1.4 0l-8-8a1 1 0 0 1-.3-.7z"/><circle cx="8" cy="8" r="1.6"/></svg>Etiquetas</button>
     <button class="tbtn" id="archiveBtn" type="button" title="Tarjetas archivadas y papelera"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="4.5" rx="1"/><path d="M5 8.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5M10 12.5h4"/></svg>Archivo</button>
     <div class="tabs" id="tabs" role="tablist" aria-label="Columnas"></div>
-    <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas</div>
+    <div class="hint" id="hint"><kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar</div>
   </div>
 
   <section class="home" id="home" aria-label="Inicio" hidden></section>
@@ -2169,7 +2164,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
   <section class="docs" id="docs" aria-label="Documentos" hidden></section>
 
-  <p class="foot-note">Revisión semanal, unos 15 minutos: cierren lo terminado, y revisen todo lo que está en <strong>Esperando a alguien</strong> y entreguen lo que llegó a su fecha en <strong>Lista para entregar</strong>. Cada movimiento queda firmado con el nombre de quien lo hizo en <strong>Actividad</strong>. Toca el círculo de una tarjeta para marcarla como hecha. Las tarjetas con ↻ se repiten: al terminar una se agrega la siguiente.</p>
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
 </div>
 
@@ -3024,7 +3018,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       q.appendChild(document.createTextNode(last.text));
       csec.appendChild(q);
     }
-    box.appendChild(el("div", "pk-hint", "Haz clic para abrir la tarea"));
     return box;
   }
   function showPeek(t, c) {
@@ -3400,7 +3393,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     openPanel(function (p) {
       p.setAttribute("aria-label", "Quién eres");
       p.appendChild(el("h2", null, "¿Quién eres?"));
-      p.appendChild(el("div", "help-line", "Tu nombre firma lo que haces en la actividad del tablero. Se recuerda para tu cuenta."));
       p.appendChild(personPicker(function (k) { setMe(k); closePanel(); }, meKey()));
       var acts = el("div", "panel-actions");
       var c = el("button", "btn", "Cerrar"); c.type = "button"; c.onclick = closePanel;
@@ -3580,7 +3572,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     openPanel(function (p) {
       p.setAttribute("aria-label", "Actividad");
       p.appendChild(el("h2", null, "Actividad"));
-      p.appendChild(el("div", "help-line", "Quién hizo qué en cada tarjeta. Toca el nombre de una tarea para abrirla."));
       var filter = "all", entries = [];
       var chips = el("div", "people-pick");
       var list = el("div", "log-list");
@@ -4247,7 +4238,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     openPanel(function (p) {
       p.setAttribute("aria-label", "Etiquetas");
       p.appendChild(el("h2", null, "Etiquetas"));
-      p.appendChild(el("div", "help-line", "Ustedes eligen el nombre y el color. Se ven pequeñas en cada tarjeta y en el calendario, y sirven para filtrar el tablero."));
       var work = state.labels.map(function (l) { return { id: l.id, name: l.name, color: l.color, orig: l }; });
       var list = el("div", "lbman");
       p.appendChild(list);
@@ -7359,9 +7349,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         body.appendChild(gg);
       }
     }
-    if (items.length) body.appendChild(el("p", "dhint", touchy()
-      ? "Toca para abrir · mantén presionado para seleccionar varios"
-      : "Clic para abrir · Ctrl o Mayús + clic (o la casilla) para elegir varios, o arrastra un recuadro · arrastra sobre una carpeta para mover (con Alt crea un acceso directo) · suelta un archivo sobre otro para anexarlo · clic derecho para más opciones"));
     var navNew = box.querySelector(".dnav"); if (navNew) navNew.scrollTop = navScroll;
     paintSel();
     if (state.dfocus && (hadFocus || (state.dsel[state.dfocus] && document.activeElement === document.body))) focusItem(state.dfocus, false);
@@ -7936,7 +7923,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("tabs").hidden = v !== "board";
     $("cal").hidden = v !== "cal";
     $("docs").hidden = v !== "docs";
-    var fnote = document.querySelector(".foot-note"); if (fnote) fnote.hidden = v === "docs";
     $("viewDocs").setAttribute("aria-selected", String(v === "docs"));
     $("viewBoard").setAttribute("aria-selected", String(v === "board"));
     $("viewCal").setAttribute("aria-selected", String(v === "cal"));
@@ -7950,10 +7936,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   state.calSel = todayStr();
   var calDir = 0;
   var HINTS = {
-    home: "Lo más importante de hoy y de los próximos días · <kbd>N</kbd> nueva tarea · <kbd>R</kbd> nueva reunión",
-    board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar · arrastra las tarjetas para moverlas",
-    cal: "<kbd>R</kbd> nueva reunión · arrastra reuniones y tareas a otro día · toca un día para ver su agenda",
-    docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos · arrastra archivos aquí para subirlos"
+    home: "<kbd>N</kbd> nueva tarea · <kbd>R</kbd> nueva reunión",
+    board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar",
+    cal: "<kbd>R</kbd> nueva reunión",
+    docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos"
   };
   function setView(v) {
     state.view = v;
@@ -9464,7 +9450,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function openAbout() {
     var dg = dialog({ title: "Acerca de este tablero" });
     var pub = new Date(document.lastModified), when = isNaN(pub) ? "" : pub.getDate() + " de " + MONTHS_LONG[pub.getMonth()] + " de " + pub.getFullYear();
-    dg.box.appendChild(el("p", "dlg-help", "Tablero del equipo de Colven Business Corp.: tareas, calendario y documentos."));
     var dl = el("dl", "keys-list");
     [["Versión", when ? "Publicada el " + when : "Sin fecha"], ["Tema", themePref() === "dark" ? "Oscuro" : themePref() === "light" ? "Claro" : "Igual que el dispositivo"], ["Conexión", navigator.onLine === false ? "Sin señal" : "En línea"]]
       .forEach(function (r) { dl.appendChild(el("dt", null, r[0])); dl.appendChild(el("dd", null, r[1])); });
