@@ -1072,7 +1072,7 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 @media (max-width: 680px) {
   body { padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)); }
   .viewswitch, .fab { display: none !important; }
-  .bnav { display: grid; grid-template-columns: repeat(5, 1fr); align-items: end; position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(18,26,65,.08); }
+  .bnav { display: grid; grid-template-columns: repeat(6, 1fr); align-items: end; position: fixed; left: 0; right: 0; bottom: 0; z-index: 18; background: var(--surface); border-top: 1px solid var(--line); padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px rgba(18,26,65,.08); }
   .bnav button { border: none; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; font-size: 11.5px; font-weight: 700; color: var(--muted); border-radius: 12px; transition: color .15s; }
   .bnav button .ico { width: 22px; height: 22px; transition: transform .2s cubic-bezier(.2,.8,.2,1); }
   .bnav button[aria-current="page"] { color: var(--ink); }
@@ -1363,6 +1363,66 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .ddrop-msg b { font-size: 16px; }
 .ddrop-msg span { font-size: 13px; color: var(--hero-muted); flex-basis: 100%; padding-left: 38px; }
 
+/* ---------- billing (Facturación) ---------- */
+.fact { display: flex; flex-direction: column; gap: 14px; }
+.fx-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fx-month { display: inline-flex; align-items: center; gap: 4px; }
+.fx-month h2 { margin: 0 6px; font-size: 18px; font-weight: 800; min-width: 150px; text-align: center; }
+.fx-state { flex: 1; min-width: 180px; margin: 0; font-size: 13px; color: var(--muted); }
+.fx-state.dirty { color: var(--wait); font-weight: 600; }
+.fx-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+.fx-tile { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); min-width: 0; }
+.fx-tile b { font-family: var(--font-display); font-size: 24px; line-height: 1.15; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.fx-tl { font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.fx-sm { font-size: 12.5px; color: var(--muted); }
+.fx-tile.main { background: var(--hero); border-color: var(--hero); color: var(--hero-ink); }
+.fx-tile.main .fx-tl, .fx-tile.main .fx-sm { color: var(--hero-muted); }
+.fx-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.fx-grid .wg { grid-column: span 6; }
+.fx-grid .wg.wide { grid-column: 1 / -1; }
+.fx-scroll { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+.fx-tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.fx-tbl th { text-align: right; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.fx-tbl th:first-child, .fx-tbl td:first-child { text-align: left; }
+.fx-tbl td { padding: 5px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.fx-tbl tr:last-child td { border-bottom: none; }
+.fx-tbl tfoot td { font-weight: 800; border-top: 1px solid var(--line-strong); border-bottom: none; }
+.fx-tbl .grp td { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 10px; }
+.fx-tbl td.sub, .fx-tbl span.sub { color: var(--muted); font-size: 12.5px; }
+.fx-tbl input { width: 100%; min-width: 64px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 8px; padding: 6px 8px; font: inherit; text-align: right; font-variant-numeric: tabular-nums; }
+.fx-tbl input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); background: var(--surface); }
+.fx-tbl input.wide { min-width: 96px; }
+.fx-tbl input[readonly] { background: transparent; border-color: transparent; }
+.fx-crude { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--lane); color: var(--ink); }
+.fx-crude.bad { background: var(--late-soft); color: var(--late); }
+.fx-cpi { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.fx-cpi input { width: 140px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 10px; padding: 8px 12px; font: inherit; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.fx-cpi input:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
+.fx-kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13.5px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.fx-kv:last-child { border-bottom: none; }
+.fx-kv b { font-variant-numeric: tabular-nums; }
+.fx-res td b { font-size: 14.5px; }
+.fx-more summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 600; padding: 4px 0; }
+@media (max-width: 860px) { .fx-grid .wg { grid-column: 1 / -1; } }
+@media (max-width: 520px) {
+  .fx-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .fx-tile { padding: 12px; }
+  .fx-tile.main { grid-column: 1 / -1; }
+  .fx-tile b { font-size: 18px; }
+  .fx-tile.main b { font-size: 24px; }
+  .fx-month h2 { min-width: 0; font-size: 16px; }
+  .fx-tbl th, .fx-tbl td { padding: 5px 3px; }
+  .fx-tbl input { min-width: 54px; padding: 6px 5px; }
+  .fx-grid .wg-head { flex-wrap: wrap; }
+  .fx-grid .wg-head h2 { white-space: normal; }
+  .fx-sum tr > :nth-child(2) { display: none; }
+  .fx-tbl { font-size: 12.5px; }
+  .fx-tbl th { white-space: normal; letter-spacing: .02em; font-size: 10px; vertical-align: bottom; }
+  .fx-res td b { font-size: 13px; }
+  .fx-tbl input.wide { min-width: 70px; }
+  .fx-crude { padding: 2px 6px; font-size: 11px; }
+}
+
 .dhead .btn .nb { background: var(--late-soft); color: var(--late); border-radius: 999px; padding: 0 7px; font-size: 12px; font-weight: 700; }
 .dviewsw { display: inline-flex; background: var(--lane); border-radius: 10px; padding: 3px; gap: 2px; }
 .dviewsw button { border: none; background: transparent; width: 32px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); padding: 0; }
@@ -1575,7 +1635,7 @@ button.dcrumb:hover { background: var(--lane); color: var(--ink); }
   .dclear { margin-left: 0; }
   /* five sections in the bottom bar; + floats above it on the right */
   body { padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
-  .bnav { grid-template-columns: repeat(4, 1fr); }
+  .bnav { grid-template-columns: repeat(5, 1fr); }
   .bnav button { font-size: 11px; letter-spacing: 0; }
   .bnav .bnav-add { position: fixed; right: 16px; bottom: calc(80px + env(safe-area-inset-bottom, 0px)); margin: 0; z-index: 19; width: 58px; height: 58px; }
   .add-menu { left: auto; right: 16px; transform: none; bottom: calc(148px + env(safe-area-inset-bottom, 0px)); transform-origin: bottom right; animation: menuin3 .2s cubic-bezier(.2,.8,.2,1); }
@@ -2093,6 +2153,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     <button type="button" data-v="home"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
     <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
     <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+    <button type="button" data-v="fact"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg>Facturación</button>
     <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
   </nav>
   <button type="button" class="side-add" id="sideAdd"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nueva tarea</button>
@@ -2145,6 +2206,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       <button type="button" id="viewHome" role="tab" aria-selected="true"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V20h4.5v-5.5h4V20h4.5V9.5"/></svg>Inicio</button>
       <button type="button" id="viewBoard" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg>Tablero</button>
       <button type="button" id="viewCal" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendario</button>
+      <button type="button" id="viewFact" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg>Facturación</button>
       <button type="button" id="viewDocs" role="tab" aria-selected="false"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg>Documentos</button>
     </div>
     <div class="search">
@@ -2163,6 +2225,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <main class="board" id="board"></main>
   <section class="cal" id="cal" aria-label="Calendario de entregas" hidden></section>
   <section class="docs" id="docs" aria-label="Documentos" hidden></section>
+  <section class="fact" id="fact" aria-label="Facturación" hidden></section>
 
   <p class="session-line"><button class="linkbtn" id="logoutBtn" type="button" hidden>Cerrar sesión en este dispositivo</button></p>
 </div>
@@ -2173,6 +2236,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   <button type="button" data-v="board"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13" rx="1.5"/></svg><span>Tablero</span></button>
   <button type="button" class="bnav-add" id="bnavAdd" aria-label="Agregar"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
   <button type="button" data-v="cal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span>Calendario</span></button>
+  <button type="button" data-v="fact"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/></svg><span>Facturación</span></button>
   <button type="button" data-v="docs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.5a2 2 0 0 1 2-2h4.2l2 2.2h6.8a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/><path d="M3.5 10.5h17"/></svg><span>Documentos</span></button>
 </nav>
 <div id="panelRoot"></div>
@@ -2256,6 +2320,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
     belloff: '<path d="M8.5 5.6A6 6 0 0 1 18 11v4M6 11v5l-1.5 2H17"/><path d="M10 20.5a2 2 0 0 0 4 0M4 4l16 16"/>',
     monitor: '<rect x="3" y="4.5" width="18" height="12" rx="2"/><path d="M8.5 20h7M12 16.5V20"/>',
+    receipt: '<path d="M6 3.5h12v17l-2.4-1.5-2.4 1.5-2.4-1.5-2.4 1.5L6 19z"/><path d="M9 8h6M9 11.5h6M9 15h3.5"/>',
+    trend: '<path d="M3.5 17 9 11.5l4 4 7.5-8"/><path d="M15 7.5h5.5V13"/>',
     refresh: '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8"/><path d="M4 3.5V8h4.5"/><path d="M4 13a8 8 0 0 0 14.6 4.5L20 16"/><path d="M20 20.5V16h-4.5"/>',
     keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6.5 10h1M10.5 10h1M14.5 10h1M6.5 14h11"/>',
     logout: '<path d="M14 4.5h4a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5h-4"/><path d="M10 16.5 5.5 12 10 7.5M5.5 12H15"/>'
@@ -2667,13 +2733,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     renderCal();
     renderDocs();
     renderHome();
+    renderFact();
   }
 
   function renderHero() {
     $("boardName").textContent = viewTitle();
     var now = new Date();
     var eb = $("today"); eb.textContent = "";
-    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", docs: "Documentos" }[state.view] || "";
+    var sec = { home: "Inicio", board: "Tablero", cal: "Calendario", docs: "Documentos", fact: "Facturación" }[state.view] || "";
     eb.appendChild(el("span", "eb-sec", sec));
     eb.appendChild(el("span", "eb-date", "| " + WD_LONG[now.getDay()] + " " + now.getDate() + " de " + MONTHS_LONG[now.getMonth()]));
     $("addBtn").hidden = !state.canWrite;
@@ -4089,7 +4156,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function renderLabelBar() {
     var bar = $("labelBar");
     if (!bar) return;
-    var place = state.view !== "home" && state.view !== "docs" && state.db && state.loaded;
+    var place = state.view !== "home" && state.view !== "docs" && state.view !== "fact" && state.db && state.loaded;
     var show = !!(place && state.labels.length);
     var lb = $("labelsBtn");
     if (lb) lb.hidden = !(place && !state.labels.length && state.canWrite);
@@ -4322,7 +4389,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
   /* ---------- home (Inicio): the most important things from every part of the page ---------- */
   state.recentLog = [];
-  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", docs: "Documentos" };
+  var VIEW_TITLES = { board: "Tablero de tareas", cal: "Calendario", docs: "Documentos", fact: "Facturación" };
   function greetingWord() { var h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; }
   function viewTitle() {
     if (state.view !== "home") return VIEW_TITLES[state.view] || "Tablero de tareas";
@@ -5067,7 +5134,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       if (!qq) {
         [["home", "Ir a Inicio", function () { setView("home"); }], ["move", "Ir al Tablero", function () { setView("board"); }],
          ["cal", "Ir al Calendario", function () { setView("cal"); }],
-         ["folder", "Ir a Documentos", function () { setView("docs"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
+         ["folder", "Ir a Documentos", function () { setView("docs"); }], ["receipt", "Ir a Facturación", function () { setView("fact"); }]].forEach(function (x) { out.push({ group: "Ir a", ic: x[0], title: x[1], run: x[2] }); });
         if (state.canWrite) {
           [["plus", "Nueva tarea", function () { openEditor(null); }], ["users", "Nueva reunión", function () { openMeeting(null, { date: todayStr() }); }],
            ["flag", "Nuevo evento", function () { openMeeting(null, { kind: "event", date: todayStr() }); }], ["archive", "Archivo y papelera", function () { openArchive(); }],
@@ -7853,8 +7920,376 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var n = $("notice"); n.textContent = msg; n.className = "notice" + (warn ? " warn" : ""); n.hidden = false;
   }
 
+  /* ---------- billing view (Facturación) ---------- */
+  /* The monthly price per field of the CPPH contracts in the Barinas and Apure subbasins, worked out as in the
+     «Cálculo Factura» workbook. Each month takes four premises: the international markers (Platts), the K factors and the
+     AGA quality adjustments (ministry resolution, around the 15th), and the ACC, indexed with the US CPI (BLS series
+     CUUR0000SA0, which the browser can read directly). Saved months live in the board settings («fact»), so the whole
+     team sees the same figures; edits stay a draft on this device until «Guardar». */
+  var FX_MARKETS = ["Golfo", "Caribe", "Europa", "Asia"];
+  var FX_MK = [["mars", "Mars", "Golfo y Caribe"], ["brd", "Brent", "Europa"], ["dub", "Dubái", "Asia"], ["oma", "Omán", "Asia"]];
+  /* ACC of January 2024 per delivery point: transport 0,0045 $/bl per km, handling 0,9778 and fees 0,25; it moves with the CPI */
+  var FX_CPI0 = 308.417, FX_ACC = { rate: 0.0045, handling: 0.9778, fees: 0.25 };
+  var FX_POINTS = { PTS: { name: "PTS – El Palito", km: 338 }, Guafita: { name: "Guafita", km: 584 } };
+  /* the paid volume: while the subbasin's acta stays under «upTo» b/d it is the output above the daily base, shared among
+     the fields by their weight in the acta; from there on it is the economic share of the whole output */
+  var FX_SUBS = [
+    { id: "barinas", name: "Barinas", point: "PTS", share: 0.53, base: 4400, upTo: 9200,
+      fields: [["maporal", "Maporal"], ["silvestre", "Silvestre"], ["hatoviejo", "Hato Viejo"], ["sinco2", "Sinco Zona 2"], ["sinco3", "Sinco Zona 3"]] },
+    { id: "apure", name: "Apure", point: "Guafita", share: 0.58, base: 3700, upTo: 8800,
+      fields: [["guafita", "Guafita"], ["lavictoria", "La Victoria"]] }
+  ];
+  var FX_CRUDES = ["Merey 16", "Mesa 30", "Santa Barbara"];
+  /* September 2026, from the workbook: shown until the team saves its own months */
+  var FX_SEED = { "2026-09": {
+    mk: { mars: 97.5257, brd: 116.7668, dub: 113.7109, oma: 113.7668 }, cpi: 336.94,
+    k: { "Merey 16": [0.2, 0.95, 2.1, -0.85], "Mesa 30": [0.45, 1.45, 3.45, -1.95], "Santa Barbara": [0.1, 1, 0.05, -4.25] },
+    fp: { "Merey 16": [0.0664, 0.0845, 0.0231, 0.826], "Mesa 30": [0, 1, 0, 0], "Santa Barbara": [0, 0, 0.3195, 0.6805] },
+    aga: { maporal: [1.77, 1.77, 1.69, 1.72], silvestre: [1.77, 1.77, 1.69, 1.72], hatoviejo: [1.77, 1.77, 1.69, 1.72], sinco2: [1.77, 1.77, 1.69, 1.72],
+      sinco3: [1.77, 1.77, 1.69, 1.72], guafita: [-0.18, -0.18, -0.16, -0.17], lavictoria: [0.09, 0.09, 0.11, 0.11] },
+    f: { maporal: { vol: 3429, api: 24.3 }, silvestre: { vol: 60401, api: 22.2 }, hatoviejo: { vol: 16052, api: 22.4 }, sinco2: { vol: 56326, api: 23.9 },
+      sinco3: { vol: 8604, api: 18.6 }, guafita: { vol: 130160, api: 28.8 }, lavictoria: { vol: 59189, api: 31.2 } }
+  } };
+  var FX_CPI_STORE = "tb-cpi";
+  var fxb = { ym: "", drafts: {}, saving: false, cpi: null, cpiBusy: false, cpiErr: "", upd: [] };
+  try { fxb.cpi = JSON.parse(localStorage.getItem(FX_CPI_STORE) || "null"); } catch (e) { fxb.cpi = null; }
+
+  function fxSaved() { var s = state.settingsRaw && state.settingsRaw.fact; return s && typeof s === "object" ? s : {}; }
+  function fxMonths() { return Object.keys(Object.assign({}, FX_SEED, fxSaved())).sort(); }
+  function fxRecord(ym) { return fxSaved()[ym] || FX_SEED[ym] || null; }
+  /* a month nobody has filled yet starts from the latest one before it; the CPI comes from the BLS */
+  function fxBlank(ym) {
+    var ms = fxMonths(), prev = ms.filter(function (m) { return m < ym; }).pop() || ms[0];
+    var r = clone(fxRecord(prev));
+    delete r.by; delete r.at; r.cpi = null; r.from = prev;
+    return r;
+  }
+  function fxCur() { return fxb.drafts[fxb.ym] || fxRecord(fxb.ym) || (fxb.drafts[fxb.ym] = fxBlank(fxb.ym)); }
+  function fxEdit() { if (!fxb.drafts[fxb.ym]) fxb.drafts[fxb.ym] = clone(fxCur()); return fxb.drafts[fxb.ym]; }
+  function fxMonthName(ym) { var p = ym.split("-"); return cap(MONTHS_LONG[+p[1] - 1]) + " " + p[0]; }
+  function fxShift(ym, n) { var p = ym.split("-"), d = new Date(+p[0], +p[1] - 1 + n, 1); return d.getFullYear() + "-" + pad(d.getMonth() + 1); }
+  function fxNum(v, dec) { return isFinite(v) && v !== null ? Number(v).toLocaleString("es-VE", { minimumFractionDigits: dec, maximumFractionDigits: dec }) : "–"; }
+  function fxShow(v) { return v === null || v === undefined || !isFinite(v) ? "" : String(v).replace(".", ","); }
+  /* reads "1.234,56", "1234,56", "1,234.56", "1234.56" or "-0,85" */
+  function fxParse(s) {
+    s = String(s || "").replace(/[\s$]/g, "");
+    if (!s || s === "-") return null;
+    var c = s.lastIndexOf(","), d = s.lastIndexOf(".");
+    if (c >= 0 && d >= 0) s = c > d ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+    else if (c >= 0) s = s.replace(/\./g, "").replace(",", ".");
+    else if (/^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+    var n = Number(s);
+    return isFinite(n) ? n : null;
+  }
+  function fxWhen(iso) { var d = new Date(iso); return isNaN(d) ? "" : d.getDate() + " " + MONTHS[d.getMonth()] + " a las " + pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+  function fxCrude(api) { return !(api >= 14) ? "" : api < 25 ? "Merey 16" : api < 37 ? "Mesa 30" : "Santa Barbara"; }
+  function fxAcc(point, cpi) { var p = FX_POINTS[point]; return cpi > 0 ? (FX_ACC.rate * p.km + FX_ACC.handling + FX_ACC.fees) * cpi / FX_CPI0 : NaN; }
+  function fxRound(x) { return x < 0 ? -Math.round(-x) : Math.round(x); }
+  function n0(v) { return typeof v === "number" && isFinite(v) ? v : NaN; }
+
+  /* what still has to be filled in before the month adds up */
+  function fxMissing(M) {
+    var out = [], mk = M.mk || {}, f = M.f || {};
+    if (!(M.cpi > 0)) out.push("el IPC");
+    if (FX_MK.some(function (m) { return !isFinite(n0(mk[m[0]])); })) out.push("los marcadores");
+    var crudes = {}, fields = [];
+    FX_SUBS.forEach(function (s) { s.fields.forEach(function (x) { fields.push(x[0]); var c = fxCrude(n0((f[x[0]] || {}).api)); if (c) crudes[c] = 1; }); });
+    function full(a) { return a && [0, 1, 2, 3].every(function (q) { return isFinite(n0(a[q])); }); }
+    if (Object.keys(crudes).some(function (c) { return !full((M.k || {})[c]); })) out.push("el factor K");
+    if (fields.some(function (x) { return !full((M.aga || {})[x]); })) out.push("el factor AGA");
+    if (fields.some(function (x) { var d = f[x] || {}; return !isFinite(n0(d.vol)) || !fxCrude(n0(d.api)); })) out.push("la producción del acta");
+    return out;
+  }
+  function fxList(a) { return a.length > 1 ? a.slice(0, -1).join(", ") + " y " + a[a.length - 1] : a[0] || ""; }
+  function fxCalc(ym, M) {
+    var p = ym.split("-"), days = new Date(+p[0], +p[1], 0).getDate(), mk = M.mk || {}, total = 0;
+    var subs = FX_SUBS.map(function (s) {
+      var acc = fxAcc(s.point, M.cpi), sum = 0, amt = 0, pay = 0;
+      s.fields.forEach(function (f) { sum += n0((M.f[f[0]] || {}).vol) || 0; });
+      var rows = s.fields.map(function (f) {
+        var d = M.f[f[0]] || {}, vol = n0(d.vol), crude = fxCrude(n0(d.api));
+        var daily = vol / days, incr = daily > 0 ? daily - (sum ? s.base * vol / sum : 0) : 0;
+        var paid = fxRound(sum < s.upTo * days ? incr * days : daily * days * s.share);
+        var k = (M.k || {})[crude] || [], a = (M.aga || {})[f[0]] || [], fp = (M.fp || {})[crude] || [], pr = null;
+        var asia = (n0(mk.dub) + n0(mk.oma)) / 2;
+        if (crude === "Merey 16") pr = [0.9 * n0(mk.mars), 0.9 * n0(mk.mars), 0.85 * n0(mk.brd), 0.9 * asia];
+        else if (crude === "Mesa 30") pr = [n0(mk.mars), n0(mk.mars), 0.95 * n0(mk.brd), asia];
+        if (pr) pr = pr.map(function (x, i) { return x + n0(k[i]) + n0(a[i]) - acc; });
+        var price = pr ? pr.reduce(function (t, x, i) { return t + (n0(fp[i]) ? x * fp[i] : 0); }, 0) : NaN;
+        var amount = price * paid;
+        if (isFinite(amount)) amt += amount;
+        if (isFinite(paid)) pay += paid;
+        return { id: f[0], name: f[1], crude: crude, vol: vol, paid: paid, pr: pr, price: price, amount: amount };
+      });
+      total += amt;
+      return { s: s, acc: acc, rows: rows, amount: amt, paid: pay, ok: rows.every(function (r) { return isFinite(r.amount); }) };
+    });
+    return { subs: subs, total: total, ok: subs.every(function (x) { return x.ok; }) };
+  }
+
+  function fxCpiLoad(force) {
+    if (fxb.cpiBusy || (!force && fxb.cpi && Date.now() - (fxb.cpi.at || 0) < 6 * 3600000)) return;
+    fxb.cpiBusy = true; fxb.cpiErr = "";
+    fetch("https://api.bls.gov/publicAPI/v1/timeseries/data/CUUR0000SA0", { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var s = j && j.Results && j.Results.series && j.Results.series[0], v = {};
+        (s && s.data || []).forEach(function (x) { if (/^M(0[1-9]|1[0-2])$/.test(x.period) && Number(x.value) > 0) v[x.year + "-" + x.period.slice(1)] = Number(x.value); });
+        if (!Object.keys(v).length) throw new Error("vacío");
+        fxb.cpi = { at: Date.now(), v: Object.assign({}, fxb.cpi && fxb.cpi.v, v) };
+        try { localStorage.setItem(FX_CPI_STORE, JSON.stringify(fxb.cpi)); } catch (e) {}
+      })
+      .catch(function () { fxb.cpiErr = "No se pudo consultar el IPC en el BLS."; })
+      .then(function () { fxb.cpiBusy = false; renderFact(true); });
+  }
+  function fxBls(ym) { return fxb.cpi && fxb.cpi.v && fxb.cpi.v[ym] || null; }
+
+  function fxSave() {
+    var d = fxb.drafts[fxb.ym];
+    if (!d || fxb.saving || !state.db) return;
+    var rec = clone(d); delete rec.from;
+    var me = state.settingsLoaded ? member(meKey()) : null;
+    rec.by = me ? me.name : ""; rec.at = new Date().toISOString();
+    var all = Object.assign({}, fxSaved()); all[fxb.ym] = rec;
+    var keys = Object.keys(all).sort(); while (keys.length > 36) delete all[keys.shift()];
+    fxb.saving = true; renderFact(true);
+    saveSettings({ fact: all }).then(function () { delete fxb.drafts[fxb.ym]; toast("Facturación de " + fxMonthName(fxb.ym).toLowerCase() + " guardada"); },
+      function () { toast("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."); })
+      .then(function () { fxb.saving = false; renderFact(true); });
+  }
+
+  /* one number box; «set» stores the parsed value in this month's draft and the results follow as you type */
+  function fxInput(get, set, cls) {
+    var i = el("input", cls || null); i.type = "text"; i.inputMode = "decimal"; i.setAttribute("autocomplete", "off");
+    i.value = fxShow(get(fxCur()));
+    if (!state.canWrite) i.readOnly = true;
+    i.oninput = function () { set(fxEdit(), fxParse(i.value)); fxRefresh(); };
+    i.onblur = function () { var v = get(fxCur()); if (v !== null && isFinite(v)) i.value = fxShow(v); };
+    return i;
+  }
+  function fxCard(title, ic, sub, cls) {
+    var w = el("section", "wg" + (cls ? " " + cls : "")), hd = el("div", "wg-head");
+    var c = el("span", "wg-ico"); c.appendChild(icon(ic)); hd.appendChild(c);
+    hd.appendChild(el("h2", null, title));
+    if (sub) { hd.appendChild(el("span", "spacer")); hd.appendChild(el("span", "fx-sm", sub)); }
+    w.appendChild(hd);
+    return w;
+  }
+  function fxTable(heads) {
+    var t = el("table", "fx-tbl"), tr = el("tr"), th = el("thead");
+    heads.forEach(function (h) { tr.appendChild(el("th", null, h)); });
+    th.appendChild(tr); t.appendChild(th);
+    var tb = el("tbody"); t.appendChild(tb);
+    return { t: t, body: tb };
+  }
+  function fxScroll(node) { var d = el("div", "fx-scroll"); d.appendChild(node); return d; }
+  /* recompute and refresh every figure that depends on the inputs */
+  function fxRefresh() {
+    var M = fxCur(), R = fxCalc(fxb.ym, M);
+    fxb.upd.forEach(function (f) { f(M, R); });
+  }
+
+  function renderFact(force) {
+    var box = $("fact");
+    if (!box || state.view !== "fact") return;
+    fxCpiLoad(false);
+    var ms = fxMonths();
+    if (!fxb.ym) fxb.ym = ms[ms.length - 1];
+    /* fill the CPI from the BLS when the month has none yet */
+    var cur = fxCur(), bls = fxBls(fxb.ym);
+    if (!(cur.cpi > 0) && bls && state.canWrite) fxEdit().cpi = bls;
+    /* board updates call this too: rebuild only when the saved month or the CPI changes, and never over a draft, so typing is never interrupted */
+    var sig = [fxb.ym, JSON.stringify(fxSaved()[fxb.ym] || null), fxb.cpiBusy, fxb.cpiErr, fxb.cpi && fxb.cpi.at, state.canWrite].join("|");
+    if (!force && box.firstChild && (box.dataset.sig === sig || fxb.drafts[fxb.ym])) return;
+    box.dataset.sig = sig;
+    box.textContent = "";
+    fxb.upd = [];
+    var M = fxCur();
+
+    /* month, state and save */
+    var head = el("div", "fx-head"), mon = el("div", "fx-month");
+    var prev = el("button", "navbtn"); prev.type = "button"; prev.appendChild(icon("chevL")); prev.setAttribute("aria-label", "Mes anterior"); prev.onclick = function () { fxb.ym = fxShift(fxb.ym, -1); renderFact(true); };
+    var next = el("button", "navbtn"); next.type = "button"; next.appendChild(icon("chevR")); next.setAttribute("aria-label", "Mes siguiente"); next.onclick = function () { fxb.ym = fxShift(fxb.ym, 1); renderFact(true); };
+    mon.appendChild(prev); mon.appendChild(el("h2", null, fxMonthName(fxb.ym))); mon.appendChild(next);
+    head.appendChild(mon);
+    var stP = el("p", "fx-state"), undo = btn("Descartar", "small"), sv = btn(fxb.saving ? "Guardando…" : "Guardar", "small primary", "check");
+    head.appendChild(stP);
+    undo.onclick = function () { delete fxb.drafts[fxb.ym]; renderFact(true); };
+    sv.onclick = function () { fxEdit(); fxSave(); };
+    if (state.canWrite) { head.appendChild(undo); head.appendChild(sv); }
+    /* the state line follows the typing: a draft appears on the first change */
+    fxb.upd.push(function (M) {
+      var d = fxb.drafts[fxb.ym], sd = fxSaved()[fxb.ym];
+      stP.textContent = d ? (d.from ? "Mes nuevo: todavía no se ha guardado." : "Cambios sin guardar en este dispositivo.")
+        : sd ? "Guardado" + (sd.by ? " por " + sd.by : "") + (sd.at ? " el " + fxWhen(sd.at) : "") + "."
+        : FX_SEED[fxb.ym] ? "Valores del Excel de este mes; todavía no se han guardado en el tablero." : "";
+      stP.classList.toggle("dirty", !!d);
+      undo.hidden = !d || !!d.from;
+      sv.disabled = fxb.saving || !(d || (!sd && FX_SEED[fxb.ym]));
+    });
+    box.appendChild(head);
+    if (M.from) box.appendChild(el("div", "notice", "Este mes empieza con los valores de " + fxMonthName(M.from).toLowerCase() + ". Cambia la producción del acta y los marcadores; K y AGA cuando llegue la resolución."));
+
+    /* totals */
+    var tiles = el("div", "fx-tiles");
+    function tile(label, cls, fill) {
+      var t = el("div", "fx-tile" + (cls ? " " + cls : "")), b = el("b"), sm = el("span", "fx-sm");
+      t.appendChild(el("span", "fx-tl", label)); t.appendChild(b); t.appendChild(sm);
+      tiles.appendChild(t);
+      fxb.upd.push(function (M, R) { fill(b, sm, M, R); });
+    }
+    tile("Total a facturar", "main", function (b, sm, M, R) { var miss = fxMissing(M); b.textContent = R.ok ? "$ " + fxNum(R.total, 2) : "–"; sm.textContent = R.ok ? "Barinas + Apure" : "Falta " + (fxList(miss) || "completar las premisas"); });
+    FX_SUBS.forEach(function (s, i) {
+      tile("Subcuenca " + s.name, "", function (b, sm, M, R) { var x = R.subs[i]; b.textContent = x.ok ? "$ " + fxNum(x.amount, 2) : "–"; sm.textContent = fxNum(x.paid, 0) + " bls a pagar"; });
+    });
+    tile("IPC EE.UU. · " + fxMonthName(fxb.ym).toLowerCase(), "", function (b, sm, M) {
+      b.textContent = fxNum(M.cpi, 3);
+      sm.textContent = M.cpi > 0 ? "Indexación del ACC: " + fxNum(M.cpi / FX_CPI0, 4) + " (base ene 2024: " + fxNum(FX_CPI0, 3) + ")" : fxb.cpiBusy ? "Consultando el BLS…" : "El BLS lo publica a mediados del mes siguiente";
+    });
+    box.appendChild(tiles);
+
+    var grid = el("div", "fx-grid");
+    /* result per subbasin */
+    FX_SUBS.forEach(function (s, i) {
+      var c = fxCard("Precio por campo · " + s.name, "receipt", null, "fx-res");
+      var T = fxTable(["Campo", "Crudo", "Bls a pagar", "Precio $/bl", "Monto $"]);
+      var foot = el("tfoot"); T.t.appendChild(foot); T.t.classList.add("fx-sum");
+      c.appendChild(fxScroll(T.t));
+      var more = el("details", "fx-more"); more.appendChild(el("summary", null, "Precio por mercado (después del ACC)"));
+      var D = fxTable(["Campo", "Golfo", "Caribe", "Europa", "Asia"]); more.appendChild(fxScroll(D.t));
+      c.appendChild(more);
+      fxb.upd.push(function (M, R) {
+        var x = R.subs[i];
+        T.body.textContent = ""; foot.textContent = ""; D.body.textContent = "";
+        x.rows.forEach(function (r) {
+          var tr = el("tr");
+          tr.appendChild(el("td", null, r.name));
+          var ct = el("td"); ct.appendChild(el("span", "fx-crude" + (r.pr ? "" : " bad"), r.crude || "Sin crudo")); tr.appendChild(ct);
+          tr.appendChild(el("td", null, fxNum(r.paid, 0)));
+          tr.appendChild(el("td", null, fxNum(r.price, 4)));
+          var am = el("td"); am.appendChild(el("b", null, fxNum(r.amount, 2))); tr.appendChild(am);
+          T.body.appendChild(tr);
+          var dr = el("tr"); dr.appendChild(el("td", null, r.name));
+          for (var k = 0; k < 4; k++) dr.appendChild(el("td", null, r.pr ? fxNum(r.pr[k], 4) : "–"));
+          D.body.appendChild(dr);
+        });
+        var ft = el("tr"); ft.appendChild(el("td", null, "Total " + s.name)); ft.appendChild(el("td"));
+        ft.appendChild(el("td", null, fxNum(x.paid, 0))); ft.appendChild(el("td", "sub", "ACC " + fxNum(x.acc, 4)));
+        ft.appendChild(el("td", null, x.ok ? fxNum(x.amount, 2) : "–"));
+        foot.appendChild(ft);
+      });
+      grid.appendChild(c);
+    });
+
+    /* premise 1: markers */
+    var mkc = fxCard("Marcadores internacionales", "globe", "Platts · $/bl");
+    var MT = fxTable(["Marcador", "Mercado", "$/bl"]);
+    FX_MK.forEach(function (m) {
+      var tr = el("tr"); tr.appendChild(el("td", null, m[1])); tr.appendChild(el("td", "sub", m[2]));
+      var td = el("td"); td.appendChild(fxInput(function (M) { return (M.mk || {})[m[0]]; }, function (M, v) { M.mk = M.mk || {}; M.mk[m[0]] = v; }, "wide")); tr.appendChild(td);
+      MT.body.appendChild(tr);
+    });
+    mkc.appendChild(MT.t);
+    grid.appendChild(mkc);
+
+    /* premise 2: ACC and the US CPI */
+    var ac = fxCard("ACC · IPC de EE.UU.", "trend", "BLS · CPI-U");
+    var row = el("div", "fx-cpi");
+    var cpiIn = fxInput(function (M) { return M.cpi; }, function (M, v) { M.cpi = v; });
+    row.appendChild(cpiIn);
+    var bb = btn(fxb.cpiBusy ? "Consultando…" : "Traer del BLS", "small", "refresh");
+    bb.disabled = fxb.cpiBusy || !state.canWrite;
+    bb.onclick = function () {
+      var v = fxBls(fxb.ym);
+      if (v) { fxEdit().cpi = v; cpiIn.value = fxShow(v); fxRefresh(); renderFact(true); }
+      else { fxCpiLoad(true); renderFact(true); }
+    };
+    row.appendChild(bb);
+    ac.appendChild(row);
+    var blsNote = el("p", "help"); ac.appendChild(blsNote);
+    var kv = el("div"); ac.appendChild(kv);
+    fxb.upd.push(function (M) {
+      var v = fxBls(fxb.ym);
+      blsNote.textContent = fxb.cpiErr ? fxb.cpiErr + " Escríbelo a mano." : v ? (Math.abs(v - M.cpi) < 1e-9 ? "Coincide con el BLS para " + fxMonthName(fxb.ym).toLowerCase() + "." : "El BLS publica " + fxNum(v, 3) + " para " + fxMonthName(fxb.ym).toLowerCase() + ".") : fxb.cpiBusy ? "Consultando el BLS…" : "El BLS todavía no publica " + fxMonthName(fxb.ym).toLowerCase() + ".";
+      kv.textContent = "";
+      function line(k, v) { var d = el("div", "fx-kv"); d.appendChild(el("span", null, k)); d.appendChild(el("b", null, v)); kv.appendChild(d); }
+      line("Factor de indexación", fxNum(M.cpi / FX_CPI0, 6));
+      FX_SUBS.forEach(function (s) { line("ACC " + FX_POINTS[s.point].name + " (" + s.name + ")", "$ " + fxNum(fxAcc(s.point, M.cpi), 4)); });
+    });
+    grid.appendChild(ac);
+
+    /* premises 3 and 4: K per crude and AGA per field, from the ministry resolution */
+    function quad(T, label, get, set, sub) {
+      var tr = el("tr"); var nm = el("td", null, label); if (sub) { nm.appendChild(el("br")); nm.appendChild(el("span", "sub", sub)); } tr.appendChild(nm);
+      for (var q = 0; q < 4; q++) (function (q) {
+        var td = el("td"); td.appendChild(fxInput(function (M) { var a = get(M); return a ? a[q] : null; }, function (M, v) { set(M)[q] = v; })); tr.appendChild(td);
+      })(q);
+      T.body.appendChild(tr);
+    }
+    var used = {};
+    FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { var c = fxCrude(n0((M.f[f[0]] || {}).api)); if (c) used[c] = 1; }); });
+    var kc = fxCard("Factor K", "tag", "Resolución del ministerio");
+    var KT = fxTable(["Crudo"].concat(FX_MARKETS));
+    FX_CRUDES.filter(function (c) { return used[c] || c !== "Santa Barbara"; }).forEach(function (c) {
+      quad(KT, c, function (M) { return (M.k || {})[c]; }, function (M) { M.k = M.k || {}; return (M.k[c] = M.k[c] || [null, null, null, null]); });
+    });
+    kc.appendChild(fxScroll(KT.t));
+    grid.appendChild(kc);
+
+    /* weighting factors: one ministry letter per year */
+    var fc = fxCard("Factores de ponderación", "grid", "Oficio anual del ministerio");
+    var FT = fxTable(["Crudo"].concat(FX_MARKETS));
+    FX_CRUDES.forEach(function (c) {
+      quad(FT, c, function (M) { return (M.fp || {})[c]; }, function (M) { M.fp = M.fp || {}; return (M.fp[c] = M.fp[c] || [null, null, null, null]); });
+    });
+    fc.appendChild(fxScroll(FT.t));
+    var fsum = el("p", "help"); fc.appendChild(fsum);
+    fxb.upd.push(function (M) {
+      var bad = FX_CRUDES.filter(function (c) { var a = (M.fp || {})[c] || []; var t = 0; for (var q = 0; q < 4; q++) t += n0(a[q]) || 0; return Math.abs(t - 1) > 0.0005; });
+      fsum.textContent = bad.length ? "Revisa " + bad.join(" y ") + ": los cuatro factores deben sumar 1." : "Cada fila suma 1.";
+    });
+    grid.appendChild(fc);
+
+    var gc = fxCard("Factor AGA", "tag", "Ajuste por calidad · resolución");
+    var GT = fxTable(["Campo"].concat(FX_MARKETS));
+    FX_SUBS.forEach(function (s) {
+      var g = el("tr", "grp"); var gtd = el("td", null, s.name); gtd.colSpan = 5; g.appendChild(gtd); GT.body.appendChild(g);
+      s.fields.forEach(function (f) {
+        quad(GT, f[1], function (M) { return (M.aga || {})[f[0]]; }, function (M) { M.aga = M.aga || {}; return (M.aga[f[0]] = M.aga[f[0]] || [null, null, null, null]); });
+      });
+    });
+    gc.appendChild(fxScroll(GT.t));
+    grid.appendChild(gc);
+
+    /* the acta: volume and gravity per field */
+    var pc = fxCard("Producción del acta", "note", "100 % · Bls/mes");
+    var PT = fxTable(["Campo", "Bls/mes", "°API", "Crudo", "A pagar"]);
+    FX_SUBS.forEach(function (s, i) {
+      var g = el("tr", "grp"); var gtd = el("td", null, s.name + " · participación " + fxNum(s.share * 100, 0) + " %"); gtd.colSpan = 5; g.appendChild(gtd); PT.body.appendChild(g);
+      s.fields.forEach(function (f, j) {
+        var tr = el("tr"); tr.appendChild(el("td", null, f[1]));
+        var a = el("td"); a.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).vol; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).vol = v; }, "wide")); tr.appendChild(a);
+        var b = el("td"); b.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).api; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).api = v; })); tr.appendChild(b);
+        var c = el("td"), d = el("td");
+        tr.appendChild(c); tr.appendChild(d);
+        fxb.upd.push(function (M, R) {
+          var r = R.subs[i].rows[j];
+          c.textContent = ""; c.appendChild(el("span", "fx-crude" + (r.pr ? "" : " bad"), r.crude || "Sin crudo"));
+          d.textContent = fxNum(r.paid, 0);
+        });
+        PT.body.appendChild(tr);
+      });
+    });
+    pc.appendChild(fxScroll(PT.t));
+    pc.appendChild(el("p", "help", "Merey 16 de 14 a 25 °API, Mesa 30 de 25 a 37, Santa Bárbara desde 37 (sin fórmula de precio en el contrato)."));
+    grid.appendChild(pc);
+
+    box.appendChild(grid);
+    fxRefresh();
+  }
+
   /* ---------- calendar view ---------- */
-  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos" };
+  var VIEW_HASH = { home: "inicio", board: "tablero", cal: "calendario", docs: "documentos", fact: "facturacion" };
   function viewFromHash() {
     var h = String(location.hash || "").replace(/^#/, "").split("/")[0];
     for (var k in VIEW_HASH) if (VIEW_HASH[k] === h) return k;
@@ -7918,11 +8353,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     $("home").hidden = v !== "home";
     $("archiveBtn").hidden = v !== "board" || !state.db;
     $("viewHome").setAttribute("aria-selected", String(v === "home"));
-    document.querySelector(".toolbar .search").hidden = v === "home";
+    document.querySelector(".toolbar .search").hidden = v === "home" || v === "fact";
     $("board").hidden = v !== "board";
     $("tabs").hidden = v !== "board";
     $("cal").hidden = v !== "cal";
     $("docs").hidden = v !== "docs";
+    $("fact").hidden = v !== "fact";
+    $("viewFact").setAttribute("aria-selected", String(v === "fact"));
     $("viewDocs").setAttribute("aria-selected", String(v === "docs"));
     $("viewBoard").setAttribute("aria-selected", String(v === "board"));
     $("viewCal").setAttribute("aria-selected", String(v === "cal"));
@@ -7939,7 +8376,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     home: "<kbd>N</kbd> nueva tarea · <kbd>R</kbd> nueva reunión",
     board: "<kbd>N</kbd> nueva tarea · <kbd>/</kbd> buscar",
     cal: "<kbd>R</kbd> nueva reunión",
-    docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos"
+    docs: "<kbd>N</kbd> nueva carpeta · <kbd>U</kbd> subir archivos",
+    fact: ""
   };
   function setView(v) {
     state.view = v;
@@ -7947,7 +8385,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var hv = v === "docs" ? docsHash() : VIEW_HASH[v];
     try { if (location.hash.replace(/^#/, "") !== hv) history.replaceState(null, "", "#" + hv); } catch (e) {}
     calDir = 0;
-    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderDocs(); };
+    var paint = function () { renderHero(); renderLabelBar(); renderHome(); renderBoard(); renderCal(); renderDocs(); renderFact(); };
     if (document.startViewTransition && !reduced() && state.loaded) { try { document.startViewTransition(paint); } catch (e) { paint(); } }
     else paint();
     if (window.scrollY > 200) window.scrollTo({ top: 0, behavior: "auto" });
@@ -9106,6 +9544,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   $("brandHome").onclick = function (e) { e.preventDefault(); setView("home"); window.scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); };
   $("viewCal").onclick = function () { setView("cal"); };
   $("viewDocs").onclick = function () { setView("docs"); };
+  $("viewFact").onclick = function () { setView("fact"); };
   Array.prototype.forEach.call(document.querySelectorAll("#bnav [data-v], #side [data-v]"), function (b) { b.onclick = function () { setView(b.dataset.v); }; });
   $("sideAdd").onclick = function () { $("addBtn").click(); };
   $("labelsBtn").onclick = function () { openLabels(); };
