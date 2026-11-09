@@ -77,8 +77,8 @@ La sección «Facturación» (`#facturacion`) calcula el precio por campo de los
 
 ## Opciones y tema
 
-El botón «Opciones» del encabezado reúne el tema (claro, oscuro o igual que el dispositivo), cambiar de persona, equipo y nombre del tablero, actualizar datos, instalar la app, atajos de teclado y «Acerca de».
-El botón de sol o luna cambia entre modo claro y oscuro. La elección se guarda en cada dispositivo (`tb-theme` en el navegador); sin elección, el tablero sigue el modo del dispositivo.
+El encabezado solo tiene Buscar, Actividad y «Opciones». «Opciones» reúne el tema (claro, oscuro o igual que el dispositivo), el diseño del tablero, cambiar de persona, equipo y nombre del tablero, recordatorios, actualizar datos, instalar la app (cuando el navegador lo permite), atajos de teclado y «Acerca de».
+El tema y el diseño se guardan en cada dispositivo (`tb-theme` y `tb-skin` en el navegador); sin elección de tema, el tablero sigue el modo del dispositivo.
 
 ## Reuniones que se repiten
 
