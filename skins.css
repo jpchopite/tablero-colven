@@ -124,3 +124,65 @@
   :root[data-dock] .dtray { bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
 }
 @media (max-width: 360px) { .dock button { font-size: 9px; } }
+
+/* =====================================================================
+   Línea: a quiet, precise look. Colven navy and yellow stay; what changes is the discipline:
+   lighter type (Inter, nothing heavier than 600), hairline borders instead of shadows,
+   three radii only (6 px controls, 12 px surfaces, pills), and calmer surfaces.
+   ===================================================================== */
+/* The board asks for 700 and 800 in many places; this family serves those weights from lighter Inter files,
+   so 700/800 draw as 600 and 600 as 500 without touching each rule. */
+@font-face { font-family: "Linea UI"; font-style: normal; font-display: swap; font-weight: 100 450; src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/files/inter-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family: "Linea UI"; font-style: normal; font-display: swap; font-weight: 451 650; src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/files/inter-latin-500-normal.woff2") format("woff2"); }
+@font-face { font-family: "Linea UI"; font-style: normal; font-display: swap; font-weight: 651 1000; src: url("https://cdn.jsdelivr.net/npm/@fontsource/inter@5.1.0/files/inter-latin-600-normal.woff2") format("woff2"); }
+
+:root[data-skin="linea"][data-mode] {
+  --font-body: "Linea UI", "Figtree", system-ui, sans-serif; --font-display: "Linea UI", "Figtree", system-ui, sans-serif;
+  --bg: #f7f8fb; --surface: #ffffff; --lane: #f1f3f8; --line: #e3e6ef; --line-strong: #cdd2e1; --ink: #121a41; --muted: #5f6787;
+  --grid-dot: transparent;
+  --lane-todo: #f1f3f8; --lane-doing: #f1f3f8; --lane-waiting: #f1f3f8; --lane-ready: #f1f3f8; --lane-done: #f1f3f8;
+  --shadow-sm: none; --shadow-md: 0 0 0 1px var(--line-strong); --shadow-lg: 0 0 0 1px var(--line), 0 12px 32px rgba(18, 26, 65, .14);
+}
+:root[data-skin="linea"][data-mode="dark"] {
+  --bg: #080b1d; --surface: #0e1230; --lane: #0b0f27; --line: #1d2346; --line-strong: #2c3462; --ink: #e6e9f5; --muted: #8b92b3;
+  --hero: #0b0f27; --hero-solid: #0b0f27;
+  --lane-todo: #0b0f27; --lane-doing: #0b0f27; --lane-waiting: #0b0f27; --lane-ready: #0b0f27; --lane-done: #0b0f27;
+  --shadow-lg: 0 0 0 1px var(--line-strong), 0 16px 40px rgba(0, 0, 0, .55);
+}
+:root[data-skin="linea"] body { font-size: 15px; letter-spacing: -.006em; font-feature-settings: "cv01", "ss03"; }
+:root[data-skin="linea"] :is(h1, h2, .al-time, .fin-big, .num) { letter-spacing: -.02em; }
+
+/* radii: 12 px for surfaces, 6 px for controls, 4 px for small tags; pills stay pills */
+:root[data-skin="linea"] :is(.card, .lane, .tile, .wg, .qa, .ccard, .pbox, .cal, .fin-tile, .dsum-t, .dsum-total, .dempty, .pop-menu, .dlg, .dtray,
+  .dnav, .dselbar, .finder, .add-menu, .gate-card, .tabs, .ev-banner, .anx-hero, .wks, .wk, .skel-wg, .skel-c, .dghost, .docs.dropping, .ddrop-msg) { border-radius: 12px; }
+:root[data-skin="linea"] :is(.btn, .tab, .csort, .navbtn, .gate-eye, .seg button, .wd, .cact, .xbtn, .field input, .field select, .field textarea,
+  .gate-row input, .cpick > input, .cpick-results, .inline select, .inline input, .viewswitch, .viewswitch button, .dviewsw, .dviewsw button,
+  .pop-menu button, .finder-item, .mv-row, .dt-row, .dnav-row, .dt-main, .side-nav button, .side-add, .side-brand, .quick button, .more, .mover,
+  .cell, .cell-add, .dback, .dcrumb, .dmore, .hmore, .hrow, .hlab, .wg-link, .ck-item, .ck-add, .arch-q, .arch-main, .rv-sum, .ev-item, .cmeet-row,
+  .rem-status, .rem-note, .dupwarn, .tprev, .pimg, .fmain, .fthumb, .fbtn, .md, .brand, .gate-err, .waiting-on, .toast .undo, .dnav-empty) { border-radius: 6px; }
+:root[data-skin="linea"] :is(.lbl, .tok, .mention, .ck-box, .dpin, .dck, .pick-ck, .ck-text, .pop-menu kbd, .dmarquee) { border-radius: 4px; }
+:root[data-skin="linea"] :is(.add-menu .am-ico, .qa-ico, .wg-ico, .fi-ico, .dt-chev) { border-radius: 6px; }
+/* panels slide in from the side: square on the screen edge, 12 px elsewhere on phones */
+:root[data-skin="linea"] .panel { border-radius: 0; }
+
+/* hairlines instead of shadows: surfaces keep their 1 px border, hover only sharpens it */
+:root[data-skin="linea"] :is(.card, .wg, .ccard, .cal, .qa, .fin-tile, .tbtn, .btn, .chip) { box-shadow: none; }
+:root[data-skin="linea"] :is(.card, .ccard, .qa):hover { border-color: var(--line-strong); box-shadow: none; transform: none; }
+:root[data-skin="linea"] .lane { box-shadow: inset 0 2px 0 var(--lane-c, transparent), inset 0 0 0 1px var(--line); }
+:root[data-skin="linea"] .panel { box-shadow: -1px 0 0 var(--line), var(--shadow-lg); }
+
+/* labels: a neutral badge; the label's colour lives only in its dot */
+:root[data-skin="linea"] :is(.lbl, .lbchip) { background: color-mix(in srgb, var(--ink) 6%, transparent); color: color-mix(in srgb, var(--ink) 78%, transparent); font-weight: 500; }
+:root[data-skin="linea"] .lbchip { border-color: var(--line); }
+:root[data-skin="linea"] .lbchip:hover { transform: none; border-color: var(--line-strong); }
+:root[data-skin="linea"] .lbchip[aria-pressed="true"] { border-color: var(--lb-fg); box-shadow: none; background: color-mix(in srgb, var(--lb-fg) 14%, transparent); }
+:root[data-skin="linea"] .lbchip .lbn { background: transparent; color: var(--muted); }
+
+/* section titles: normal lettering instead of spaced capitals */
+:root[data-skin="linea"] :is(.lane-head h2, .wg-head h2, .chead h2, .cal-head h2) { text-transform: none; letter-spacing: -.01em; font-weight: 600; font-size: 15px; }
+:root[data-skin="linea"] .tile .tlbl { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 500; }
+
+/* buttons: one filled accent (the primary action), the rest quiet outlines */
+:root[data-skin="linea"] :is(.btn, .tbtn, .chip) { font-weight: 500; }
+:root[data-skin="linea"] :is(.btn, .tbtn):not(.primary):not(.danger) { background: transparent; }
+:root[data-skin="linea"] :is(.btn, .tbtn):not(.primary):hover { border-color: var(--line-strong); background: color-mix(in srgb, var(--ink) 4%, transparent); }

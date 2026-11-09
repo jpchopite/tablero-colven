@@ -6,7 +6,8 @@
   "use strict";
   var SKINS = [
     { id: "", name: "Original", desc: "El tablero tal como es hoy.", sw: ["#121a41", "#ffd453"] },
-    { id: "aire", name: "Aire", desc: "Vidrio esmerilado sobre un fondo de color suave.", sw: ["#c9d0ff", "#ffe9a8"], font: "Geist:wght@400;500;600;700" }
+    { id: "aire", name: "Aire", desc: "Vidrio esmerilado sobre un fondo de color suave.", sw: ["#c9d0ff", "#ffe9a8"], font: "Geist:wght@400;500;600;700" },
+    { id: "linea", name: "Línea", desc: "Bordes finos, letra más ligera y el amarillo solo para la acción principal.", sw: ["#0e1230", "#ffd453"] }
   ];
   var root = document.documentElement, KEY = "tb-skin", DOCK = "tb-dock";
 
