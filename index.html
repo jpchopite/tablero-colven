@@ -2179,7 +2179,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         <a class="brand" id="brandHome" href="#inicio" aria-label="Colven Business Corp. · Ir al inicio"><img src="assets/colven-logo.png" alt="Colven Business Corp." width="445" height="214"></a>
         <div class="eyebrow" id="today"></div>
         <h1 id="boardName">Nuestro tablero de tareas</h1>
-        <p class="greet" id="greet">Cada tarea tiene a alguien asignado. Si no está en el tablero, todavía no es una tarea.</p>
+        <p class="greet" id="greet">Cargando…</p>
       </div>
       <div class="hero-actions">
         <button class="hbtn" id="finderBtn" type="button" title="Buscar en todo (Ctrl + K)" aria-label="Buscar en todo"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><span class="t">Buscar</span><kbd class="t">Ctrl K</kbd></button>
@@ -2261,11 +2261,11 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   try { document.documentElement.lang = "es"; } catch (e) {}
 
   var STATUSES = [
-    { id: "todo", label: "Por hacer", short: "Por hacer", hint: "Acordadas, sin empezar." },
-    { id: "doing", label: "En curso", short: "En curso", hint: "Alguien está trabajando en ellas." },
-    { id: "waiting", label: "Esperando a alguien", short: "Espera", hint: "Bloqueadas por un cliente, un compañero o una respuesta." },
-    { id: "ready", label: "Lista para entregar", short: "Lista", hint: "Terminadas, a la espera de su fecha de entrega." },
-    { id: "done", label: "Hecho", short: "Hecho", hint: "Terminadas. Las más recientes primero." }
+    { id: "todo", label: "Por hacer", short: "Por hacer", hint: "" },
+    { id: "doing", label: "En curso", short: "En curso", hint: "" },
+    { id: "waiting", label: "Esperando a alguien", short: "Espera", hint: "" },
+    { id: "ready", label: "Lista para entregar", short: "Lista", hint: "" },
+    { id: "done", label: "Hecho", short: "Hecho", hint: "" }
   ];
   var PRIORITY = { high: { label: "Alta", rank: 0 }, normal: { label: "Normal", rank: 1 }, low: { label: "Baja", rank: 2 } };
   var DEFAULT_MEMBERS = [
@@ -2760,7 +2760,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var g = $("greet");
     var m = member(meKey());
     if (!state.loaded) {
-      g.textContent = "Si no está en el tablero, todavía no es una tarea.";
+      g.textContent = "Cargando…";
       return;
     }
     g.textContent = "";
@@ -2851,16 +2851,15 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
     if (lanes.done) {
       lanes.done.lane.style.setProperty("--fill", state.loaded ? (pct * 100).toFixed(1) + "%" : "0%");
-      lanes.done.hint.textContent = state.loaded && total
-        ? "Terminadas. La columna se llena con lo que vence esta semana y ya está hecho: " + Math.round(pct * 100) + "%."
-        : "Terminadas. Las más recientes primero.";
+      lanes.done.hint.textContent = state.loaded && total ? "Hecho de lo que vence esta semana: " + Math.round(pct * 100) + " %" : "";
+      lanes.done.hint.hidden = !lanes.done.hint.textContent;
     }
     var spark = $("t-week"), sEmpty = $("sparkEmpty");
     if (!sEmpty) { sEmpty = el("div", "spark-empty"); sEmpty.id = "sparkEmpty"; spark.appendChild(sEmpty); }
     var noneYet = state.loaded && doneWeek === 0;
     spark.classList.toggle("is-empty", noneYet);
     sEmpty.hidden = !noneYet;
-    sEmpty.textContent = "Aún no hay tareas hechas en los últimos 7 días. Aquí se verá el ritmo del equipo.";
+    sEmpty.textContent = "Ninguna tarea hecha en los últimos 7 días.";
     var max = Math.max.apply(null, counts.concat([1]));
     var bars = $("bars").children, days = $("days").children;
     for (var i = 0; i < 7; i++) {
@@ -2885,6 +2884,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       head.appendChild(count);
       lane.appendChild(head);
       var hint = el("div", "lane-hint", s.hint);
+      hint.hidden = !s.hint;
       lane.appendChild(hint);
       var quick = s.id === "todo" ? buildQuick() : null;
       if (quick) lane.appendChild(quick);
@@ -3331,7 +3331,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var code = err && err.code;
     if (code === "invalid_argument") {
       state.canWrite = false; render();
-      showNotice("Puedes ver este tablero pero no modificarlo. Pídele al dueño del tablero acceso de Colaborador o Editor.", true);
+      showNotice("No tienes permiso para guardar cambios en este tablero.", true);
     } else if (code === "quota_exceeded") {
       toast("El tablero está lleno. Borra algunas tareas terminadas antiguas e inténtalo de nuevo.");
     } else {
@@ -3668,7 +3668,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       function draw() {
         var shown = filter === "all" ? entries : entries.filter(function (e) { return e.actorKey === filter; });
         drawEntries(list, shown, { emptyText: !state.db ? "La actividad se carga cuando el tablero está conectado."
-          : entries.length ? "Esta persona no tiene actividad registrada." : "Todavía no hay actividad. Lo que se haga en el tablero aparecerá aquí." });
+          : entries.length ? "Esta persona no tiene actividad registrada." : "Todavía no hay actividad." });
         resolveActors(shown, draw);
       }
       var acts = el("div", "panel-actions");
@@ -4531,7 +4531,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var chain = (state.allTasks || state.tasks).filter(function (t) { return !t.trashed && (t.repeat || t.seriesId) && t.due && String(t.due).slice(0, 7) === mk; })
       .sort(function (a, b) { return String(a.due).localeCompare(String(b.due)) || String(titleOf(a)).localeCompare(String(titleOf(b))); });
     var w0 = widget("w-chain", "repeat", "Informes del mes", null, { text: "Calendario", go: function () { goCal(); } });
-    if (!chain.length) w0.body.appendChild(homeEmpty("Este mes no hay entregas de tarjetas que se repiten (↻). Cuando las haya, aparecen aquí en orden de entrega.", "repeat"));
+    if (!chain.length) w0.body.appendChild(homeEmpty("Este mes no hay entregas de tarjetas que se repiten (↻).", "repeat"));
     else {
       var nDone = chain.filter(function (t) { return t.status === "done"; }).length;
       var cp0 = el("div", "chain-prog");
@@ -4712,7 +4712,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       r.onclick = function () { openFile(x.f, false); };
       w8.body.appendChild(r);
     });
-    if (!files.length) w8.body.appendChild(homeEmpty("Los archivos que suban a Documentos o adjunten a las tarjetas aparecerán aquí.", "folder"));
+    if (!files.length) w8.body.appendChild(homeEmpty("Todavía no hay archivos.", "folder"));
     grid.appendChild(w8.box);
   }
 
@@ -7387,8 +7387,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var art = el("div", "dempty-art"); art.appendChild(folderArt(here ? here.color : "amarillo")); em.appendChild(art);
         em.appendChild(el("b", null, here ? "Esta carpeta está vacía" : "Todavía no hay documentos"));
         em.appendChild(el("span", null, state.canWrite
-          ? (here ? "Sube archivos aquí, crea carpetas dentro o pega lo que copiaste." : "Empieza creando carpetas (por ejemplo: Contratos, Facturas, Presentaciones) y sube los archivos del equipo: PDF, Word, Excel, PowerPoint y más.")
-          : "Aquí aparecerán los documentos del equipo."));
+          ? (here ? "Sube archivos aquí, crea carpetas dentro o pega lo que copiaste." : "Crea una carpeta o sube archivos.")
+          : "Todavía no hay documentos."));
         if (state.canWrite) {
           var ea = el("div", "dempty-acts");
           var b1 = btn("Subir archivos", "primary", "upload"); b1.onclick = function () { pickFiles(state.dfolder); };
@@ -7660,7 +7660,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
       var title = input("f-title", t.title);
       title.className = "title-in" + (isNew ? " autofocus" : "");
-      title.placeholder = "p. ej. Enviar la 2.ª ronda del logo al cliente";
+      title.placeholder = "p. ej. Enviar el informe semanal a Dirección";
       title.maxLength = 200;
       var titleField = field("Tarea", title);
       /* placeholders: tap to insert, with a live preview of the name the card will show */
@@ -7753,7 +7753,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 
       var notes = document.createElement("textarea");
       notes.id = "f-notes"; notes.value = t.notes || "";
-      notes.placeholder = "Enlaces a archivos, contexto, qué significa “terminado”…";
+      notes.placeholder = "Notas, enlaces o detalles";
       notes.maxLength = 4000;
       p.appendChild(field("Notas", notes));
 
