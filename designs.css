@@ -71,8 +71,11 @@
 
   /* every section other than Inicio opens like a sub-page: its name as the title */
   :root[data-web] body.compact .hero-inner { padding-block: 52px 44px; }
-  :root[data-web] body.compact .eyebrow { flex-direction: column; align-items: flex-start; gap: 0; }
-  :root[data-web] body.compact .eyebrow::before, :root[data-web] body.compact .eyebrow .eb-date { display: none; }
+  /* the title with today's date beside it, on the same baseline, after a short yellow rule */
+  :root[data-web] body.compact .eyebrow { flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+  :root[data-web] body.compact .eyebrow::before { display: none; }
+  :root[data-web] body.compact .eyebrow .eb-date { display: inline-flex; align-items: center; gap: 12px; font-size: 13.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--hero-muted); }
+  :root[data-web] body.compact .eyebrow .eb-date::before { content: ""; width: 28px; height: 3px; background: #ffd453; }
   :root[data-web] body.compact .eyebrow .eb-sec { font-family: var(--font-display); font-size: clamp(34px, 4vw, 52px); line-height: 1.05; letter-spacing: -.025em; text-transform: none; color: var(--hero-ink); }
 }
 /* narrower screens: the section names give way to their icons */
@@ -93,11 +96,11 @@
    ===================================================================== */
 :root[data-skin="corporativo"][data-mode] {
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
-  --bg: #f4f5f8; --surface: #ffffff; --lane: #eceef3; --ink: #0d1330; --muted: #555d78; --line: #e4e6ec; --line-strong: #cdd1dc;
+  --bg: #e9ecf2; --surface: #f8f9fb; --lane: #e1e5ec; --ink: #0d1330; --muted: #525a74; --line: #d9dde6; --line-strong: #c3c9d6;
   --navy: #0d1330; --on-navy: #ffffff;
-  --nav-bg: #ffffff; --nav-ink: #0d1330; --nav-muted: #4b5370; --nav-line: #e4e6ec; --nav-hover: #f1f2f6;
+  --nav-bg: #f8f9fb; --nav-ink: #0d1330; --nav-muted: #4b5370; --nav-line: #d9dde6; --nav-hover: #eceff4;
   --foot: #0d1330; --foot-ink: #ffffff; --foot-muted: #9aa1bd;
-  --hero: #ffffff; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait);
+  --hero: #f8f9fb; --hero-ink: #0d1330; --hero-muted: #525a74; --hero-line: #d9dde6; --hero-late: var(--late); --hero-wait: var(--wait);
   --grid-dot: transparent; --lane-todo: var(--lane); --lane-doing: var(--lane); --lane-waiting: var(--lane); --lane-ready: var(--lane); --lane-done: var(--lane);
   --shadow-sm: none; --shadow-md: 0 12px 30px rgba(13, 19, 48, .12); --shadow-lg: 0 24px 60px rgba(13, 19, 48, .22);
 }
@@ -108,7 +111,7 @@
   --foot: #0d1330; --hero: #18213f; --hero-ink: #e9ecf5; --hero-muted: #a3abc8; --hero-line: #2a355e;
 }
 /* the board sets the header colours on .hero itself on computers, so they are set there too */
-:root[data-skin="corporativo"] .hero { --hero: #ffffff; --hero-2: transparent; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait); }
+:root[data-skin="corporativo"] .hero { --hero: #f8f9fb; --hero-2: transparent; --hero-ink: #0d1330; --hero-muted: #525a74; --hero-line: #d9dde6; --hero-late: var(--late); --hero-wait: var(--wait); }
 :root[data-skin="corporativo"][data-mode="dark"] .hero { --hero: #18213f; --hero-ink: #e9ecf5; --hero-muted: #a3abc8; --hero-line: #2a355e; }
 :root[data-skin="corporativo"] body { font-size: 15.5px; }
 :root[data-skin="corporativo"] :is(h1, h2, h3) { letter-spacing: -.02em; }
