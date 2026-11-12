@@ -74,6 +74,7 @@ La sección «Facturación» (`#facturacion`) calcula el precio por campo de los
   - Desde el tope en adelante se paga la participación económica de toda la producción.
   - Barinas: base 4.400 b/d, tope 9.200, participación 53 %. Apure: base 3.700, tope 8.800, participación 58 %.
 - Los meses se guardan con «Guardar» en la configuración del tablero (`fact`), para que todo el equipo vea las mismas cifras. Lo que se escribe queda como borrador en el dispositivo hasta guardar. Un mes nuevo empieza en blanco: solo trae el IPC del BLS y los factores de ponderación del mismo año (son anuales). Septiembre de 2026 trae los valores del Excel.
+- Documentos del mes: «Subir documento» pide el archivo y luego su tipo (Factor K, Marcadores internacionales, Factor AGA o ACC); cada tipo tiene además su propio «Subir». Los archivos se guardan en Documentos › Facturación › <mes> › <tipo>, así que también se ven y se buscan en Documentos; «Quitar» los manda a la papelera de Documentos. No llenan las cifras solos: los valores se siguen escribiendo en sus tablas.
 
 ## Opciones y tema
 
