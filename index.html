@@ -8585,6 +8585,91 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     }).catch(function () { toast("No se pudo leer «" + real.name + "». Revisa tu conexión e inténtalo de nuevo."); });
   }
 
+  /* ---------- «Exportar Excel»: the month on screen, every step of the calculation, as numbers ----------
+     Sheets: Resumen, Precio por campo, Barriles a pagar, Precio por mercado and Datos (the inputs). Built in the browser with SheetJS. */
+  function fxSheet(X, aoa, widths, fmts) {
+    var ws = X.utils.aoa_to_sheet(aoa);
+    ws["!cols"] = widths.map(function (w) { return { wch: w }; });
+    Object.keys(ws).forEach(function (a) {
+      if (a.charAt(0) === "!") return;
+      var c = ws[a], col = X.utils.decode_cell(a).c;
+      if (c.t === "n" && fmts[col]) c.z = fmts[col];
+    });
+    return ws;
+  }
+  function fxExport() {
+    var ym = fxb.ym, M = fxCur(), R = fxCalc(ym, M), d = fxb.drafts[ym], sd = fxSaved()[ym];
+    var Q = ["Golfo", "Caribe", "Europa", "Asia"], v = function (x) { return typeof x === "number" && isFinite(x) ? x : null; };
+    var USD = "#,##0.00", P4 = "0.0000", INT = "#,##0", P2 = "#,##0.00", P3 = "0.000";
+    toast("Preparando el Excel de " + fxMonthName(ym).toLowerCase() + "…");
+    fxXlsx().then(function (X) {
+      var wb = X.utils.book_new(), now = new Date();
+      var estado = d ? "Borrador con cambios sin guardar" : sd ? "Guardado" + (sd.by ? " por " + sd.by : "") + (sd.at ? " el " + fxWhen(sd.at) : "") : FX_SEED[ym] ? "Valores del Excel de referencia, sin guardar" : "Sin guardar";
+
+      /* Resumen */
+      var res = [["Facturación CPPH · Colven Business Corp."], ["Mes", fxMonthName(ym)], ["Estado", estado],
+        ["Exportado", now.getDate() + " de " + MONTHS_LONG[now.getMonth()] + " de " + now.getFullYear() + ", " + pad(now.getHours()) + ":" + pad(now.getMinutes())], [],
+        ["Concepto", "Bls a pagar", "Monto $"], ["Total a facturar", null, R.ok ? R.total : null]];
+      R.subs.forEach(function (x) { res.push(["Subcuenca " + x.s.name, v(x.paid), x.ok ? x.amount : null]); });
+      res.push([], ["IPC de EE.UU. (CPI-U, serie CUUR0000SA0)", null, v(M.cpi)], ["Indexación del ACC (IPC ÷ " + String(FX_CPI0).replace(".", ",") + ")", null, M.cpi > 0 ? M.cpi / FX_CPI0 : null]);
+      R.subs.forEach(function (x) { res.push(["ACC " + FX_POINTS[x.s.point].name + " $/bl", null, v(x.acc)]); });
+      if (!R.ok) res.push([], ["Faltan datos: " + fxList(fxMissing(M)) + ". Los montos incompletos quedan vacíos."]);
+      X.utils.book_append_sheet(wb, fxSheet(X, res, [44, 14, 18], { 1: INT, 2: USD }), "Resumen");
+
+      /* Precio por campo */
+      var pc = [["Subcuenca", "Campo", "Crudo", "°API", "Producción acta (bls/mes)", "Bls a pagar", "Precio $/bl", "Monto $"]];
+      R.subs.forEach(function (x) {
+        x.rows.forEach(function (r) { pc.push([x.s.name, r.name, r.crude || "Sin crudo", v(r.api), v(r.vol), v(r.paid), v(r.price), v(r.amount)]); });
+        pc.push(["Total " + x.s.name, null, null, null, v(x.rows[0] && x.rows[0].sum), v(x.paid), null, x.ok ? x.amount : null]);
+      });
+      pc.push(["Total a facturar", null, null, null, null, null, null, R.ok ? R.total : null]);
+      X.utils.book_append_sheet(wb, fxSheet(X, pc, [12, 16, 14, 8, 22, 14, 14, 18], { 3: "0.0", 4: INT, 5: INT, 6: P4, 7: USD }), "Precio por campo");
+
+      /* Barriles a pagar */
+      var bp = [["Subcuenca", "Campo", "Producción acta (bls/mes)", "Días del mes", "Producción diaria (b/d)", "Producción de la subcuenca (bls)", "Producción de la subcuenca (b/d)",
+        "Tope (b/d)", "Base de la subcuenca (b/d)", "Base del campo (b/d)", "Excedente (b/d)", "Participación", "Regla", "Bls a pagar"]];
+      R.subs.forEach(function (x) {
+        x.rows.forEach(function (r) {
+          var bf = r.sum ? x.s.base * r.vol / r.sum : null;
+          bp.push([x.s.name, r.name, v(r.vol), r.days, v(r.daily), v(r.sum), r.sum ? r.sum / r.days : null, x.s.upTo, x.s.base, v(bf), v(r.daily - bf), x.s.share,
+            r.under ? "Bajo el tope: (diaria − base del campo) × días" : "Sobre el tope: producción × participación", v(r.paid)]);
+        });
+      });
+      X.utils.book_append_sheet(wb, fxSheet(X, bp, [12, 16, 22, 12, 20, 26, 26, 10, 22, 18, 14, 12, 44, 12], { 2: INT, 3: "0", 4: P2, 5: INT, 6: P2, 7: INT, 8: INT, 9: P2, 10: P2, 11: "0%", 13: INT }), "Barriles a pagar");
+
+      /* Precio por mercado */
+      var pm = [["Subcuenca", "Campo", "Crudo", "Mercado", "Marcador", "Marcador $/bl", "+ K", "+ AGA", "− ACC", "= Precio $/bl", "× Ponderación", "= Aporte $/bl"]];
+      R.subs.forEach(function (x) {
+        x.rows.forEach(function (r) {
+          var bases = FX_MARKET_BASE[r.crude];
+          if (!bases) { pm.push([x.s.name, r.name, r.crude || "Sin crudo", "Sin fórmula de precio para este crudo"]); return; }
+          for (var q = 0; q < 4; q++) {
+            pm.push([x.s.name, r.name, r.crude, Q[q], bases[q][0], v(r.mkt[q]), v(n0(r.k[q])), v(n0(r.a[q])), v(r.acc), v(r.pr[q]), v(n0(r.fp[q])), v(r.pr[q] * n0(r.fp[q]))]);
+          }
+          pm.push([x.s.name, r.name, r.crude, "Precio del campo (suma de aportes)", null, null, null, null, null, null, null, v(r.price)]);
+        });
+      });
+      X.utils.book_append_sheet(wb, fxSheet(X, pm, [12, 16, 14, 34, 24, 14, 10, 10, 10, 14, 14, 14], { 5: P4, 6: P4, 7: P4, 8: P4, 9: P4, 10: P4, 11: P4 }), "Precio por mercado");
+
+      /* Datos */
+      var mk = M.mk || {}, dt = [["Marcadores internacionales ($/bl)"], ["Mars", "Brent", "Dubái", "Omán"], [v(mk.mars), v(mk.brd), v(mk.dub), v(mk.oma)], [],
+        ["Factor K ($/bl)", "Golfo", "Caribe", "Europa", "Asia"]];
+      FX_CRUDES.forEach(function (c) { var a = (M.k || {})[c] || []; dt.push([c, v(a[0]), v(a[1]), v(a[2]), v(a[3])]); });
+      dt.push([], ["Factores de ponderación", "Golfo", "Caribe", "Europa", "Asia"]);
+      FX_CRUDES.forEach(function (c) { var a = (M.fp || {})[c] || []; dt.push([c, v(a[0]), v(a[1]), v(a[2]), v(a[3])]); });
+      dt.push([], ["Factor AGA ($/bl)", "Golfo", "Caribe", "Europa", "Asia"]);
+      FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { var a = (M.aga || {})[f[0]] || []; dt.push([f[1], v(a[0]), v(a[1]), v(a[2]), v(a[3])]); }); });
+      dt.push([], ["Producción del acta", "Bls/mes", "°API"]);
+      FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { var a = (M.f || {})[f[0]] || {}; dt.push([f[1], v(a.vol), v(a.api)]); }); });
+      dt.push([], ["ACC", "Valor"], ["Transporte $/bl por km", FX_ACC.rate], ["Manejo $/bl", FX_ACC.handling], ["Tarifas $/bl", FX_ACC.fees]);
+      Object.keys(FX_POINTS).forEach(function (k) { dt.push(["Distancia a " + FX_POINTS[k].name + " (km)", FX_POINTS[k].km]); });
+      dt.push(["IPC de EE.UU. del mes", v(M.cpi)], ["IPC de enero de 2024 (base)", FX_CPI0]);
+      X.utils.book_append_sheet(wb, fxSheet(X, dt, [34, 12, 12, 12, 12], { 1: "0.####", 2: "0.####", 3: "0.####", 4: "0.####" }), "Datos");
+
+      X.writeFile(wb, "Facturación CPPH " + ym + ".xlsx");
+    }).catch(function () { toast("No se pudo preparar el Excel. Revisa tu conexión e inténtalo de nuevo."); });
+  }
+
   function fxDocsDraw() {
     var w = fxb.docBox;
     if (!w || !w.isConnected) return;
@@ -8679,6 +8764,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     head.appendChild(stP);
     undo.onclick = function () { delete fxb.drafts[fxb.ym]; delete fxb.auto[fxb.ym]; delete fxb.notes[fxb.ym]; renderFact(true); };
     sv.onclick = function () { fxEdit(); fxSave(); };
+    var exp = btn("Exportar Excel", "small", "download");
+    exp.title = "Descargar el cálculo completo del mes en Excel";
+    exp.onclick = fxExport;
+    head.appendChild(exp);
     if (state.canWrite) { head.appendChild(undo); head.appendChild(sv); }
     /* the state line follows the typing: a draft appears on the first change */
     fxb.upd.push(function (M) {
