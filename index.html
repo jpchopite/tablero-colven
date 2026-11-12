@@ -1429,6 +1429,12 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .fxd-x:hover { background: var(--late-soft); color: var(--late); }
 .fxd-x .ico { width: 14px; height: 14px; }
 .fxd-none { color: var(--muted); font-size: 13px; }
+.fxd-copy { align-self: flex-start; margin-top: auto; }
+.fxp-help { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+.fxp-ta { width: 100%; min-height: 150px; margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); color: var(--ink); font: 13px/1.45 var(--font-mono); resize: vertical; }
+.fxp-ta:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
+.fxd-note { margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent-soft); font-size: 13px; line-height: 1.45; }
+.fx-tbl input.fx-auto, .fx-cpi input.fx-auto { background: var(--accent-soft); border-color: var(--accent); }
 @media (max-width: 860px) { .fx-grid .wg { grid-column: 1 / -1; } }
 @media (max-width: 520px) {
   .fx-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -7982,7 +7988,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       sinco3: { vol: 8604, api: 18.6 }, guafita: { vol: 130160, api: 28.8 }, lavictoria: { vol: 59189, api: 31.2 } }
   } };
   var FX_CPI_STORE = "tb-cpi";
-  var fxb = { ym: "", drafts: {}, saving: false, cpi: null, cpiBusy: false, cpiErr: "", upd: [] };
+  var fxb = { ym: "", drafts: {}, saving: false, cpi: null, cpiBusy: false, cpiErr: "", upd: [], auto: {}, notes: {} };
   try { fxb.cpi = JSON.parse(localStorage.getItem(FX_CPI_STORE) || "null"); } catch (e) { fxb.cpi = null; }
 
   function fxSaved() { var s = state.settingsRaw && state.settingsRaw.fact; return s && typeof s === "object" ? s : {}; }
@@ -8082,7 +8088,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var all = Object.assign({}, fxSaved()); all[fxb.ym] = rec;
     var keys = Object.keys(all).sort(); while (keys.length > 36) delete all[keys.shift()];
     fxb.saving = true; renderFact(true);
-    saveSettings({ fact: all }).then(function () { delete fxb.drafts[fxb.ym]; toast("Facturación de " + fxMonthName(fxb.ym).toLowerCase() + " guardada"); },
+    saveSettings({ fact: all }).then(function () { delete fxb.drafts[fxb.ym]; delete fxb.auto[fxb.ym]; delete fxb.notes[fxb.ym]; toast("Facturación de " + fxMonthName(fxb.ym).toLowerCase() + " guardada"); },
       function () { toast("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."); })
       .then(function () { fxb.saving = false; renderFact(true); });
   }
@@ -8092,7 +8098,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var i = el("input", cls || null); i.type = "text"; i.inputMode = "decimal"; i.setAttribute("autocomplete", "off");
     i.value = fxShow(get(fxCur()));
     if (!state.canWrite) i.readOnly = true;
-    i.oninput = function () { set(fxEdit(), fxParse(i.value)); fxRefresh(); };
+    var auto = fxb.auto[fxb.ym];
+    var mark = function () { var a = auto ? get(auto) : null; i.classList.toggle("fx-auto", typeof a === "number" && isFinite(a) && a === get(fxCur())); };
+    mark();
+    i.oninput = function () { set(fxEdit(), fxParse(i.value)); fxRefresh(); mark(); };
     i.onblur = function () { var v = get(fxCur()); if (v !== null && isFinite(v)) i.value = fxShow(v); };
     return i;
   }
@@ -8152,6 +8161,99 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     document.body.appendChild(inp);
     inp.click();
   }
+  /* ---------- reading the numbers with Claude, on the person's own Claude account ----------
+     «Copiar instrucciones» copies a message for one type and month; it goes into Claude together with the document, and Claude's
+     reply (a small JSON) comes back through «Pegar valores»: each number lands in its box as a draft, in yellow, until «Guardar». */
+  function fxQuadT() { return { golfo: null, caribe: null, europa: null, asia: null }; }
+  function fxPrompt(type, ym) {
+    var mes = fxMonthName(ym).toLowerCase(), ask, tpl;
+    if (type === "Factor K") {
+      ask = "el factor K de " + mes + " de cada crudo (Merey 16, Mesa 30 y Santa Bárbara) en cada mercado: Golfo, Caribe, Europa y Asia, en US$/bl";
+      tpl = { k: { merey16: fxQuadT(), mesa30: fxQuadT(), santa_barbara: fxQuadT() } };
+    } else if (type === "Factor AGA") {
+      ask = "el factor AGA (ajuste por gravedad y azufre) de " + mes + " de cada campo en cada mercado: Golfo, Caribe, Europa y Asia, en US$/bl. " +
+        "Los campos son Maporal, Silvestre, Hato Viejo, Sinco Zona 2 y Sinco Zona 3 (Barinas), y Guafita y La Victoria (Apure). " +
+        "Si el documento da un valor por subcuenca o por crudo, úsalo para cada campo que cubre";
+      var a = {};
+      FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { a[f[0]] = fxQuadT(); }); });
+      tpl = { aga: a };
+    } else if (type === "Marcadores internacionales") {
+      ask = "el promedio de " + mes + ", en US$/bl, de los marcadores Mars, Brent (Dated Brent), Dubái y Omán. Si trae precios diarios, promedia los días de ese mes";
+      tpl = { mk: { mars: null, brent: null, dubai: null, oman: null } };
+    } else {
+      ask = "el IPC de EE.UU. de " + mes + ": CPI-U, todos los artículos, sin ajuste estacional (serie CUUR0000SA0 del BLS, base 1982-84 = 100)";
+      tpl = { cpi: null };
+    }
+    return "Lee el documento adjunto y dame " + ask + ".\n\n" +
+      "Responde solo con este JSON completo, sin texto antes ni después. Escribe los números con punto decimal (0,95 → 0.95), conserva el signo " +
+      "y todos los decimales tal como aparecen, y pon null donde el documento no tenga el valor o no se lea con seguridad: no adivines. " +
+      "En \"notas\" escribe en una o dos frases qué leíste y cualquier duda.\n\n" +
+      JSON.stringify(Object.assign({ tipo: type, mes: ym }, tpl, { notas: "" }));
+  }
+  function fxCopyPrompt(type) {
+    var text = fxPrompt(type, fxb.ym), done = function () { toast("Instrucciones copiadas. Pégalas en Claude junto con el documento de " + type + "."); };
+    var manual = function () {
+      var dg = dialog({ title: "Instrucciones para Claude" });
+      var ta = el("textarea", "fxp-ta"); ta.value = text; ta.readOnly = true; ta.rows = 10;
+      dg.box.appendChild(el("p", "fxp-help", "Copia este texto y pégalo en Claude junto con el documento."));
+      dg.box.appendChild(ta);
+      var c = btn("Cerrar", "primary"); c.onclick = function () { dg.close(); };
+      dlgActs(dg.box, [c]);
+      ta.focus(); ta.select();
+    };
+    try { navigator.clipboard.writeText(text).then(done, manual); } catch (e) { manual(); }
+  }
+  /* Claude's reply: the first {…} in the pasted text; what it holds says which values they are */
+  function fxReadReply(text) {
+    var s = String(text || ""), a = s.indexOf("{"), b = s.lastIndexOf("}"), v;
+    if (a < 0 || b <= a) return { error: "No encontré los valores. Pega la respuesta completa de Claude, con las llaves { }." };
+    try { v = JSON.parse(s.slice(a, b + 1)); } catch (e) { return { error: "La respuesta está incompleta o cortada. Cópiala de nuevo completa." }; }
+    var type = v.k ? "Factor K" : v.aga ? "Factor AGA" : v.mk ? "Marcadores internacionales" : "cpi" in v ? "ACC" : "";
+    if (!type) return { error: "No reconozco estos valores. Usa las instrucciones de «Copiar instrucciones»." };
+    if (v.mes && v.mes !== fxb.ym) return { error: "Estos valores son de " + (/^\d{4}-\d{2}$/.test(v.mes) ? fxMonthName(v.mes).toLowerCase() : v.mes) + " y estás viendo " + fxMonthName(fxb.ym).toLowerCase() + ". Cambia de mes con las flechas o copia de nuevo las instrucciones." };
+    return { type: type, v: v };
+  }
+  function fxPaste() {
+    var dg = dialog({ title: "Pegar valores de Claude" });
+    dg.box.appendChild(el("p", "fxp-help", "Pega la respuesta completa de Claude. Los valores entran a " + fxMonthName(fxb.ym).toLowerCase() + " en amarillo, sin guardar, para que los revises."));
+    var ta = el("textarea", "fxp-ta"); ta.rows = 8; ta.placeholder = "{\"tipo\": \"Factor K\", \"mes\": \"" + fxb.ym + "\", …}";
+    var err = el("p", "dlg-err"); err.hidden = true; err.setAttribute("role", "alert");
+    dg.box.appendChild(ta); dg.box.appendChild(err);
+    var no = btn("Cancelar"); no.onclick = function () { dg.close(); };
+    var ok = btn("Llenar valores", "primary", "check");
+    ok.onclick = function () {
+      var r = fxReadReply(ta.value);
+      if (r.error) { err.textContent = r.error; err.hidden = false; ta.focus(); return; }
+      dg.close();
+      fxApply(fxb.ym, r.type, r.v);
+    };
+    dlgActs(dg.box, [no, ok]);
+    ta.focus();
+  }
+  /* each number into its box of the month's draft, remembered so the box shows in yellow */
+  function fxApply(ym, type, v) {
+    if (ym === fxb.ym) fxEdit();
+    var M = fxb.drafts[ym], A = fxb.auto[ym] = { mk: {}, k: {}, aga: {}, f: {} }, n = 0;
+    var val = function (x) { var y = typeof x === "number" ? x : typeof x === "string" ? fxParse(x) : null; return typeof y === "number" && isFinite(y) ? y : null; };
+    var quad = function (src, key, into, auto) {
+      into[key] = into[key] || [null, null, null, null]; auto[key] = [null, null, null, null];
+      ["golfo", "caribe", "europa", "asia"].forEach(function (mkt, q) { var x = val(src && src[mkt]); if (x !== null) { into[key][q] = auto[key][q] = x; n++; } });
+    };
+    if (type === "Factor K") {
+      M.k = M.k || {};
+      [["merey16", "Merey 16"], ["mesa30", "Mesa 30"], ["santa_barbara", "Santa Barbara"]].forEach(function (c) { quad(v.k[c[0]], c[1], M.k, A.k); });
+    } else if (type === "Factor AGA") {
+      M.aga = M.aga || {};
+      FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { quad(v.aga[f[0]], f[0], M.aga, A.aga); }); });
+    } else if (type === "Marcadores internacionales") {
+      M.mk = M.mk || {};
+      [["mars", "mars"], ["brent", "brd"], ["dubai", "dub"], ["oman", "oma"]].forEach(function (p) { var x = val(v.mk[p[0]]); if (x !== null) { M.mk[p[1]] = A.mk[p[1]] = x; n++; } });
+    } else { var c = val(v.cpi); if (c !== null) { M.cpi = A.cpi = c; n++; } }
+    fxb.notes[ym] = { type: type, n: n, text: String(v.notas || "").trim() };
+    renderFact(true);
+    toast(n ? plural(n, "valor", "valores") + " de " + type + " en amarillo. Revísalos y da «Guardar»." : "La respuesta no trae valores de " + type + ".");
+  }
+
   function fxDocsDraw() {
     var w = fxb.docBox;
     if (!w || !w.isConnected) return;
@@ -8159,12 +8261,18 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var hd = el("div", "wg-head"), c = el("span", "wg-ico"); c.appendChild(icon("clip")); hd.appendChild(c);
     hd.appendChild(el("h2", null, "Documentos del mes"));
     hd.appendChild(el("span", "spacer"));
+    if (state.canWrite) {
+      var ps = btn("Pegar valores", "small", "check");
+      ps.onclick = fxPaste;
+      hd.appendChild(ps);
+    }
     if (state.canWrite && state.db && state.db.fileCall) {
       var up = btn("Subir documento", "small", "upload");
       up.onclick = function () { fxPick("", up); };
       hd.appendChild(up);
     }
     w.appendChild(hd);
+    if (state.canWrite) w.appendChild(el("p", "fxp-help", "Para llenar las cifras con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
     if (!state.docsLoaded) { w.appendChild(el("p", "fxd-none", "Cargando…")); return; }
     var rows = el("div", "fxd-rows");
     FX_DOCS.forEach(function (t) {
@@ -8192,9 +8300,22 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         }
         r.appendChild(row);
       });
+      if (state.canWrite) {
+        var cp = el("button", "fxd-add fxd-copy"); cp.type = "button"; cp.appendChild(icon("doc")); cp.appendChild(el("span", null, "Copiar instrucciones"));
+        cp.setAttribute("aria-label", "Copiar instrucciones para Claude: " + t[0]);
+        cp.onclick = function () { fxCopyPrompt(t[0]); };
+        r.appendChild(cp);
+      }
       rows.appendChild(r);
     });
     w.appendChild(rows);
+    var nt = fxb.notes[fxb.ym];
+    if (nt) {
+      var p = el("p", "fxd-note");
+      p.appendChild(el("b", null, nt.n ? nt.type + ": " + plural(nt.n, "valor", "valores") + " de Claude en amarillo, sin guardar." : nt.type + ": la respuesta no trajo valores."));
+      if (nt.text) p.appendChild(document.createTextNode(" " + nt.text));
+      w.appendChild(p);
+    }
   }
 
   function renderFact(force) {
@@ -8222,7 +8343,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     head.appendChild(mon);
     var stP = el("p", "fx-state"), undo = btn("Descartar", "small"), sv = btn(fxb.saving ? "Guardando…" : "Guardar", "small primary", "check");
     head.appendChild(stP);
-    undo.onclick = function () { delete fxb.drafts[fxb.ym]; renderFact(true); };
+    undo.onclick = function () { delete fxb.drafts[fxb.ym]; delete fxb.auto[fxb.ym]; delete fxb.notes[fxb.ym]; renderFact(true); };
     sv.onclick = function () { fxEdit(); fxSave(); };
     if (state.canWrite) { head.appendChild(undo); head.appendChild(sv); }
     /* the state line follows the typing: a draft appears on the first change */
