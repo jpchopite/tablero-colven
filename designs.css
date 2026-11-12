@@ -94,23 +94,23 @@
    ===================================================================== */
 :root[data-skin="corporativo"][data-mode] {
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
-  --bg: #ffffff; --surface: #ffffff; --lane: #f4f5f8; --ink: #0d1330; --muted: #555d78; --line: #e4e6ec; --line-strong: #cdd1dc;
+  --bg: #f4f5f8; --surface: #ffffff; --lane: #eceef3; --ink: #0d1330; --muted: #555d78; --line: #e4e6ec; --line-strong: #cdd1dc;
   --navy: #0d1330; --on-navy: #ffffff;
   --nav-bg: #ffffff; --nav-ink: #0d1330; --nav-muted: #4b5370; --nav-line: #e4e6ec; --nav-hover: #f1f2f6;
   --foot: #0d1330; --foot-ink: #ffffff; --foot-muted: #9aa1bd;
-  --hero: #f4f5f8; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait);
+  --hero: #ffffff; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait);
   --grid-dot: transparent; --lane-todo: var(--lane); --lane-doing: var(--lane); --lane-waiting: var(--lane); --lane-ready: var(--lane); --lane-done: var(--lane);
   --shadow-sm: none; --shadow-md: 0 12px 30px rgba(13, 19, 48, .12); --shadow-lg: 0 24px 60px rgba(13, 19, 48, .22);
 }
 :root[data-skin="corporativo"][data-mode="dark"] {
-  --bg: #0c1124; --surface: #131a33; --lane: #10162c; --ink: #eef0f7; --muted: #a0a7c2; --line: #232b49; --line-strong: #343e63;
+  --bg: #111833; --surface: #18213f; --lane: #141c38; --ink: #e9ecf5; --muted: #a3abc8; --line: #2a355e; --line-strong: #3a4675;
   --navy: #ffd453; --on-navy: #0d1330;
-  --nav-bg: #0c1124; --nav-ink: #eef0f7; --nav-muted: #a0a7c2; --nav-line: #232b49; --nav-hover: #1a2240;
-  --foot: #070b1a; --hero: #131a33; --hero-ink: #eef0f7; --hero-muted: #a0a7c2; --hero-line: #232b49;
+  --nav-bg: #1a2347; --nav-ink: #e9ecf5; --nav-muted: #a3abc8; --nav-line: #2a355e; --nav-hover: #232d55;
+  --foot: #0d1330; --hero: #18213f; --hero-ink: #e9ecf5; --hero-muted: #a3abc8; --hero-line: #2a355e;
 }
 /* the board sets the header colours on .hero itself on computers, so they are set there too */
-:root[data-skin="corporativo"] .hero { --hero: #f4f5f8; --hero-2: transparent; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait); }
-:root[data-skin="corporativo"][data-mode="dark"] .hero { --hero: #131a33; --hero-ink: #eef0f7; --hero-muted: #a0a7c2; --hero-line: #232b49; }
+:root[data-skin="corporativo"] .hero { --hero: #ffffff; --hero-2: transparent; --hero-ink: #0d1330; --hero-muted: #555d78; --hero-line: #e4e6ec; --hero-late: var(--late); --hero-wait: var(--wait); }
+:root[data-skin="corporativo"][data-mode="dark"] .hero { --hero: #18213f; --hero-ink: #e9ecf5; --hero-muted: #a3abc8; --hero-line: #2a355e; }
 :root[data-skin="corporativo"] body { font-size: 15.5px; }
 :root[data-skin="corporativo"] :is(h1, h2, h3) { letter-spacing: -.02em; }
 /* the logo on a navy block the full height of the bar, like a letterhead */
@@ -191,15 +191,15 @@
   --bg: #f7f5f0; --surface: #ffffff; --lane: #efece4; --ink: #121a41; --muted: #5b6080; --line: #e6e1d6; --line-strong: #d2cbbb;
   --nav-bg: #121a41; --nav-ink: #ffffff; --nav-muted: #c5cae3; --nav-line: transparent; --nav-hover: rgba(255, 255, 255, .1);
   --foot: #121a41; --foot-ink: #ffffff; --foot-muted: #aab1d3;
-  --cover: #ffd453; --cover-ink: #121a41; --cover-muted: #3b4161;
+  --cover: #f6d36b; --cover-ink: #121a41; --cover-muted: #3b4161;
   --hero: #121a41; --hero-ink: #ffffff; --hero-muted: #c5cae3; --hero-line: rgba(255, 255, 255, .16); --hero-late: #ff9a73; --hero-wait: #ffd453;
   --grid-dot: transparent; --lane-todo: var(--lane); --lane-doing: var(--lane); --lane-waiting: var(--lane); --lane-ready: var(--lane); --lane-done: var(--lane);
   --shadow-sm: 0 1px 2px rgba(18, 26, 65, .06); --shadow-md: 0 16px 36px rgba(18, 26, 65, .14); --shadow-lg: 0 28px 70px rgba(18, 26, 65, .26);
 }
 :root[data-skin="energia"][data-mode="dark"] {
-  --bg: #0d1330; --surface: #172050; --lane: #121a45; --ink: #f1f2f8; --muted: #a8aed0; --line: #26306a; --line-strong: #38438a;
+  --bg: #0d1330; --surface: #1b255a; --lane: #121a45; --ink: #f1f2f8; --muted: #a8aed0; --line: #26306a; --line-strong: #38438a;
   --nav-bg: #0a0f28; --foot: #080c24;
-  --cover: #172050; --cover-ink: #ffffff; --cover-muted: #c5cae3;
+  --cover: #0f1640; --cover-ink: #ffffff; --cover-muted: #c5cae3;
   --hero: #0a0f28;
 }
 :root[data-skin="energia"] .hero { --hero: #121a41; --hero-2: transparent; --hero-ink: #ffffff; --hero-muted: #c5cae3; --hero-line: rgba(255, 255, 255, .16); --hero-late: #ff9a73; --hero-wait: #ffd453; }
@@ -292,7 +292,7 @@
    ===================================================================== */
 :root[data-skin="financiero"][data-mode] {
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
-  --bg: #f6f6f3; --surface: #ffffff; --lane: #eeeeea; --ink: #0f1530; --muted: #5c6177; --line: #dcdcd6; --line-strong: #bdbdb4;
+  --bg: #f1f0eb; --surface: #ffffff; --lane: #e7e6e0; --ink: #0f1530; --muted: #5c6177; --line: #dcdcd6; --line-strong: #bdbdb4;
   --navy: #0b1028; --on-navy: #ffffff; --gold: #8a6a12;
   --nav-bg: #0b1028; --nav-ink: #ffffff; --nav-muted: rgba(255, 255, 255, .66); --nav-line: rgba(255, 255, 255, .08); --nav-hover: rgba(255, 255, 255, .08);
   --foot: #0b1028; --foot-ink: #ffffff; --foot-muted: rgba(255, 255, 255, .55);
@@ -301,14 +301,14 @@
   --shadow-sm: none; --shadow-md: 0 0 0 1px var(--ink); --shadow-lg: 0 24px 60px rgba(11, 16, 40, .3);
 }
 :root[data-skin="financiero"][data-mode="dark"] {
-  --bg: #0b1028; --surface: #111836; --lane: #0e1430; --ink: #e8eaf2; --muted: #9ca2bd; --line: #222a4d; --line-strong: #323c66;
+  --bg: #111833; --surface: #18213f; --lane: #141c38; --ink: #e9ecf5; --muted: #a3abc8; --line: #2a355e; --line-strong: #3a4675;
   --navy: #ffd453; --on-navy: #0b1028; --gold: #ffd453;
-  --nav-bg: #070b1d; --foot: #070b1d; --hero: #070b1d;
+  --nav-bg: #0b1028; --foot: #0b1028; --hero: #0e1532;
   --shadow-md: 0 0 0 1px var(--line-strong);
 }
 :root[data-skin="financiero"] { --addw: 176px; }
 :root[data-skin="financiero"] .hero { --hero: #0b1028; --hero-2: transparent; --hero-ink: #ffffff; --hero-muted: rgba(255, 255, 255, .66); --hero-line: rgba(255, 255, 255, .14); --hero-late: #ff9a73; --hero-wait: #ffd453; }
-:root[data-skin="financiero"][data-mode="dark"] .hero { --hero: #070b1d; }
+:root[data-skin="financiero"][data-mode="dark"] .hero { --hero: #0e1532; }
 :root[data-skin="financiero"] body { font-size: 14.5px; letter-spacing: -.003em; }
 @media (min-width: 681px) {
   :root[data-skin="financiero"] .side-nav button { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; }
@@ -386,6 +386,61 @@
   :root[data-skin="financiero"] .bnav button[aria-current="page"] { color: #ffffff; }
   :root[data-skin="financiero"] .bnav button[aria-current="page"]::after { border-radius: 0; height: 2px; }
 }
+
+/* =====================================================================
+   Refinements from the design review
+   ===================================================================== */
+/* one typeface: times, dates and counters use the design's own font, with aligned figures */
+:root[data-web][data-mode] { --font-mono: var(--font-body); }
+/* small print an executive can read: nothing under 12 px, dates and notes a touch larger */
+:root[data-web] .htitle { font-size: 14.5px; }
+:root[data-web] .hsub.plain { font-size: 13px; }
+:root[data-web] .hmeta { font-size: 12.5px; }
+:root[data-web] .htime { font-size: 13px; }
+:root[data-web] :is(.tile, .ring-tile) .tlbl, :root[data-web] .fx-tl { font-size: 12px; }
+:root[data-web] :is(.ring-tile .sub, .fx-sm) { font-size: 13px; }
+/* the keyboard shortcut line belongs to the app, not to a website */
+:root[data-web] #hint { display: none; }
+/* status pills: one shape for all, a soft fill with a dot of their colour */
+:root[data-web] .cpill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-color: transparent; }
+:root[data-web] .cpill:not(.done):not(.late):not(.waiting):not(.ready):not(.doing) { background: color-mix(in srgb, var(--muted) 13%, transparent); color: var(--muted); }
+:root[data-web] .cpill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+:root[data-web] .cpill.doing { background: color-mix(in srgb, var(--p1) 13%, transparent); color: var(--p1); }
+/* tables: a tinted header row and every other row lightly shaded */
+:root[data-web] .fx-tbl thead th { background: var(--lane); }
+:root[data-web] .fx-tbl tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--ink) 3%, transparent); }
+/* dark mode: yellow is kept for the main action and the current section; «en espera» and dates due soon turn a quieter amber */
+:root[data-web][data-mode="dark"] { --wait: #e3b04b; --accent-text: #e9c15a; }
+:root[data-web][data-mode="dark"] .stats .tile.wait .num { color: #e3b04b; }
+
+/* A · Corporativo: Inicio in bands (photo, white figures and links, grey page with white blocks); every block on a white surface */
+:root[data-skin="corporativo"] body:not(.compact) .main { padding-top: 0; }
+:root[data-skin="corporativo"] .home-actions { padding-block: 6px 30px; background: var(--surface); box-shadow: 0 0 0 100vmax var(--surface); clip-path: inset(0 -100vmax); }
+:root[data-skin="corporativo"] .wg { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px 24px 14px; }
+:root[data-skin="corporativo"] .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; }
+
+/* B · Energía: calmer corners for a board audience */
+:root[data-skin="energia"] :is(.wg, .cal, .fx-tile, .dsum-t, .dsum-total, .dcrumbs, .dempty, .notice) { border-radius: 16px; }
+:root[data-skin="energia"] :is(.card, .ccard, .dfold, .dfile) { border-radius: 12px; }
+:root[data-skin="energia"] .lane { border-radius: 18px; }
+:root[data-skin="energia"] .stats .tile { border-radius: 16px; }
+:root[data-skin="energia"] body:not(.compact) .hero-inner::after { border-radius: 20px; }
+:root[data-skin="energia"] body.compact .hero { border-radius: 0 0 24px 24px; }
+:root[data-skin="energia"][data-mode="dark"] .home-actions .qa.primary { background: #26306a; color: #ffffff; }
+:root[data-skin="energia"][data-mode="dark"] .home-actions .qa.primary .qa-ico { color: #ffd453; }
+
+/* C · Financiero: blocks in white panels under a navy rule, headings in normal case, figures a weight heavier */
+:root[data-skin="financiero"] .wg { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); padding: 18px 22px 12px; }
+:root[data-skin="financiero"] .wg-head h2 { font-size: 17px; font-weight: 600; letter-spacing: -.01em; text-transform: none; }
+:root[data-skin="financiero"] .lane-head h2 { font-size: 12.5px; letter-spacing: .12em; }
+:root[data-skin="financiero"] :is(.tile, .ring-tile) .tlbl { letter-spacing: .14em; }
+:root[data-skin="financiero"] .tile .num { font-weight: 300; }
+:root[data-skin="financiero"] .cal { background: var(--surface); border: 1px solid var(--line); padding: 18px; }
+:root[data-skin="financiero"] .fx-tiles { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); }
+:root[data-skin="financiero"] .fx-tile:first-child { padding-left: 20px; }
+:root[data-skin="financiero"] .lane { background: color-mix(in srgb, var(--surface) 55%, transparent); }
+:root[data-skin="financiero"][data-mode="dark"] .home-actions .qa.primary { background: #202a4d; border-color: #202a4d; color: #ffffff; }
+:root[data-skin="financiero"][data-mode="dark"] .home-actions .qa.primary .qa-ico { color: #ffd453; }
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-web] .side { transition: none !important; }
