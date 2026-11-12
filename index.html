@@ -7968,12 +7968,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function fxSaved() { var s = state.settingsRaw && state.settingsRaw.fact; return s && typeof s === "object" ? s : {}; }
   function fxMonths() { return Object.keys(Object.assign({}, FX_SEED, fxSaved())).sort(); }
   function fxRecord(ym) { return fxSaved()[ym] || FX_SEED[ym] || null; }
-  /* a month nobody has filled yet starts from the latest one before it; the CPI comes from the BLS */
+  /* a month nobody has filled yet starts blank: only the weighting factors carry over, since the ministry sets them once a year */
   function fxBlank(ym) {
-    var ms = fxMonths(), prev = ms.filter(function (m) { return m < ym; }).pop() || ms[0];
-    var r = clone(fxRecord(prev));
-    delete r.by; delete r.at; r.cpi = null; r.from = prev;
-    return r;
+    var prev = fxMonths().filter(function (m) { return m < ym && m.slice(0, 4) === ym.slice(0, 4); }).pop();
+    return { mk: {}, cpi: null, k: {}, fp: prev ? clone(fxRecord(prev).fp || {}) : {}, aga: {}, f: {}, fresh: true };
   }
   function fxCur() { return fxb.drafts[fxb.ym] || fxRecord(fxb.ym) || (fxb.drafts[fxb.ym] = fxBlank(fxb.ym)); }
   function fxEdit() { if (!fxb.drafts[fxb.ym]) fxb.drafts[fxb.ym] = clone(fxCur()); return fxb.drafts[fxb.ym]; }
@@ -8020,7 +8018,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var rows = s.fields.map(function (f) {
         var d = M.f[f[0]] || {}, vol = n0(d.vol), crude = fxCrude(n0(d.api));
         var daily = vol / days, incr = daily > 0 ? daily - (sum ? s.base * vol / sum : 0) : 0;
-        var paid = fxRound(sum < s.upTo * days ? incr * days : daily * days * s.share);
+        var paid = isFinite(vol) ? fxRound(sum < s.upTo * days ? incr * days : daily * days * s.share) : NaN;
         var k = (M.k || {})[crude] || [], a = (M.aga || {})[f[0]] || [], fp = (M.fp || {})[crude] || [], pr = null;
         var asia = (n0(mk.dub) + n0(mk.oma)) / 2;
         if (crude === "Merey 16") pr = [0.9 * n0(mk.mars), 0.9 * n0(mk.mars), 0.85 * n0(mk.brd), 0.9 * asia];
@@ -8033,7 +8031,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         return { id: f[0], name: f[1], crude: crude, vol: vol, paid: paid, pr: pr, price: price, amount: amount };
       });
       total += amt;
-      return { s: s, acc: acc, rows: rows, amount: amt, paid: pay, ok: rows.every(function (r) { return isFinite(r.amount); }) };
+      return { s: s, acc: acc, rows: rows, amount: amt, paid: rows.some(function (r) { return isFinite(r.paid); }) ? pay : NaN, ok: rows.every(function (r) { return isFinite(r.amount); }) };
     });
     return { subs: subs, total: total, ok: subs.every(function (x) { return x.ok; }) };
   }
@@ -8058,7 +8056,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function fxSave() {
     var d = fxb.drafts[fxb.ym];
     if (!d || fxb.saving || !state.db) return;
-    var rec = clone(d); delete rec.from;
+    var rec = clone(d); delete rec.fresh;
     var me = state.settingsLoaded ? member(meKey()) : null;
     rec.by = me ? me.name : ""; rec.at = new Date().toISOString();
     var all = Object.assign({}, fxSaved()); all[fxb.ym] = rec;
@@ -8131,15 +8129,14 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     /* the state line follows the typing: a draft appears on the first change */
     fxb.upd.push(function (M) {
       var d = fxb.drafts[fxb.ym], sd = fxSaved()[fxb.ym];
-      stP.textContent = d ? (d.from ? "Mes nuevo: todavía no se ha guardado." : "Cambios sin guardar en este dispositivo.")
+      stP.textContent = d ? (d.fresh ? "Mes nuevo: todavía no se ha guardado." : "Cambios sin guardar en este dispositivo.")
         : sd ? "Guardado" + (sd.by ? " por " + sd.by : "") + (sd.at ? " el " + fxWhen(sd.at) : "") + "."
         : FX_SEED[fxb.ym] ? "Valores del Excel de este mes; todavía no se han guardado en el tablero." : "";
       stP.classList.toggle("dirty", !!d);
-      undo.hidden = !d || !!d.from;
+      undo.hidden = !d || !!d.fresh;
       sv.disabled = fxb.saving || !(d || (!sd && FX_SEED[fxb.ym]));
     });
     box.appendChild(head);
-    if (M.from) box.appendChild(el("div", "notice", "Este mes empieza con los valores de " + fxMonthName(M.from).toLowerCase() + ". Cambia la producción del acta y los marcadores; K y AGA cuando llegue la resolución."));
 
     /* totals */
     var tiles = el("div", "fx-tiles");
@@ -8149,9 +8146,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       tiles.appendChild(t);
       fxb.upd.push(function (M, R) { fill(b, sm, M, R); });
     }
-    tile("Total a facturar", "main", function (b, sm, M, R) { var miss = fxMissing(M); b.textContent = R.ok ? "$ " + fxNum(R.total, 2) : "–"; sm.textContent = R.ok ? "Barinas + Apure" : "Falta " + (fxList(miss) || "completar las premisas"); });
+    tile("Total a facturar", "main", function (b, sm, M, R) { var miss = fxMissing(M); b.textContent = R.ok ? "$ " + fxNum(R.total, 2) : "–"; sm.textContent = R.ok ? "Barinas + Apure" : miss.length ? (miss.length > 1 || /^los /.test(miss[0]) ? "Faltan " : "Falta ") + fxList(miss) : "Falta completar las premisas"; });
     FX_SUBS.forEach(function (s, i) {
-      tile("Subcuenca " + s.name, "", function (b, sm, M, R) { var x = R.subs[i]; b.textContent = x.ok ? "$ " + fxNum(x.amount, 2) : "–"; sm.textContent = fxNum(x.paid, 0) + " bls a pagar"; });
+      tile("Subcuenca " + s.name, "", function (b, sm, M, R) { var x = R.subs[i]; b.textContent = x.ok ? "$ " + fxNum(x.amount, 2) : "–"; sm.textContent = isFinite(x.paid) ? fxNum(x.paid, 0) + " bls a pagar" : ""; });
     });
     tile("IPC EE.UU. · " + fxMonthName(fxb.ym).toLowerCase(), "", function (b, sm, M) {
       b.textContent = fxNum(M.cpi, 3);
@@ -8257,7 +8254,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var fsum = el("p", "help"); fc.appendChild(fsum);
     fxb.upd.push(function (M) {
       var bad = FX_CRUDES.filter(function (c) { var a = (M.fp || {})[c] || []; var t = 0; for (var q = 0; q < 4; q++) t += n0(a[q]) || 0; return Math.abs(t - 1) > 0.0005; });
-      fsum.textContent = bad.length ? "Revisa " + bad.join(" y ") + ": los cuatro factores deben sumar 1." : "Cada fila suma 1.";
+      var none = FX_CRUDES.every(function (c) { return !((M.fp || {})[c] || []).some(function (x) { return isFinite(n0(x)); }); });
+      fsum.textContent = none ? "Todavía no están los factores de este año." : bad.length ? "Revisa " + bad.join(" y ") + ": los cuatro factores deben sumar 1." : "Cada fila suma 1.";
     });
     grid.appendChild(fc);
 
