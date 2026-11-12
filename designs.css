@@ -1,10 +1,9 @@
-/* The three redesign proposals: the board laid out like a company website. Picked in Opciones › Diseño del tablero (or ?design=a|b|c).
-   skins.js sets data-skin, data-web (all three) and data-mode (light/dark, as the board shows it) on <html>; nothing here changes what the board does.
-   Shared: the sections become a top navigation bar, the header buttons sit in that bar, Inicio opens with a cover, every other section
-   opens like a sub-page with its name as a large title, and the page ends with a footer.
-   A · Corporativo: a consulting firm's site. White, a full-width office photo, heavy headlines, navy and a yellow underline.
-   B · Energía: an energy company's site. A yellow cover with a rounded photo, warm off-white pages, pills and big rounded cards.
-   C · Financiero: an investment bank's site. Deep navy, thin light figures, uppercase navigation, square edges and rules.
+/* Corporativo, the board's design: the board laid out like a consulting firm's website. It is the only design;
+   the earlier ones and the design menu are kept in archivo/disenos and are not loaded.
+   design.js sets data-skin="corporativo", data-web and data-mode (light/dark, as the board shows it) on <html>; nothing here changes what the board does.
+   Layout: the sections become a top navigation bar with the logo on a navy block, the header buttons sit in that bar, Inicio opens with
+   the office photo and the figures on a white band, every other section opens like a sub-page with its name as a large title, and the
+   page ends with a navy footer. Light pages are a soft grey with each block on white; dark mode uses three levels of navy.
    The offline cache serves this file cache-first: after changing it, bump the ?v= in index.html. */
 
 /* =====================================================================
@@ -90,7 +89,7 @@
 }
 
 /* =====================================================================
-   A · Corporativo
+   Corporativo
    ===================================================================== */
 :root[data-skin="corporativo"][data-mode] {
   --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
@@ -184,210 +183,6 @@
 }
 
 /* =====================================================================
-   B · Energía
-   ===================================================================== */
-:root[data-skin="energia"][data-mode] {
-  --font-body: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
-  --bg: #f7f5f0; --surface: #ffffff; --lane: #efece4; --ink: #121a41; --muted: #5b6080; --line: #e6e1d6; --line-strong: #d2cbbb;
-  --nav-bg: #121a41; --nav-ink: #ffffff; --nav-muted: #c5cae3; --nav-line: transparent; --nav-hover: rgba(255, 255, 255, .1);
-  --foot: #121a41; --foot-ink: #ffffff; --foot-muted: #aab1d3;
-  --cover: #f6d36b; --cover-ink: #121a41; --cover-muted: #3b4161;
-  --hero: #121a41; --hero-ink: #ffffff; --hero-muted: #c5cae3; --hero-line: rgba(255, 255, 255, .16); --hero-late: #ff9a73; --hero-wait: #ffd453;
-  --grid-dot: transparent; --lane-todo: var(--lane); --lane-doing: var(--lane); --lane-waiting: var(--lane); --lane-ready: var(--lane); --lane-done: var(--lane);
-  --shadow-sm: 0 1px 2px rgba(18, 26, 65, .06); --shadow-md: 0 16px 36px rgba(18, 26, 65, .14); --shadow-lg: 0 28px 70px rgba(18, 26, 65, .26);
-}
-:root[data-skin="energia"][data-mode="dark"] {
-  --bg: #0d1330; --surface: #1b255a; --lane: #121a45; --ink: #f1f2f8; --muted: #a8aed0; --line: #26306a; --line-strong: #38438a;
-  --nav-bg: #0a0f28; --foot: #080c24;
-  --cover: #0f1640; --cover-ink: #ffffff; --cover-muted: #c5cae3;
-  --hero: #0a0f28;
-}
-:root[data-skin="energia"] .hero { --hero: #121a41; --hero-2: transparent; --hero-ink: #ffffff; --hero-muted: #c5cae3; --hero-line: rgba(255, 255, 255, .16); --hero-late: #ff9a73; --hero-wait: #ffd453; }
-:root[data-skin="energia"][data-mode="dark"] .hero { --hero: #0a0f28; }
-:root[data-skin="energia"] body { font-size: 15px; }
-:root[data-skin="energia"] :is(h1, h2, h3) { letter-spacing: -.02em; }
-@media (min-width: 681px) {
-  :root[data-skin="energia"] .side-nav { align-self: center; height: auto; }
-  :root[data-skin="energia"] .side-nav button { height: 40px; padding: 0 18px; border-radius: 999px; }
-  :root[data-skin="energia"] .side-nav button[aria-current="page"] { background: #ffd453; color: #121a41; }
-}
-:root[data-skin="energia"] .side-add { background: #ffd453; border-color: #ffd453; color: #121a41; border-radius: 999px; }
-:root[data-skin="energia"] body:not(.compact) .hero .brand img { box-sizing: content-box; background: #121a41; padding: 10px 16px; border-radius: 14px; }
-:root[data-skin="energia"] .side-add:hover { background: #ffd453; filter: brightness(1.06); }
-
-/* the cover: a yellow block, the headline on the left and the office photo in a rounded frame on the right */
-:root[data-skin="energia"] body:not(.compact) .hero {
-  --hero-ink: var(--cover-ink); --hero-muted: var(--cover-muted); --hero-line: rgba(18, 26, 65, .14); --hero-late: #b23a12; --hero-wait: #7a4d00;
-  background: var(--cover); color: var(--cover-ink); }
-:root[data-skin="energia"][data-mode="dark"] body:not(.compact) .hero { --hero-late: #ff9a73; --hero-wait: #ffd453; }
-:root[data-skin="energia"] body:not(.compact) .hero-inner { padding-block: 64px 48px; gap: 40px; position: relative; }
-:root[data-skin="energia"] body:not(.compact) .hero-top { min-height: 320px; align-items: center; }
-:root[data-skin="energia"] body:not(.compact) .hero-title { max-width: 54%; }
-:root[data-skin="energia"] body:not(.compact) .hero-inner::after { content: ""; position: absolute; top: 64px; right: 24px; width: 40%; height: 320px; border-radius: 32px;
-  background: url("assets/oficina/inicio.webp") center / cover, #121a41; box-shadow: 0 24px 60px rgba(18, 26, 65, .25); }
-:root[data-skin="energia"] body:not(.compact) .hero h1 { font-size: clamp(42px, 5.4vw, 72px); font-weight: 800; letter-spacing: -.035em; line-height: 1; margin: 16px 0 18px; }
-:root[data-skin="energia"] body:not(.compact) .greet { font-size: 18px; }
-:root[data-skin="energia"] .eyebrow { font-family: var(--font-body); font-weight: 700; font-size: 12.5px; letter-spacing: .12em; color: var(--hero-muted); }
-:root[data-skin="energia"] .eyebrow::before { width: 10px; height: 10px; border-radius: 50%; background: var(--hero-ink); }
-:root[data-skin="energia"] .eyebrow .eb-sec { color: var(--hero-ink); }
-:root[data-skin="energia"] body.compact .eyebrow .eb-sec { color: #ffffff; }
-:root[data-skin="energia"] .stats { gap: 12px; }
-:root[data-skin="energia"] .stats .tile { background: var(--surface); color: var(--ink); border: 0; border-radius: 24px; padding: 18px 20px; box-shadow: 0 10px 26px rgba(18, 26, 65, .1); backdrop-filter: none; }
-:root[data-skin="energia"] .tile .num { font-weight: 800; color: var(--ink); }
-:root[data-skin="energia"] .tile.late .num { color: var(--late); }
-:root[data-skin="energia"] .tile.wait .num { color: var(--wait); }
-:root[data-skin="energia"] :is(.tile, .ring-tile) .tlbl { color: var(--muted); }
-:root[data-skin="energia"] .ring-tile .sub, :root[data-skin="energia"] .stats .days { color: var(--muted); }
-:root[data-skin="energia"] .ring .track { stroke: var(--lane); }
-:root[data-skin="energia"] .ring .prog { stroke: #121a41; }
-:root[data-skin="energia"][data-mode="dark"] .ring .prog { stroke: #ffd453; }
-:root[data-skin="energia"] .stats .bar { background: var(--lane); }
-:root[data-skin="energia"] .stats .bar.has { background: rgba(255, 196, 0, .6); }
-:root[data-skin="energia"] .stats .bar.today { background: #121a41; }
-:root[data-skin="energia"][data-mode="dark"] .stats .bar.today { background: #ffd453; }
-/* sub-pages: a navy band, rounded at the bottom */
-:root[data-skin="energia"] body.compact .hero { background: var(--hero); border-radius: 0 0 36px 36px; }
-
-/* page blocks: big rounded cards and pill buttons */
-:root[data-skin="energia"] :is(.wg, .cal, .fx-tile, .dsum-t, .dsum-total, .dcrumbs, .dempty, .notice) { border-radius: 24px; border-color: transparent; box-shadow: var(--shadow-sm); }
-:root[data-skin="energia"] .wg { padding: 22px 22px 14px; }
-:root[data-skin="energia"] .wg-head h2 { font-size: 19px; font-weight: 800; text-transform: none; letter-spacing: -.01em; }
-:root[data-skin="energia"] .wg-ico { width: 36px; height: 36px; border-radius: 50%; background: #ffd453; color: #121a41; }
-:root[data-skin="energia"] .home-actions .qa { border-radius: 999px; padding: 14px 22px; border: 0; box-shadow: var(--shadow-sm); font-weight: 700; }
-:root[data-skin="energia"] .home-actions .qa.primary { background: #121a41; color: #ffffff; }
-:root[data-skin="energia"][data-mode="dark"] .home-actions .qa.primary { background: #ffd453; color: #121a41; }
-:root[data-skin="energia"] .home-actions .qa.primary .qa-ico { background: rgba(255, 255, 255, .14); color: inherit; }
-:root[data-skin="energia"] .qa-ico { border-radius: 50%; }
-:root[data-skin="energia"] :is(.card, .ccard, .dfold, .dfile) { border-radius: 18px; border-color: transparent; box-shadow: var(--shadow-sm); }
-:root[data-skin="energia"][data-mode="dark"] :is(.card, .ccard, .dfold, .dfile, .wg, .cal) { border-color: var(--line); }
-:root[data-skin="energia"] :is(.btn, .tbtn, .navbtn, .search input, .chip, .lbchip, .viewswitch, .viewswitch button) { border-radius: 999px; }
-:root[data-skin="energia"] :is(.field input, .field select, .field textarea, .fx-tbl input, .fx-cpi input) { border-radius: 12px; }
-:root[data-skin="energia"] .btn.primary { background: #121a41; border-color: #121a41; color: #ffffff; }
-:root[data-skin="energia"][data-mode="dark"] .btn.primary { background: #ffd453; border-color: #ffd453; color: #121a41; }
-:root[data-skin="energia"] .lane { border-radius: 28px; box-shadow: inset 0 0 0 1px var(--line); }
-:root[data-skin="energia"] .lane-head h2 { font-weight: 800; }
-:root[data-skin="energia"] .lane-head::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--lane-c, var(--muted)); flex: none; }
-:root[data-skin="energia"] :is(.cal-head h2, .chead h2, .fx-month h2) { font-weight: 800; }
-:root[data-skin="energia"] .fx-tile.main { background: #ffd453; color: #121a41; }
-:root[data-skin="energia"] .fx-tile.main :is(.fx-tl, .fx-sm) { color: #3b4161; }
-@media (max-width: 1099px) {
-  :root[data-skin="energia"] body:not(.compact) .hero-title { max-width: none; }
-  :root[data-skin="energia"] body:not(.compact) .hero-inner::after { display: none; }
-  :root[data-skin="energia"] body:not(.compact) .hero-top { min-height: 0; }
-}
-@media (max-width: 680px) {
-  :root[data-skin="energia"] body:not(.compact) .hero-inner { padding-block: 36px 28px; gap: 24px; }
-  :root[data-skin="energia"] .hero-actions :is(.hbtn, .pchip) { background: rgba(255, 255, 255, .55); border-color: rgba(18, 26, 65, .14); color: #121a41; border-radius: 999px; }
-  :root[data-skin="energia"] body.compact .hero-actions :is(.hbtn, .pchip) { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .2); color: #ffffff; }
-  :root[data-skin="energia"] body.compact .hero { border-radius: 0 0 24px 24px; }
-  :root[data-skin="energia"] .stats .tile { border-radius: 18px; box-shadow: none; }
-  :root[data-skin="energia"] .bnav { background: #121a41; border-top: 0; }
-  :root[data-skin="energia"] .bnav button { color: #aab1d3; }
-  :root[data-skin="energia"] .bnav button[aria-current="page"] { color: #ffffff; }
-  :root[data-skin="energia"] .fab { background: #ffd453; color: #121a41; }
-}
-
-/* =====================================================================
-   C · Financiero
-   ===================================================================== */
-:root[data-skin="financiero"][data-mode] {
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --font-display: var(--font-body);
-  --bg: #f1f0eb; --surface: #ffffff; --lane: #e7e6e0; --ink: #0f1530; --muted: #5c6177; --line: #dcdcd6; --line-strong: #bdbdb4;
-  --navy: #0b1028; --on-navy: #ffffff; --gold: #8a6a12;
-  --nav-bg: #0b1028; --nav-ink: #ffffff; --nav-muted: rgba(255, 255, 255, .66); --nav-line: rgba(255, 255, 255, .08); --nav-hover: rgba(255, 255, 255, .08);
-  --foot: #0b1028; --foot-ink: #ffffff; --foot-muted: rgba(255, 255, 255, .55);
-  --hero: #0b1028; --hero-ink: #ffffff; --hero-muted: rgba(255, 255, 255, .66); --hero-line: rgba(255, 255, 255, .14); --hero-late: #ff9a73; --hero-wait: #ffd453;
-  --grid-dot: transparent; --lane-todo: transparent; --lane-doing: transparent; --lane-waiting: transparent; --lane-ready: transparent; --lane-done: transparent; --fill-done: transparent;
-  --shadow-sm: none; --shadow-md: 0 0 0 1px var(--ink); --shadow-lg: 0 24px 60px rgba(11, 16, 40, .3);
-}
-:root[data-skin="financiero"][data-mode="dark"] {
-  --bg: #111833; --surface: #18213f; --lane: #141c38; --ink: #e9ecf5; --muted: #a3abc8; --line: #2a355e; --line-strong: #3a4675;
-  --navy: #ffd453; --on-navy: #0b1028; --gold: #ffd453;
-  --nav-bg: #0b1028; --foot: #0b1028; --hero: #0e1532;
-  --shadow-md: 0 0 0 1px var(--line-strong);
-}
-:root[data-skin="financiero"] { --addw: 176px; }
-:root[data-skin="financiero"] .hero { --hero: #0b1028; --hero-2: transparent; --hero-ink: #ffffff; --hero-muted: rgba(255, 255, 255, .66); --hero-line: rgba(255, 255, 255, .14); --hero-late: #ff9a73; --hero-wait: #ffd453; }
-:root[data-skin="financiero"][data-mode="dark"] .hero { --hero: #0e1532; }
-:root[data-skin="financiero"] body { font-size: 14.5px; letter-spacing: -.003em; }
-@media (min-width: 681px) {
-  :root[data-skin="financiero"] .side-nav button { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; padding: 0 14px; }
-  :root[data-skin="financiero"] .side-nav button[aria-current="page"] { box-shadow: inset 0 -2px 0 #ffd453; }
-}
-:root[data-skin="financiero"] .side-add { background: transparent; border: 1px solid #ffd453; color: #ffd453; border-radius: 0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
-:root[data-skin="financiero"] .side-add:hover { background: rgba(255, 212, 83, .1); }
-
-/* the cover: deep navy with a fine diagonal pattern, a light headline and thin figures */
-:root[data-skin="financiero"] .hero { background: var(--hero); color: var(--hero-ink); }
-:root[data-skin="financiero"] body:not(.compact) .hero {
-  background: radial-gradient(900px 500px at 85% -10%, rgba(255, 212, 83, .1), transparent 60%),
-    repeating-linear-gradient(135deg, rgba(255, 255, 255, .025) 0 1px, transparent 1px 22px), var(--hero); }
-:root[data-skin="financiero"] body:not(.compact) .hero-inner { padding-block: 96px 56px; gap: 56px; }
-:root[data-skin="financiero"] .hero h1 { font-size: clamp(40px, 5.4vw, 70px); font-weight: 300; letter-spacing: -.035em; line-height: 1.02; margin: 18px 0 16px; }
-:root[data-skin="financiero"] .greet { font-size: 16px; font-weight: 300; }
-:root[data-skin="financiero"] .greet b { font-weight: 600; }
-:root[data-skin="financiero"] .eyebrow { font-family: var(--font-body); font-weight: 600; font-size: 11.5px; letter-spacing: .22em; color: var(--hero-muted); }
-:root[data-skin="financiero"] .eyebrow::before { width: 36px; height: 1px; border-radius: 0; background: #ffd453; }
-:root[data-skin="financiero"] .eyebrow .eb-sec { color: #ffd453; }
-:root[data-skin="financiero"] body.compact .eyebrow .eb-sec { color: #ffffff; font-weight: 300; }
-:root[data-skin="financiero"] .stats { gap: 0; border-top: 1px solid var(--hero-line); }
-:root[data-skin="financiero"] .stats .tile { background: transparent; border: 0; border-left: 1px solid var(--hero-line); border-radius: 0; padding: 22px 22px 4px; color: #ffffff; box-shadow: none; backdrop-filter: none; }
-:root[data-skin="financiero"] .stats .tile:first-child { border-left: 0; padding-left: 0; }
-:root[data-skin="financiero"] .tile .num { font-weight: 200; font-size: 50px; letter-spacing: -.04em; color: #ffffff; }
-:root[data-skin="financiero"] .ring-txt .num { font-size: 40px; }
-:root[data-skin="financiero"] .tile.late .num { color: #ff9a73; }
-:root[data-skin="financiero"] .tile.wait .num { color: #ffd453; }
-:root[data-skin="financiero"] :is(.tile, .ring-tile) .tlbl { color: rgba(255, 212, 83, .85); font-size: 10.5px; letter-spacing: .18em; font-weight: 600; }
-:root[data-skin="financiero"] .ring-tile .sub, :root[data-skin="financiero"] .stats .days { color: var(--hero-muted); }
-:root[data-skin="financiero"] .ring circle { stroke-width: 3; }
-:root[data-skin="financiero"] .ring .track { stroke: rgba(255, 255, 255, .14); }
-:root[data-skin="financiero"] .ring .prog { stroke: #ffd453; stroke-linecap: butt; }
-:root[data-skin="financiero"] .stats .bar { background: rgba(255, 255, 255, .12); border-radius: 0; }
-:root[data-skin="financiero"] .stats .bar.has { background: rgba(255, 255, 255, .45); }
-:root[data-skin="financiero"] .stats .bar.today { background: #ffd453; }
-
-/* page blocks: square edges, rules and small capitals */
-:root[data-skin="financiero"] :is(.card, .lane, .tile, .wg, .qa, .ccard, .mcard, .cal, .fx-tile, .dsum-t, .dsum-total, .dfold, .dfile, .dcrumbs, .notice, .dempty, .pop-menu, .dlg, .finder, .add-menu, .gate-card, .wk) { border-radius: 0; }
-:root[data-skin="financiero"] :is(.btn, .tbtn, .navbtn, .search input, .field input, .field select, .field textarea, .fx-tbl input, .fx-cpi input, .qa-ico, .wg-ico, .chip, .lbchip, .lbl, .fx-crude, .viewswitch, .viewswitch button) { border-radius: 0; }
-:root[data-skin="financiero"] :is(.card, .qa, .wg, .cal, .ccard, .tbtn, .btn, .search input, .dfold, .dfile, .dsum-t) { box-shadow: none; }
-:root[data-skin="financiero"] :is(.card, .qa, .dfold, .dfile, .ccard):hover { transform: none; box-shadow: none; border-color: var(--ink); }
-:root[data-skin="financiero"] :is(.btn.primary, .fab, .bnav .bnav-add) { background: var(--navy); border-color: var(--navy); color: var(--on-navy); box-shadow: none; }
-:root[data-skin="financiero"] .wg { background: transparent; border: 0; border-top: 1px solid var(--ink); padding: 16px 0 6px; }
-:root[data-skin="financiero"] .wg-head h2 { font-size: 12px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
-:root[data-skin="financiero"] .wg-ico { display: none; }
-:root[data-skin="financiero"] .home-actions .qa { background: transparent; border: 1px solid var(--line-strong); font-weight: 500; }
-:root[data-skin="financiero"] .home-actions .qa.primary { background: var(--navy); border-color: var(--navy); color: var(--on-navy); }
-:root[data-skin="financiero"] .home-actions .qa.primary .qa-ico { background: transparent; color: #ffd453; }
-:root[data-skin="financiero"][data-mode="dark"] .home-actions .qa.primary .qa-ico { color: #0b1028; }
-:root[data-skin="financiero"] .qa-ico { background: transparent; }
-:root[data-skin="financiero"] .lane { background: transparent; box-shadow: inset 0 1px 0 var(--ink), inset 0 3px 0 var(--lane-c, var(--ink)); padding-inline: 2px; }
-:root[data-skin="financiero"] .lane-head h2 { font-size: 12px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
-:root[data-skin="financiero"] .card { border-color: var(--line); }
-:root[data-skin="financiero"] .cal { background: transparent; border: 0; padding: 0; }
-:root[data-skin="financiero"] :is(.cal-head h2, .chead h2, .fx-month h2) { font-weight: 300; letter-spacing: -.02em; }
-:root[data-skin="financiero"] .fx-tiles { gap: 0; border-top: 1px solid var(--ink); }
-:root[data-skin="financiero"] .fx-tile { background: transparent; border: 0; border-left: 1px solid var(--line); padding: 16px 20px; }
-:root[data-skin="financiero"] .fx-tile:first-child { border-left: 0; padding-left: 0; }
-:root[data-skin="financiero"] .fx-tile b { font-weight: 300; font-size: 30px; }
-:root[data-skin="financiero"] .fx-tile.main { background: transparent; color: var(--ink); }
-:root[data-skin="financiero"] .fx-tile.main :is(.fx-tl, .fx-sm) { color: var(--muted); }
-:root[data-skin="financiero"] .fx-tl { color: var(--gold); letter-spacing: .16em; }
-:root[data-skin="financiero"] .fx-tbl th { border-bottom: 1px solid var(--ink); letter-spacing: .14em; }
-:root[data-skin="financiero"] .fx-tbl tfoot td { border-top: 1px solid var(--ink); }
-:root[data-skin="financiero"] :is(.lbl, .lbchip) { font-weight: 500; }
-@media (max-width: 680px) {
-  :root[data-skin="financiero"] body:not(.compact) .hero-inner { padding-block: 48px 32px; gap: 32px; }
-  :root[data-skin="financiero"] .hero-actions :is(.hbtn, .pchip) { background: transparent; border-color: rgba(255, 255, 255, .2); color: #ffffff; border-radius: 0; }
-  :root[data-skin="financiero"] .stats { border-top: 0; }
-  :root[data-skin="financiero"] .stats .tile { border-left: 1px solid var(--hero-line); padding: 12px 16px; }
-  :root[data-skin="financiero"] .tile .num { font-size: 36px; }
-  :root[data-skin="financiero"] .bnav { background: #0b1028; border-top: 0; }
-  :root[data-skin="financiero"] .bnav button { color: rgba(255, 255, 255, .6); }
-  :root[data-skin="financiero"] .bnav button[aria-current="page"] { color: #ffffff; }
-  :root[data-skin="financiero"] .bnav button[aria-current="page"]::after { border-radius: 0; height: 2px; }
-}
-
-/* =====================================================================
    Refinements from the design review
    ===================================================================== */
 /* one typeface: times, dates and counters use the design's own font, with aligned figures */
@@ -413,34 +208,11 @@
 :root[data-web][data-mode="dark"] { --wait: #e3b04b; --accent-text: #e9c15a; }
 :root[data-web][data-mode="dark"] .stats .tile.wait .num { color: #e3b04b; }
 
-/* A · Corporativo: Inicio in bands (photo, white figures and links, grey page with white blocks); every block on a white surface */
+/* Inicio in bands (photo, white figures and links, grey page with white blocks); every block on a white surface */
 :root[data-skin="corporativo"] body:not(.compact) .main { padding-top: 0; }
 :root[data-skin="corporativo"] .home-actions { padding-block: 6px 30px; background: var(--surface); box-shadow: 0 0 0 100vmax var(--surface); clip-path: inset(0 -100vmax); }
 :root[data-skin="corporativo"] .wg { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px 24px 14px; }
 :root[data-skin="corporativo"] .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; }
-
-/* B · Energía: calmer corners for a board audience */
-:root[data-skin="energia"] :is(.wg, .cal, .fx-tile, .dsum-t, .dsum-total, .dcrumbs, .dempty, .notice) { border-radius: 16px; }
-:root[data-skin="energia"] :is(.card, .ccard, .dfold, .dfile) { border-radius: 12px; }
-:root[data-skin="energia"] .lane { border-radius: 18px; }
-:root[data-skin="energia"] .stats .tile { border-radius: 16px; }
-:root[data-skin="energia"] body:not(.compact) .hero-inner::after { border-radius: 20px; }
-:root[data-skin="energia"] body.compact .hero { border-radius: 0 0 24px 24px; }
-:root[data-skin="energia"][data-mode="dark"] .home-actions .qa.primary { background: #26306a; color: #ffffff; }
-:root[data-skin="energia"][data-mode="dark"] .home-actions .qa.primary .qa-ico { color: #ffd453; }
-
-/* C · Financiero: blocks in white panels under a navy rule, headings in normal case, figures a weight heavier */
-:root[data-skin="financiero"] .wg { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); padding: 18px 22px 12px; }
-:root[data-skin="financiero"] .wg-head h2 { font-size: 17px; font-weight: 600; letter-spacing: -.01em; text-transform: none; }
-:root[data-skin="financiero"] .lane-head h2 { font-size: 12.5px; letter-spacing: .12em; }
-:root[data-skin="financiero"] :is(.tile, .ring-tile) .tlbl { letter-spacing: .14em; }
-:root[data-skin="financiero"] .tile .num { font-weight: 300; }
-:root[data-skin="financiero"] .cal { background: var(--surface); border: 1px solid var(--line); padding: 18px; }
-:root[data-skin="financiero"] .fx-tiles { background: var(--surface); border: 1px solid var(--line); border-top: 2px solid var(--ink); }
-:root[data-skin="financiero"] .fx-tile:first-child { padding-left: 20px; }
-:root[data-skin="financiero"] .lane { background: color-mix(in srgb, var(--surface) 55%, transparent); }
-:root[data-skin="financiero"][data-mode="dark"] .home-actions .qa.primary { background: #202a4d; border-color: #202a4d; color: #ffffff; }
-:root[data-skin="financiero"][data-mode="dark"] .home-actions .qa.primary .qa-ico { color: #ffd453; }
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-web] .side { transition: none !important; }

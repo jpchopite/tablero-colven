@@ -77,8 +77,14 @@ La sección «Facturación» (`#facturacion`) calcula el precio por campo de los
 
 ## Opciones y tema
 
-El encabezado solo tiene Buscar, Actividad y «Opciones». «Opciones» reúne el tema (claro, oscuro o igual que el dispositivo), el diseño del tablero, cambiar de persona, equipo y nombre del tablero, recordatorios, actualizar datos, instalar la app (cuando el navegador lo permite), atajos de teclado y «Acerca de».
-El tema y el diseño se guardan en cada dispositivo (`tb-theme` y `tb-skin` en el navegador); sin elección de tema, el tablero sigue el modo del dispositivo.
+Las secciones van en una barra arriba, como la navegación de un sitio, con el logo sobre un bloque azul; Buscar, Actividad y «Opciones» están en esa barra como íconos, junto a «Nueva tarea». «Opciones» reúne el tema (claro, oscuro o igual que el dispositivo), cambiar de persona, equipo y nombre del tablero, recordatorios, actualizar datos, instalar la app (cuando el navegador lo permite), atajos de teclado y «Acerca de».
+El tema se guarda en cada dispositivo (`tb-theme` en el navegador); sin elección, el tablero sigue el modo del dispositivo.
+
+## Diseño
+
+El tablero tiene un solo diseño, «Corporativo» (`designs.css`, activado por `design.js`): Inicio abre con la foto de la oficina (`assets/oficina/inicio.webp`, provisional) y las cifras en una franja blanca; las demás secciones abren con su nombre como título grande; la página termina en un pie azul con el logo. En claro, la página es gris suave y cada bloque va en blanco; en oscuro usa tres niveles de azul. El logo de Colven va siempre sobre el azul de la marca.
+
+Los diseños anteriores (Original, Aire, Línea, el dock y las propuestas B y C) están en `archivo/disenos` y no se cargan.
 
 ## Reuniones que se repiten
 
