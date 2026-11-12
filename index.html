@@ -1429,6 +1429,39 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .fxd-x:hover { background: var(--late-soft); color: var(--late); }
 .fxd-x .ico { width: 14px; height: 14px; }
 .fxd-none { color: var(--muted); font-size: 13px; }
+/* «Cómo se calcula» */
+.fxe-pick { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 10px 0 4px; }
+.fxe-grp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.fxe-sub { font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-right: 2px; }
+.fxe-chip { border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 12px; font: 600 13px var(--font-body); cursor: pointer; }
+.fxe-chip:hover { border-color: var(--line-strong); }
+.fxe-chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.fxe-step { border-top: 1px solid var(--line); padding: 14px 0 6px; margin-top: 10px; }
+.fxe-step h3 { margin: 0 0 8px; font-size: 15px; font-weight: 700; }
+.fxe-top { border-top: 0; padding-top: 6px; }
+.fxe-txt { margin: 0 0 10px; color: var(--muted); font-size: 13.5px; line-height: 1.5; max-width: 90ch; }
+.fxe-txt .fxe-t { vertical-align: middle; margin: 0 2px; }
+.fxe-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
+.fxe-op { font-size: 17px; font-weight: 600; color: var(--muted); }
+.fxe-t { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 4px 9px; font: inherit; text-align: left; font-variant-numeric: tabular-nums; }
+.fxe-t small { font-size: 11px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+.fxe-t b { font-size: 14px; white-space: nowrap; }
+button.fxe-t { cursor: pointer; border-style: dashed; }
+button.fxe-t:hover, button.fxe-t:focus-visible { border-style: solid; border-color: var(--accent); background: var(--accent-soft); outline: none; }
+.fxe-t.miss b { color: var(--late); font-weight: 600; }
+.fxe-t.mid { background: var(--lane); border-color: transparent; }
+.fxe-t.res { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.fxe-t.res small { color: color-mix(in srgb, var(--bg) 75%, transparent); }
+.fxe-tbl td { padding: 4px; text-align: left; }
+.fxe-tbl tfoot td { font-weight: 700; vertical-align: middle; }
+.fx-explain, #fact input[data-src] { scroll-margin-top: calc(var(--navh, 0px) + 16px); }
+.fx-pick { cursor: pointer; }
+.fx-pick:hover td { background: var(--lane); }
+.fx-pick.on td { background: var(--accent-soft); }
+.fx-pick:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+@keyframes fxFlash { 0%, 60% { box-shadow: 0 0 0 4px var(--accent); background: var(--accent-soft); } }
+input.fx-flash { animation: fxFlash 1.6s ease-out; }
+@media (prefers-reduced-motion: reduce) { input.fx-flash { animation: none; outline: 3px solid var(--accent); } }
 .fxl-q { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; background: var(--bg); color: var(--ink); font: inherit; }
 .fxl-q:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
 .fxl-none { padding: 10px 12px; margin: 0; }
@@ -8056,14 +8089,17 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var paid = isFinite(vol) ? fxRound(sum < s.upTo * days ? incr * days : daily * days * s.share) : NaN;
         var k = (M.k || {})[crude] || [], a = (M.aga || {})[f[0]] || [], fp = (M.fp || {})[crude] || [], pr = null;
         var asia = (n0(mk.dub) + n0(mk.oma)) / 2;
-        if (crude === "Merey 16") pr = [0.9 * n0(mk.mars), 0.9 * n0(mk.mars), 0.85 * n0(mk.brd), 0.9 * asia];
-        else if (crude === "Mesa 30") pr = [n0(mk.mars), n0(mk.mars), 0.95 * n0(mk.brd), asia];
-        if (pr) pr = pr.map(function (x, i) { return x + n0(k[i]) + n0(a[i]) - acc; });
+        var mkt = null;
+        if (crude === "Merey 16") mkt = [0.9 * n0(mk.mars), 0.9 * n0(mk.mars), 0.85 * n0(mk.brd), 0.9 * asia];
+        else if (crude === "Mesa 30") mkt = [n0(mk.mars), n0(mk.mars), 0.95 * n0(mk.brd), asia];
+        if (mkt) pr = mkt.map(function (x, i) { return x + n0(k[i]) + n0(a[i]) - acc; });
         var price = pr ? pr.reduce(function (t, x, i) { return t + (n0(fp[i]) ? x * fp[i] : 0); }, 0) : NaN;
         var amount = price * paid;
         if (isFinite(amount)) amt += amount;
         if (isFinite(paid)) pay += paid;
-        return { id: f[0], name: f[1], crude: crude, vol: vol, paid: paid, pr: pr, price: price, amount: amount };
+        /* the steps, for «Cómo se calcula» */
+        return { id: f[0], name: f[1], crude: crude, vol: vol, paid: paid, pr: pr, price: price, amount: amount,
+          api: n0(d.api), mkt: mkt, k: k, a: a, fp: fp, acc: acc, daily: daily, incr: incr, sum: sum, days: days, under: sum < s.upTo * days, sub: s };
       });
       total += amt;
       return { s: s, acc: acc, rows: rows, amount: amt, paid: rows.some(function (r) { return isFinite(r.paid); }) ? pay : NaN, ok: rows.every(function (r) { return isFinite(r.amount); }) };
@@ -8103,8 +8139,9 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
 
   /* one number box; «set» stores the parsed value in this month's draft and the results follow as you type */
-  function fxInput(get, set, cls) {
+  function fxInput(get, set, cls, src) {
     var i = el("input", cls || null); i.type = "text"; i.inputMode = "decimal"; i.setAttribute("autocomplete", "off");
+    if (src) i.dataset.src = src;
     i.value = fxShow(get(fxCur()));
     if (!state.canWrite) i.readOnly = true;
     var auto = fxb.auto[fxb.ym];
@@ -8131,6 +8168,126 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function fxScroll(node) { var d = el("div", "fx-scroll"); d.appendChild(node); return d; }
   /* recompute and refresh every figure that depends on the inputs */
+  /* ---------- «Cómo se calcula»: one field's formula with the month's numbers; each number leads to the box it comes from ---------- */
+  var FX_MARKET_BASE = {
+    "Merey 16": [["0,9 × Mars", 0.9, "mars"], ["0,9 × Mars", 0.9, "mars"], ["0,85 × Brent", 0.85, "brd"], ["0,9 × prom. Dubái–Omán", 0.9, "dub"]],
+    "Mesa 30": [["Mars", 1, "mars"], ["Mars", 1, "mars"], ["0,95 × Brent", 0.95, "brd"], ["Prom. Dubái–Omán", 1, "dub"]]
+  };
+  function fxGo(src) {
+    var i = src && document.querySelector('#fact input[data-src="' + src.replace(/"/g, "") + '"]');
+    if (!i) return;
+    i.scrollIntoView({ block: "center", behavior: reduced() ? "auto" : "smooth" });
+    i.classList.remove("fx-flash"); void i.offsetWidth; i.classList.add("fx-flash");
+    setTimeout(function () { try { i.focus({ preventScroll: true }); } catch (e) {} }, reduced() ? 0 : 450);
+  }
+  /* a number of the formula: its name above, its value below; with a source it is a button that goes to its box */
+  function fxTerm(label, value, dec, src, cls) {
+    var ok = typeof value === "number" && isFinite(value);
+    var b = el(src ? "button" : "span", "fxe-t" + (cls ? " " + cls : "") + (ok ? "" : " miss"));
+    if (src) { b.type = "button"; b.title = "Ir al dato"; b.onclick = function () { fxGo(src); }; }
+    b.appendChild(el("small", null, label));
+    b.appendChild(el("b", null, ok ? fxNum(value, dec) : "falta"));
+    return b;
+  }
+  function fxOp(t) { return el("span", "fxe-op", t); }
+  function fxLine(parts) { var d = el("div", "fxe-line"); parts.forEach(function (p) { d.appendChild(typeof p === "string" ? fxOp(p) : p); }); return d; }
+  function fxPickField(id, scroll) {
+    fxb.sel = id;
+    fxRefresh();
+    if (scroll && fxb.exBox) fxb.exBox.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" });
+  }
+  function fxExplain(box, R) {
+    box.textContent = "";
+    var rows = [];
+    R.subs.forEach(function (x) { x.rows.forEach(function (r) { rows.push(r); }); });
+    var r = rows.filter(function (x) { return x.id === fxb.sel; })[0] || rows.filter(function (x) { return isFinite(x.amount); })[0] || rows[0];
+    fxb.sel = r.id;
+    /* the field to explain */
+    var pick = el("div", "fxe-pick");
+    FX_SUBS.forEach(function (s) {
+      var g = el("div", "fxe-grp"); g.appendChild(el("span", "fxe-sub", s.name));
+      s.fields.forEach(function (f) {
+        var b = el("button", "fxe-chip"); b.type = "button"; b.textContent = f[1]; b.setAttribute("aria-pressed", String(f[0] === r.id));
+        b.onclick = function () { fxPickField(f[0]); };
+        g.appendChild(b);
+      });
+      pick.appendChild(g);
+    });
+    box.appendChild(pick);
+    var s = r.sub, Q = ["Golfo", "Caribe", "Europa", "Asia"];
+
+    /* the result */
+    var top = el("div", "fxe-step fxe-top");
+    top.appendChild(el("h3", null, r.name + " · monto a facturar"));
+    top.appendChild(fxLine([fxTerm("Precio del campo $/bl", r.price, 4), "×", fxTerm("Barriles a pagar", r.paid, 0), "=", fxTerm("Monto $", r.amount, 2, null, "res")]));
+    box.appendChild(top);
+
+    /* 1: the barrels */
+    var s1 = el("div", "fxe-step");
+    s1.appendChild(el("h3", null, "1 · Barriles a pagar"));
+    var tot = el("p", "fxe-txt");
+    tot.textContent = "Producción del acta de " + s.name + ": " + fxNum(r.sum, 0) + " bls en " + r.days + " días (" + fxNum(r.sum / r.days, 0) + " b/d). Tope: " + fxNum(s.upTo, 0) + " b/d. " +
+      (r.under ? "Como está por debajo del tope, se paga lo que pasa de la base diaria de " + fxNum(s.base, 0) + " b/d, repartida según el peso de cada campo en el acta."
+        : "Como llega al tope, se paga la participación de " + fxNum(s.share * 100, 0) + " % de toda la producción.");
+    s1.appendChild(tot);
+    if (r.under) {
+      var baseF = r.sum ? s.base * r.vol / r.sum : NaN;
+      s1.appendChild(fxLine([fxTerm("Producción del campo (bls)", r.vol, 0, "f." + r.id + ".vol"), "÷", fxTerm("Días del mes", r.days, 0), "=", fxTerm("Producción diaria b/d", r.daily, 2)]));
+      s1.appendChild(fxLine([fxTerm("Base b/d", s.base, 0), "×", fxTerm("Producción del campo", r.vol, 0, "f." + r.id + ".vol"), "÷", fxTerm("Producción de " + s.name, r.sum, 0), "=", fxTerm("Base del campo b/d", baseF, 2)]));
+      s1.appendChild(fxLine(["(", fxTerm("Producción diaria", r.daily, 2), "−", fxTerm("Base del campo", baseF, 2), ")", "×", fxTerm("Días", r.days, 0), "=", fxTerm("Barriles a pagar", r.paid, 0, null, "res")]));
+    } else {
+      s1.appendChild(fxLine([fxTerm("Producción del campo (bls)", r.vol, 0, "f." + r.id + ".vol"), "×", fxTerm("Participación %", s.share * 100, 0), "=", fxTerm("Barriles a pagar", r.paid, 0, null, "res")]));
+    }
+    var cr = el("p", "fxe-txt");
+    cr.appendChild(document.createTextNode("Crudo: "));
+    cr.appendChild(fxTerm("°API", r.api, 1, "f." + r.id + ".api"));
+    cr.appendChild(document.createTextNode(r.crude ? " → " + r.crude + " (Merey 16 de 14 a 25 °API, Mesa 30 de 25 a 37, Santa Bárbara desde 37)." : " → sin °API no se sabe el crudo."));
+    s1.appendChild(cr);
+    box.appendChild(s1);
+
+    /* 2: the price in each market and the weighting */
+    var s2 = el("div", "fxe-step");
+    s2.appendChild(el("h3", null, "2 · Precio del campo"));
+    var bases = FX_MARKET_BASE[r.crude];
+    if (!bases) {
+      s2.appendChild(el("p", "fxe-txt", r.crude ? "El contrato no tiene fórmula de precio para " + r.crude + "." : "Falta el °API del campo para saber qué fórmula usar."));
+    } else {
+      s2.appendChild(el("p", "fxe-txt", "En cada mercado: marcador + factor K + factor AGA − ACC. El precio del campo es la suma de cada mercado por su factor de ponderación."));
+      var T = el("table", "fx-tbl fxe-tbl"), hd = el("tr"), tb = el("tbody"), th = el("thead");
+      ["Mercado", "Marcador", "+ K", "+ AGA", "− ACC", "= Precio", "× Ponderación", "= Aporte"].forEach(function (x) { hd.appendChild(el("th", null, x)); });
+      th.appendChild(hd); T.appendChild(th); T.appendChild(tb);
+      var sum = 0, okAll = true;
+      for (var q = 0; q < 4; q++) {
+        var tr = el("tr"), cell = function (n) { var td = el("td"); td.appendChild(n); tr.appendChild(td); };
+        tr.appendChild(el("td", null, Q[q]));
+        cell(fxTerm(bases[q][0], r.mkt[q], 4, "mk." + bases[q][2]));
+        cell(fxTerm("K " + r.crude, n0(r.k[q]), 4, "k." + r.crude + "." + q));
+        cell(fxTerm("AGA " + r.name, n0(r.a[q]), 4, "aga." + r.id + "." + q));
+        cell(fxTerm("ACC " + s.point, r.acc, 4, "cpi"));
+        cell(fxTerm("$/bl", r.pr[q], 4, null, "mid"));
+        cell(fxTerm("Factor " + Q[q], n0(r.fp[q]), 4, "fp." + r.crude + "." + q));
+        var ap = r.pr[q] * n0(r.fp[q]);
+        if (isFinite(ap)) sum += ap; else okAll = false;
+        cell(fxTerm("$/bl", ap, 4, null, "mid"));
+        tb.appendChild(tr);
+      }
+      var tf = el("tfoot"), fr = el("tr"), lab = el("td", null, "Precio del campo = suma de aportes"); lab.colSpan = 7; fr.appendChild(lab);
+      var tot2 = el("td"); tot2.appendChild(fxTerm("$/bl", okAll ? sum : NaN, 4, null, "res")); fr.appendChild(tot2);
+      tf.appendChild(fr); T.appendChild(tf);
+      s2.appendChild(fxScroll(T));
+    }
+    box.appendChild(s2);
+
+    /* 3: the ACC */
+    var s3 = el("div", "fxe-step");
+    var pt = FX_POINTS[s.point];
+    s3.appendChild(el("h3", null, "3 · ACC de " + pt.name));
+    s3.appendChild(el("p", "fxe-txt", "Transporte, manejo y tarifas de enero de 2024, llevados al mes con el IPC de EE.UU."));
+    s3.appendChild(fxLine(["(", fxTerm("$/bl por km", FX_ACC.rate, 4), "×", fxTerm("km a " + s.point, pt.km, 0), "+", fxTerm("Manejo", FX_ACC.handling, 4), "+", fxTerm("Tarifas", FX_ACC.fees, 2), ")",
+      "×", fxTerm("IPC del mes", fxCur().cpi, 3, "cpi"), "÷", fxTerm("IPC ene 2024", FX_CPI0, 3), "=", fxTerm("ACC $/bl", r.acc, 4, null, "res")]));
+    box.appendChild(s3);
+  }
+
   function fxRefresh() {
     var M = fxCur(), R = fxCalc(fxb.ym, M);
     fxb.upd.forEach(function (f) { f(M, R); });
@@ -8456,6 +8613,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     });
     box.appendChild(tiles);
 
+    var exc = fxCard("Cómo se calcula", "grid", "Toca un número para ver de dónde sale", "fx-explain");
+    var exb = el("div", "fxe-body"); exc.appendChild(exb);
+    fxb.exBox = exc;
+    box.appendChild(exc);
+    fxb.upd.push(function (M, R) { fxExplain(exb, R); });
+
     fxb.docBox = el("section", "wg fx-docs");
     box.appendChild(fxb.docBox);
     fxDocsDraw();
@@ -8474,7 +8637,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         var x = R.subs[i];
         T.body.textContent = ""; foot.textContent = ""; D.body.textContent = "";
         x.rows.forEach(function (r) {
-          var tr = el("tr");
+          var tr = el("tr", "fx-pick" + (fxb.sel === r.id ? " on" : ""));
+          tr.tabIndex = 0; tr.title = "Ver cómo se calcula";
+          tr.onclick = function () { fxPickField(r.id, true); };
+          tr.onkeydown = function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); fxPickField(r.id, true); } };
           tr.appendChild(el("td", null, r.name));
           var ct = el("td"); ct.appendChild(el("span", "fx-crude" + (r.pr ? "" : " bad"), r.crude || "Sin crudo")); tr.appendChild(ct);
           tr.appendChild(el("td", null, fxNum(r.paid, 0)));
@@ -8498,7 +8664,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var MT = fxTable(["Marcador", "Mercado", "$/bl"]);
     FX_MK.forEach(function (m) {
       var tr = el("tr"); tr.appendChild(el("td", null, m[1])); tr.appendChild(el("td", "sub", m[2]));
-      var td = el("td"); td.appendChild(fxInput(function (M) { return (M.mk || {})[m[0]]; }, function (M, v) { M.mk = M.mk || {}; M.mk[m[0]] = v; }, "wide")); tr.appendChild(td);
+      var td = el("td"); td.appendChild(fxInput(function (M) { return (M.mk || {})[m[0]]; }, function (M, v) { M.mk = M.mk || {}; M.mk[m[0]] = v; }, "wide", "mk." + m[0])); tr.appendChild(td);
       MT.body.appendChild(tr);
     });
     mkc.appendChild(MT.t);
@@ -8507,7 +8673,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     /* premise 2: ACC and the US CPI */
     var ac = fxCard("ACC · IPC de EE.UU.", "trend", "BLS · CPI-U");
     var row = el("div", "fx-cpi");
-    var cpiIn = fxInput(function (M) { return M.cpi; }, function (M, v) { M.cpi = v; });
+    var cpiIn = fxInput(function (M) { return M.cpi; }, function (M, v) { M.cpi = v; }, null, "cpi");
     row.appendChild(cpiIn);
     var bb = btn(fxb.cpiBusy ? "Consultando…" : "Traer del BLS", "small", "refresh");
     bb.disabled = fxb.cpiBusy || !state.canWrite;
@@ -8531,10 +8697,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     grid.appendChild(ac);
 
     /* premises 3 and 4: K per crude and AGA per field, from the ministry resolution */
-    function quad(T, label, get, set, sub) {
+    function quad(T, label, get, set, sub, src) {
       var tr = el("tr"); var nm = el("td", null, label); if (sub) { nm.appendChild(el("br")); nm.appendChild(el("span", "sub", sub)); } tr.appendChild(nm);
       for (var q = 0; q < 4; q++) (function (q) {
-        var td = el("td"); td.appendChild(fxInput(function (M) { var a = get(M); return a ? a[q] : null; }, function (M, v) { set(M)[q] = v; })); tr.appendChild(td);
+        var td = el("td"); td.appendChild(fxInput(function (M) { var a = get(M); return a ? a[q] : null; }, function (M, v) { set(M)[q] = v; }, null, src ? src + "." + q : null)); tr.appendChild(td);
       })(q);
       T.body.appendChild(tr);
     }
@@ -8543,7 +8709,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var kc = fxCard("Factor K", "tag", "Resolución del ministerio");
     var KT = fxTable(["Crudo"].concat(FX_MARKETS));
     FX_CRUDES.filter(function (c) { return used[c] || c !== "Santa Barbara"; }).forEach(function (c) {
-      quad(KT, c, function (M) { return (M.k || {})[c]; }, function (M) { M.k = M.k || {}; return (M.k[c] = M.k[c] || [null, null, null, null]); });
+      quad(KT, c, function (M) { return (M.k || {})[c]; }, function (M) { M.k = M.k || {}; return (M.k[c] = M.k[c] || [null, null, null, null]); }, null, "k." + c);
     });
     kc.appendChild(fxScroll(KT.t));
     grid.appendChild(kc);
@@ -8552,7 +8718,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var fc = fxCard("Factores de ponderación", "grid", "Oficio anual del ministerio");
     var FT = fxTable(["Crudo"].concat(FX_MARKETS));
     FX_CRUDES.forEach(function (c) {
-      quad(FT, c, function (M) { return (M.fp || {})[c]; }, function (M) { M.fp = M.fp || {}; return (M.fp[c] = M.fp[c] || [null, null, null, null]); });
+      quad(FT, c, function (M) { return (M.fp || {})[c]; }, function (M) { M.fp = M.fp || {}; return (M.fp[c] = M.fp[c] || [null, null, null, null]); }, null, "fp." + c);
     });
     fc.appendChild(fxScroll(FT.t));
     var fsum = el("p", "help"); fc.appendChild(fsum);
@@ -8568,7 +8734,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     FX_SUBS.forEach(function (s) {
       var g = el("tr", "grp"); var gtd = el("td", null, s.name); gtd.colSpan = 5; g.appendChild(gtd); GT.body.appendChild(g);
       s.fields.forEach(function (f) {
-        quad(GT, f[1], function (M) { return (M.aga || {})[f[0]]; }, function (M) { M.aga = M.aga || {}; return (M.aga[f[0]] = M.aga[f[0]] || [null, null, null, null]); });
+        quad(GT, f[1], function (M) { return (M.aga || {})[f[0]]; }, function (M) { M.aga = M.aga || {}; return (M.aga[f[0]] = M.aga[f[0]] || [null, null, null, null]); }, null, "aga." + f[0]);
       });
     });
     gc.appendChild(fxScroll(GT.t));
@@ -8581,8 +8747,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       var g = el("tr", "grp"); var gtd = el("td", null, s.name + " · participación " + fxNum(s.share * 100, 0) + " %"); gtd.colSpan = 5; g.appendChild(gtd); PT.body.appendChild(g);
       s.fields.forEach(function (f, j) {
         var tr = el("tr"); tr.appendChild(el("td", null, f[1]));
-        var a = el("td"); a.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).vol; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).vol = v; }, "wide")); tr.appendChild(a);
-        var b = el("td"); b.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).api; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).api = v; })); tr.appendChild(b);
+        var a = el("td"); a.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).vol; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).vol = v; }, "wide", "f." + f[0] + ".vol")); tr.appendChild(a);
+        var b = el("td"); b.appendChild(fxInput(function (M) { return (M.f[f[0]] || {}).api; }, function (M, v) { (M.f[f[0]] = M.f[f[0]] || {}).api = v; }, null, "f." + f[0] + ".api")); tr.appendChild(b);
         var c = el("td"), d = el("td");
         tr.appendChild(c); tr.appendChild(d);
         fxb.upd.push(function (M, R) {
