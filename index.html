@@ -1410,6 +1410,25 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .fx-kv b { font-variant-numeric: tabular-nums; }
 .fx-res td b { font-size: 14.5px; }
 .fx-more summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 600; padding: 4px 0; }
+/* the month's source documents, one box per type */
+.fxd-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; margin-top: 10px; }
+.fxd-row { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.fxd-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.fxd-top > .ico { width: 16px; height: 16px; color: var(--muted); flex: none; }
+.fxd-top b { font-size: 14px; flex: 1; min-width: 0; }
+.fxd-add { border: 0; background: transparent; color: var(--muted); font: 600 12.5px var(--font-body); cursor: pointer; display: inline-flex; gap: 4px; align-items: center; padding: 3px 6px; border-radius: 6px; flex: none; }
+.fxd-add:hover { background: var(--lane); color: var(--ink); }
+.fxd-add .ico { width: 14px; height: 14px; }
+.fxd-file { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.fxd-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 7px; text-align: left; border: 0; background: var(--lane); color: var(--ink); border-radius: 8px; padding: 6px 9px; font: 600 13px var(--font-body); cursor: pointer; }
+.fxd-open span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.fxd-open .ico { width: 14px; height: 14px; flex: none; color: var(--muted); }
+.fxd-open:hover { background: color-mix(in srgb, var(--ink) 9%, transparent); }
+.fxd-file small { color: var(--muted); font-size: 12px; flex: none; }
+.fxd-x { width: 26px; height: 26px; border: 0; background: transparent; color: var(--muted); border-radius: 6px; display: grid; place-items: center; cursor: pointer; flex: none; padding: 0; }
+.fxd-x:hover { background: var(--late-soft); color: var(--late); }
+.fxd-x .ico { width: 14px; height: 14px; }
+.fxd-none { color: var(--muted); font-size: 13px; }
 @media (max-width: 860px) { .fx-grid .wg { grid-column: 1 / -1; } }
 @media (max-width: 520px) {
   .fx-tiles { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -8099,6 +8118,85 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     fxb.upd.forEach(function (f) { f(M, R); });
   }
 
+  /* ---------- the month's source documents ----------
+     Each file goes to Documentos › Facturación › <mes> › <tipo>, so the folder says what it is and the whole team finds it there too. */
+  var FX_DOCS = [["Factor K", "tag"], ["Marcadores internacionales", "globe"], ["Factor AGA", "grid"], ["ACC", "receipt"]];
+  function fxDocFolder(names) {
+    var pid = "";
+    for (var i = 0; i < names.length; i++) {
+      var f = (state.dIdx.kids[pid] || []).filter(function (x) { return isFolder(x) && norm(x.name) === norm(names[i]); })[0];
+      if (!f) return null;
+      pid = f.id;
+    }
+    return pid;
+  }
+  function fxDocFiles(ym, type) {
+    var id = fxDocFolder(["Facturación", fxMonthName(ym), type]);
+    return id ? (state.dIdx.kids[id] || []).filter(isFileDoc).sort(byName) : [];
+  }
+  function fxUpload(files, type, ym) {
+    var items = Array.prototype.map.call(files, function (f) { return { file: f, rel: "Facturación/" + fxMonthName(ym) + "/" + type }; });
+    return uploadDocs(items, "").then(fxDocsDraw);
+  }
+  /* pick the files first, then say what they are; a type's own «Subir» skips the question */
+  function fxPick(type, anchor) {
+    var inp = el("input"); inp.type = "file"; inp.multiple = true; inp.hidden = true;
+    inp.accept = ".pdf,.xlsx,.xls,.csv,.doc,.docx,.png,.jpg,.jpeg";
+    var ym = fxb.ym;
+    inp.onchange = function () {
+      var files = Array.prototype.slice.call(inp.files || []); inp.remove();
+      if (!files.length) return;
+      if (type) { fxUpload(files, type, ym); return; }
+      popMenu(FX_DOCS.map(function (t) { return [t[1], t[0], function () { fxUpload(files, t[0], ym); }]; }), anchor);
+    };
+    document.body.appendChild(inp);
+    inp.click();
+  }
+  function fxDocsDraw() {
+    var w = fxb.docBox;
+    if (!w || !w.isConnected) return;
+    w.textContent = "";
+    var hd = el("div", "wg-head"), c = el("span", "wg-ico"); c.appendChild(icon("clip")); hd.appendChild(c);
+    hd.appendChild(el("h2", null, "Documentos del mes"));
+    hd.appendChild(el("span", "spacer"));
+    if (state.canWrite && state.db && state.db.fileCall) {
+      var up = btn("Subir documento", "small", "upload");
+      up.onclick = function () { fxPick("", up); };
+      hd.appendChild(up);
+    }
+    w.appendChild(hd);
+    if (!state.docsLoaded) { w.appendChild(el("p", "fxd-none", "Cargando…")); return; }
+    var rows = el("div", "fxd-rows");
+    FX_DOCS.forEach(function (t) {
+      var r = el("div", "fxd-row"), top = el("div", "fxd-top");
+      top.appendChild(icon(t[1])); top.appendChild(el("b", null, t[0]));
+      if (state.canWrite && state.db && state.db.fileCall) {
+        var add = el("button", "fxd-add"); add.type = "button"; add.appendChild(icon("plus")); add.appendChild(el("span", null, "Subir"));
+        add.setAttribute("aria-label", "Subir " + t[0]);
+        add.onclick = function () { fxPick(t[0], add); };
+        top.appendChild(add);
+      }
+      r.appendChild(top);
+      var files = fxDocFiles(fxb.ym, t[0]);
+      if (!files.length) r.appendChild(el("p", "fxd-none", "Sin documento"));
+      files.forEach(function (d) {
+        var row = el("div", "fxd-file");
+        var o = el("button", "fxd-open"); o.type = "button"; o.title = d.name; o.appendChild(icon("doc")); o.appendChild(el("span", null, d.name));
+        o.onclick = function () { openFile(asFile(d), false); };
+        row.appendChild(o);
+        if (d.size) row.appendChild(el("small", null, fmtSize(d.size)));
+        if (state.canWrite) {
+          var x = el("button", "fxd-x"); x.type = "button"; x.setAttribute("aria-label", "Quitar " + d.name); x.title = "Quitar (va a la papelera de Documentos)"; x.appendChild(icon("x"));
+          x.onclick = function () { deleteDocs([d.id]); };
+          row.appendChild(x);
+        }
+        r.appendChild(row);
+      });
+      rows.appendChild(r);
+    });
+    w.appendChild(rows);
+  }
+
   function renderFact(force) {
     var box = $("fact");
     if (!box || state.view !== "fact") return;
@@ -8156,6 +8254,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       sm.textContent = M.cpi > 0 ? "Indexación del ACC: " + fxNum(M.cpi / FX_CPI0, 4) + " (base ene 2024: " + fxNum(FX_CPI0, 3) + ")" : fxb.cpiBusy ? "Consultando el BLS…" : "El BLS lo publica a mediados del mes siguiente";
     });
     box.appendChild(tiles);
+
+    fxb.docBox = el("section", "wg fx-docs");
+    box.appendChild(fxb.docBox);
+    fxDocsDraw();
 
     var grid = el("div", "fx-grid");
     /* result per subbasin */
@@ -10356,7 +10458,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       autoPurgeDocs();
       if (sig === docSig && !first) return;
       docSig = sig;
-      renderDocs(); renderHome();
+      renderDocs(); renderHome(); fxDocsDraw();
     });
   }
 
