@@ -7,8 +7,13 @@
   var SKINS = [
     { id: "", name: "Original", desc: "El tablero tal como es hoy.", sw: ["#121a41", "#ffd453"] },
     { id: "aire", name: "Aire", desc: "Vidrio esmerilado sobre un fondo de color suave.", sw: ["#c9d0ff", "#ffe9a8"], font: "Geist:wght@400;500;600;700" },
-    { id: "linea", name: "Línea", desc: "Bordes finos, letra más ligera y el amarillo solo para la acción principal.", sw: ["#0e1230", "#ffd453"] }
+    { id: "linea", name: "Línea", desc: "Bordes finos, letra más ligera y el amarillo solo para la acción principal.", sw: ["#0e1230", "#ffd453"] },
+    /* the three redesign proposals (designs.css); ?design=a|b|c opens one without saving it */
+    { id: "informe", name: "A · Informe", desc: "Como un informe anual: fondo blanco, líneas finas y cifras grandes.", sw: ["#ffffff", "#121a41"], font: "Source+Sans+3:wght@300;400;600;700" },
+    { id: "consola", name: "B · Consola", desc: "Barra superior, paneles densos y esquinas rectas.", sw: ["#121a41", "#dfe3ec"], font: "IBM+Plex+Sans:wght@400;500;600;700" },
+    { id: "ejecutivo", name: "C · Ejecutivo", desc: "Encabezado azul con foto y las cifras en tarjetas.", sw: ["#121a41", "#ffd453"], font: "Inter:wght@400;500;600;700;800" }
   ];
+  var DESIGNS = { a: "informe", b: "consola", c: "ejecutivo" };
   var root = document.documentElement, KEY = "tb-skin", DOCK = "tb-dock";
 
   function find(id) { for (var i = 0; i < SKINS.length; i++) if (SKINS[i].id === id) return SKINS[i]; return SKINS[0]; }
@@ -36,8 +41,8 @@
   /* apply before the board paints */
   var first = "", dockFirst = false;
   try {
-    var q = location.search.match(/[?&]skin=([a-z]*)/), d = location.search.match(/[?&]dock=([01])/);
-    first = q ? q[1] : localStorage.getItem(KEY) || "";
+    var q = location.search.match(/[?&]skin=([a-z]*)/), d = location.search.match(/[?&]dock=([01])/), g = location.search.match(/[?&]design=([abc])/);
+    first = g ? DESIGNS[g[1]] : q ? q[1] : localStorage.getItem(KEY) || "";
     dockFirst = d ? d[1] === "1" : localStorage.getItem(DOCK) === "1";
   } catch (e) {}
   setSkin(first); setDock(dockFirst);
