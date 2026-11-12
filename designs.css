@@ -181,9 +181,9 @@
 :root[data-skin="corporativo"] .lane-head h2 { font-weight: 800; }
 :root[data-skin="corporativo"] :is(.cal-head h2, .chead h2, .fx-month h2) { font-weight: 800; letter-spacing: -.02em; }
 :root[data-skin="corporativo"] .cal { border: 0; padding: 0; background: transparent; }
-:root[data-skin="corporativo"] .fx-tile.main { background: var(--ink); color: var(--bg); }
-:root[data-skin="corporativo"] .fx-tile.main :is(.fx-tl, .fx-sm) { color: rgba(255, 255, 255, .74); }
-:root[data-skin="corporativo"][data-mode="dark"] .fx-tile.main { background: #1d2647; color: #ffffff; }
+:root[data-skin="corporativo"] .fx-tile.total { background: var(--ink); color: var(--bg); }
+:root[data-skin="corporativo"] .fx-tile.total :is(.fx-tl, .fx-sm) { color: rgba(255, 255, 255, .74); }
+:root[data-skin="corporativo"][data-mode="dark"] .fx-tile.total { background: #1d2647; color: #ffffff; }
 @media (max-width: 680px) {
   :root[data-skin="corporativo"] body:not(.compact) .hero-inner { padding-top: 90px; }
   :root[data-skin="corporativo"] .hero-actions :is(.hbtn, .pchip) { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .25); color: #ffffff; }
