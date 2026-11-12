@@ -1429,6 +1429,15 @@ body.dragging-card .lane { box-shadow: inset 0 4px 0 var(--lane-c, transparent),
 .fxd-x:hover { background: var(--late-soft); color: var(--late); }
 .fxd-x .ico { width: 14px; height: 14px; }
 .fxd-none { color: var(--muted); font-size: 13px; }
+.fxl-q { width: 100%; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; background: var(--bg); color: var(--ink); font: inherit; }
+.fxl-q:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px var(--focus-ring); }
+.fxl-none { padding: 10px 12px; margin: 0; }
+.fxl-row { min-width: 0; }
+.fxl-row > :first-child { width: 26px; height: 30px; flex: none; }
+.fxl-tx { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+.fxl-tx b, .fxl-tx small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fxl-tx b { font-size: 14px; }
+.fxl-tx small { font-size: 12px; font-weight: 500; color: var(--muted); }
 .fxd-copy { align-self: flex-start; margin-top: auto; }
 .fxp-help { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .fxp-ta { width: 100%; min-height: 150px; margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); color: var(--ink); font: 13px/1.45 var(--font-mono); resize: vertical; }
@@ -8141,7 +8150,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   function fxDocFiles(ym, type) {
     var id = fxDocFolder(["Facturación", fxMonthName(ym), type]);
-    return id ? (state.dIdx.kids[id] || []).filter(isFileDoc).sort(byName) : [];
+    return id ? (state.dIdx.kids[id] || []).filter(function (x) { return isFileDoc(x) || (isLink(x) && isFileDoc(resolve(x))); }).sort(byName) : [];
   }
   function fxUpload(files, type, ym) {
     var items = Array.prototype.map.call(files, function (f) { return { file: f, rel: "Facturación/" + fxMonthName(ym) + "/" + type }; });
@@ -8267,6 +8276,56 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     toast(n ? plural(n, "valor", "valores") + " de " + type + " en amarillo. Revísalos y da «Guardar»." : "La respuesta no trae valores de " + type + ".");
   }
 
+  /* link a file that is already in Documentos: a shortcut in Facturación › <mes> › <tipo>; the original stays where it is */
+  function fxFolderFor(ym, type) {
+    return ["Facturación", fxMonthName(ym), type].reduce(function (p, name) {
+      return p.then(function (pid) {
+        var ex = (state.dIdx.kids[pid] || []).filter(function (x) { return isFolder(x) && norm(x.name) === norm(name); })[0];
+        return ex ? ex.id : createFolder(pid, name, "amarillo", true);
+      });
+    }, Promise.resolve(""));
+  }
+  function fxLink(type) {
+    var ym = fxb.ym;
+    var dg = dialog({ title: "Vincular de Documentos · " + type, cls: "dlg-move" });
+    var bx = dg.box;
+    bx.appendChild(el("p", "dlg-help", "Elige un archivo que ya está en Documentos. Queda vinculado a " + fxMonthName(ym).toLowerCase() + " sin copiarlo: el original se queda donde está."));
+    var q = el("input", "fxl-q"); q.type = "search"; q.placeholder = "Buscar por nombre o carpeta"; q.setAttribute("aria-label", "Buscar archivo");
+    bx.appendChild(q);
+    var list = el("div", "mv-list"); list.setAttribute("role", "listbox"); list.setAttribute("aria-label", "Archivos de Documentos");
+    bx.appendChild(list);
+    var pick = null, cancel = btn("Cancelar"), ok = btn("Vincular", "primary"); ok.disabled = true;
+    dlgActs(bx, [cancel, ok]);
+    var files = state.dIdx.alive.filter(isFileDoc).sort(function (a, b) { return String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")); });
+    function draw() {
+      var t = norm(q.value);
+      list.textContent = "";
+      var shown = files.filter(function (d) { return !t || norm(d.name + " " + pathText(d._p)).indexOf(t) >= 0; }).slice(0, 80);
+      if (!shown.length) list.appendChild(el("p", "fxd-none fxl-none", t ? "Ningún archivo con ese nombre." : "Todavía no hay archivos en Documentos."));
+      shown.forEach(function (d) {
+        var b = el("button", "mv-row fxl-row"); b.type = "button"; b.setAttribute("role", "option"); b.setAttribute("aria-selected", String(pick === d.id));
+        var tx = el("div", "fxl-tx"); tx.appendChild(el("b", null, d.name)); tx.appendChild(el("small", null, pathText(d._p)));
+        b.appendChild(itemArt(d)); b.appendChild(tx); b.title = d.name;
+        b.onclick = function () { pick = d.id; ok.disabled = false; Array.prototype.forEach.call(list.querySelectorAll(".mv-row"), function (x) { x.setAttribute("aria-selected", String(x === b)); }); };
+        b.ondblclick = function () { pick = d.id; ok.click(); };
+        list.appendChild(b);
+      });
+    }
+    q.oninput = draw;
+    draw();
+    q.focus();
+    cancel.onclick = function () { dg.close(); };
+    ok.onclick = function () {
+      if (!pick) return;
+      var id = pick, name = (state.dIdx.byId[id] || {}).name || "El archivo";
+      dg.close();
+      fxFolderFor(ym, type).then(function (fid) { return makeShortcuts([id], fid, true); }).then(function (made) {
+        if (made && made.length) toast("«" + name + "» vinculado a " + type + ".");
+        fxDocsDraw();
+      }).catch(docErr);
+    };
+  }
+
   function fxDocsDraw() {
     var w = fxb.docBox;
     if (!w || !w.isConnected) return;
@@ -8297,17 +8356,25 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         add.onclick = function () { fxPick(t[0], add); };
         top.appendChild(add);
       }
+      if (state.canWrite && state.db) {
+        var lk = el("button", "fxd-add"); lk.type = "button"; lk.appendChild(icon("shortcut")); lk.appendChild(el("span", null, "Vincular"));
+        lk.setAttribute("aria-label", "Vincular de Documentos: " + t[0]); lk.title = "Vincular un archivo que ya está en Documentos";
+        lk.onclick = function () { fxLink(t[0]); };
+        top.appendChild(lk);
+      }
       r.appendChild(top);
       var files = fxDocFiles(fxb.ym, t[0]);
       if (!files.length) r.appendChild(el("p", "fxd-none", "Sin documento"));
       files.forEach(function (d) {
         var row = el("div", "fxd-file");
-        var o = el("button", "fxd-open"); o.type = "button"; o.title = d.name; o.appendChild(icon("doc")); o.appendChild(el("span", null, d.name));
+        var lnk = isLink(d), real = lnk ? resolve(d) : d;
+        var o = el("button", "fxd-open"); o.type = "button"; o.title = lnk ? "Vinculado de Documentos · " + pathText(real._p) : d.name;
+        o.appendChild(icon(lnk ? "shortcut" : "doc")); o.appendChild(el("span", null, d.name));
         o.onclick = function () { openFile(asFile(d), false); };
         row.appendChild(o);
-        if (d.size) row.appendChild(el("small", null, fmtSize(d.size)));
+        if (real.size) row.appendChild(el("small", null, fmtSize(real.size)));
         if (state.canWrite) {
-          var x = el("button", "fxd-x"); x.type = "button"; x.setAttribute("aria-label", "Quitar " + d.name); x.title = "Quitar (va a la papelera de Documentos)"; x.appendChild(icon("x"));
+          var x = el("button", "fxd-x"); x.type = "button"; x.setAttribute("aria-label", (lnk ? "Quitar el vínculo de " : "Quitar ") + d.name); x.title = lnk ? "Quitar el vínculo (el original se queda en Documentos)" : "Quitar (va a la papelera de Documentos)"; x.appendChild(icon("x"));
           x.onclick = function () { deleteDocs([d.id]); };
           row.appendChild(x);
         }
