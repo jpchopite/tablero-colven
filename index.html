@@ -2137,8 +2137,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
 }
 @media (max-width: 1180px) { .wg.w-chain { grid-column: 1 / -1; } }
 </style>
-<link rel="stylesheet" href="skins.css?v=4">
-<script src="skins.js?v=5"></script>
+<link rel="stylesheet" href="designs.css?v=9">
+<script src="design.js?v=1"></script>
 </head>
 <body>
 <div class="gate" id="gate" hidden>
@@ -8335,7 +8335,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
   (function () {
     var side = $("side"); if (!side) return;
-    var tucked = function () { return document.body.classList.contains("side-tuck"); };
+    /* the website designs (data-web) keep the menu as a top bar, so it never tucks away */
+    var tucked = function () { return document.body.classList.contains("side-tuck") && !document.documentElement.hasAttribute("data-web"); };
     side.addEventListener("pointerenter", function (e) {
       if (!tucked() || e.pointerType === "touch") return;
       clearTimeout(sideT); sideT = setTimeout(function () { sideOpen(true); }, 90);
