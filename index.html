@@ -1452,10 +1452,20 @@ button.fxe-t:hover, button.fxe-t:focus-visible { border-style: solid; border-col
 .fxe-t.mid { background: var(--lane); border-color: transparent; }
 .fxe-t.res { background: var(--ink); border-color: var(--ink); color: var(--bg); }
 .fxe-t.res small { color: color-mix(in srgb, var(--bg) 75%, transparent); }
-.fxe-tbl td { padding: 4px; text-align: left; }
+/* the breakdown table: each header sits over its column of values, all aligned on the left, every value as wide as its column */
+.fxe-tbl th, .fxe-tbl td { padding: 4px 5px; text-align: left; vertical-align: middle; }
+.fxe-tbl th:first-child, .fxe-tbl td:first-child { padding-left: 0; }
+.fxe-tbl td .fxe-t { width: 100%; min-width: 92px; }
 .fxe-tbl tfoot td { font-weight: 700; vertical-align: middle; }
 .fx-explain, #fact input[data-src] { scroll-margin-top: calc(var(--navh, 0px) + 16px); }
 .fx-pick { cursor: pointer; }
+.fx-tbl .fx-acc { display: block; font-weight: 500; font-size: 12px; }
+/* phones: the block titles keep the whole line and their buttons go below */
+@media (max-width: 680px) {
+  .fx-docs .wg-head, .fx-explain .wg-head { flex-wrap: wrap; row-gap: 8px; }
+  .fx-docs .wg-head h2, .fx-explain .wg-head h2 { flex: 1 1 calc(100% - 44px); }
+  .fx-docs .wg-head .spacer, .fx-explain .wg-head .spacer { display: none; }
+}
 .fx-pick:hover td { background: var(--lane); }
 .fx-pick.on td { background: var(--accent-soft); }
 .fx-pick:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
@@ -8651,8 +8661,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
           for (var k = 0; k < 4; k++) dr.appendChild(el("td", null, r.pr ? fxNum(r.pr[k], 4) : "–"));
           D.body.appendChild(dr);
         });
-        var ft = el("tr"); ft.appendChild(el("td", null, "Total " + s.name)); ft.appendChild(el("td"));
-        ft.appendChild(el("td", null, fxNum(x.paid, 0))); ft.appendChild(el("td", "sub", "ACC " + fxNum(x.acc, 4)));
+        /* the ACC goes with the subbasin's name, not under the price column */
+        var ft = el("tr"), fn = el("td", null, "Total " + s.name); fn.appendChild(el("span", "sub fx-acc", "ACC " + fxNum(x.acc, 4) + " $/bl"));
+        ft.appendChild(fn); ft.appendChild(el("td"));
+        ft.appendChild(el("td", null, fxNum(x.paid, 0))); ft.appendChild(el("td"));
         ft.appendChild(el("td", null, x.ok ? fxNum(x.amount, 2) : "–"));
         foot.appendChild(ft);
       });
