@@ -18,8 +18,8 @@
 :root[data-web] .hero::before { display: none; }
 /* no stacking context of its own, so the header buttons can rise into the top bar */
 :root[data-web] .hero { isolation: auto; }
-/* the logo: the original (yellow and light grey) on dark backgrounds, colven-logo-light.png (gold and navy) on white or grey,
-   colven-logo-navy.png on the yellow cover; on computers it lives in the top bar, on phones at the top of Inicio */
+/* the logo is always the original, on Colven navy: where the page behind it is light or yellow it sits on a navy plate;
+   on computers it lives in the top bar, on phones at the top of Inicio */
 @media (min-width: 681px) { :root[data-web] .hero .brand { display: none !important; } }
 
 /* the footer: the logo and the company name on a full-width band; «Cerrar sesión» sits inside it */
@@ -113,7 +113,12 @@
 :root[data-skin="corporativo"][data-mode="dark"] .hero { --hero: #131a33; --hero-ink: #eef0f7; --hero-muted: #a0a7c2; --hero-line: #232b49; }
 :root[data-skin="corporativo"] body { font-size: 15.5px; }
 :root[data-skin="corporativo"] :is(h1, h2, h3) { letter-spacing: -.02em; }
-:root[data-skin="corporativo"][data-mode="light"] :is(.side-brand img, .gate-logo) { content: url("assets/colven-logo-light.png"); }
+/* the logo on a navy block the full height of the bar, like a letterhead */
+@media (min-width: 681px) {
+  :root[data-skin="corporativo"] .side-brand { align-self: stretch; display: flex; align-items: center; padding: 0 22px; border-radius: 0; background: #121a41; }
+  :root[data-skin="corporativo"] .side-brand img { width: 124px; }
+}
+:root[data-skin="corporativo"] .gate-logo { box-sizing: content-box; background: #121a41; padding: 16px 26px; border-radius: 10px; }
 :root[data-skin="corporativo"] .side-nav button[aria-current="page"] { box-shadow: inset 0 -4px 0 #ffd453; }
 :root[data-skin="corporativo"] .side-add { background: var(--navy); border-color: var(--navy); color: var(--on-navy); border-radius: 4px; }
 :root[data-skin="corporativo"] .side-add:hover { background: var(--navy); filter: brightness(1.15); }
@@ -207,7 +212,7 @@
   :root[data-skin="energia"] .side-nav button[aria-current="page"] { background: #ffd453; color: #121a41; }
 }
 :root[data-skin="energia"] .side-add { background: #ffd453; border-color: #ffd453; color: #121a41; border-radius: 999px; }
-:root[data-skin="energia"][data-mode="light"] body:not(.compact) .hero .brand img { content: url("assets/colven-logo-navy.png"); }
+:root[data-skin="energia"] body:not(.compact) .hero .brand img { box-sizing: content-box; background: #121a41; padding: 10px 16px; border-radius: 14px; }
 :root[data-skin="energia"] .side-add:hover { background: #ffd453; filter: brightness(1.06); }
 
 /* the cover: a yellow block, the headline on the left and the office photo in a rounded frame on the right */
