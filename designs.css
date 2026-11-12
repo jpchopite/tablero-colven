@@ -52,6 +52,13 @@
     background: var(--nav-bg); color: var(--nav-ink); border: 0; box-shadow: 0 1px 0 var(--nav-line); }
   :root[data-web] body.side-tuck .side > *, :root[data-web] body.side-tuck .side:not(.open) > * { opacity: 1; transform: none; pointer-events: auto; transition: none; }
   :root[data-web] body.side-tuck .side::after { display: none; }
+  /* the board styles its menu only from 1100 px up; these give the bar its full look on tablets and small laptops too */
+  :root[data-web] .side-brand { display: block; border-radius: 0; }
+  :root[data-web] .side-brand img { height: auto; display: block; }
+  :root[data-web] .side-nav { display: flex; }
+  :root[data-web] .side-nav button { display: flex; align-items: center; justify-content: center; border: 0; font-family: inherit; text-align: center; cursor: pointer; transition: background .12s, color .12s; }
+  :root[data-web] .side-add { display: flex; align-items: center; gap: 8px; border: 1px solid; padding: 9px 14px; font-family: inherit; font-weight: 600; font-size: 14px; cursor: pointer; }
+  :root[data-web] .side-add .ico { width: 18px; height: 18px; flex: none; }
   :root[data-web] .side-brand { padding: 0; flex: none; }
   :root[data-web] .side-brand img { width: 118px; }
   :root[data-web] .side-nav { flex-direction: row; align-self: stretch; gap: 4px; }
@@ -78,6 +85,9 @@
   :root[data-web] body.compact .eyebrow .eb-date::before { content: ""; width: 28px; height: 3px; background: #ffd453; }
   :root[data-web] body.compact .eyebrow .eb-sec { font-family: var(--font-display); font-size: clamp(34px, 4vw, 52px); line-height: 1.05; letter-spacing: -.025em; text-transform: none; color: var(--hero-ink); }
 }
+/* wide monitors: the page widens with the screen, and the board's columns too */
+@media (min-width: 1600px) { :root[data-web] { --max: 1400px; } }
+@media (min-width: 2200px) { :root[data-web] { --max: 1640px; } :root[data-web] body.side-tuck .wrap { max-width: 2240px; } }
 /* narrower screens: the section names give way to their icons */
 @media (min-width: 681px) and (max-width: 1099px) {
   :root[data-web] .side { gap: 12px; }
@@ -216,6 +226,14 @@
 :root[data-skin="corporativo"] .home-actions { padding-block: 6px 30px; background: var(--surface); box-shadow: 0 0 0 100vmax var(--surface); clip-path: inset(0 -100vmax); }
 :root[data-skin="corporativo"] .wg { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 22px 24px 14px; }
 :root[data-skin="corporativo"] .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; }
+/* phones: the quick links stack, one per line, each on a single line with its arrow */
+@media (max-width: 680px) {
+  :root[data-skin="corporativo"] .home-actions { grid-template-columns: 1fr; gap: 0; padding-block: 2px 18px; }
+  :root[data-skin="corporativo"] .home-actions .qa { padding: 14px 0; font-size: 16.5px; border-top-width: 1px; border-top-color: var(--line-strong); }
+  :root[data-skin="corporativo"] .home-actions .qa.primary { border-top: 2px solid #ffd453; }
+  :root[data-skin="corporativo"] .wg { padding: 18px 16px 10px; }
+  :root[data-skin="corporativo"] .wg-head h2 { font-size: 20px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   :root[data-web] .side { transition: none !important; }
