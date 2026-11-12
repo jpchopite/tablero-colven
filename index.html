@@ -8315,7 +8315,8 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   }
 
   /* ---------- the month's source documents ----------
-     Each file goes to Documentos › Facturación › <mes> › <tipo>, so the folder says what it is and the whole team finds it there too. */
+     They are uploaded in Documentos; here each one is linked (a shortcut in Documentos › Facturación › <mes> › <tipo>), so the folder
+     says what it is. Files that were placed in those folders directly also show. */
   var FX_DOCS = [["Factor K", "tag"], ["Marcadores internacionales", "globe"], ["Factor AGA", "grid"], ["Acta de fiscalización", "note"]];
   function fxDocFolder(names) {
     var pid = "";
@@ -8329,24 +8330,6 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
   function fxDocFiles(ym, type) {
     var id = fxDocFolder(["Facturación", fxMonthName(ym), type]);
     return id ? (state.dIdx.kids[id] || []).filter(function (x) { return isFileDoc(x) || (isLink(x) && isFileDoc(resolve(x))); }).sort(byName) : [];
-  }
-  function fxUpload(files, type, ym) {
-    var items = Array.prototype.map.call(files, function (f) { return { file: f, rel: "Facturación/" + fxMonthName(ym) + "/" + type }; });
-    return uploadDocs(items, "").then(fxDocsDraw);
-  }
-  /* pick the files first, then say what they are; a type's own «Subir» skips the question */
-  function fxPick(type, anchor) {
-    var inp = el("input"); inp.type = "file"; inp.multiple = true; inp.hidden = true;
-    inp.accept = ".pdf,.xlsx,.xls,.csv,.doc,.docx,.png,.jpg,.jpeg";
-    var ym = fxb.ym;
-    inp.onchange = function () {
-      var files = Array.prototype.slice.call(inp.files || []); inp.remove();
-      if (!files.length) return;
-      if (type) { fxUpload(files, type, ym); return; }
-      popMenu(FX_DOCS.map(function (t) { return [t[1], t[0], function () { fxUpload(files, t[0], ym); }]; }), anchor);
-    };
-    document.body.appendChild(inp);
-    inp.click();
   }
   /* ---------- reading the numbers with Claude, on the person's own Claude account ----------
      «Copiar instrucciones» copies a message for one type and month; it goes into Claude together with the document, and Claude's
@@ -8625,24 +8608,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       ps.onclick = fxPaste;
       hd.appendChild(ps);
     }
-    if (state.canWrite && state.db && state.db.fileCall) {
-      var up = btn("Subir documento", "small", "upload");
-      up.onclick = function () { fxPick("", up); };
-      hd.appendChild(up);
-    }
     w.appendChild(hd);
-    if (state.canWrite) w.appendChild(el("p", "fxp-help", "«Importar Excel» llena todo el mes con el Excel «Cálculo Factura». Para un documento suelto, con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
+    if (state.canWrite) w.appendChild(el("p", "fxp-help", "Los documentos del mes se suben en Documentos y aquí se vinculan con «Vincular». «Importar Excel» llena todo el mes con el Excel «Cálculo Factura». Para un documento suelto, con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
     if (!state.docsLoaded) { w.appendChild(el("p", "fxd-none", "Cargando…")); return; }
     var rows = el("div", "fxd-rows");
     FX_DOCS.forEach(function (t) {
       var r = el("div", "fxd-row"), top = el("div", "fxd-top");
       top.appendChild(icon(t[1])); top.appendChild(el("b", null, t[0]));
-      if (state.canWrite && state.db && state.db.fileCall) {
-        var add = el("button", "fxd-add"); add.type = "button"; add.appendChild(icon("plus")); add.appendChild(el("span", null, "Subir"));
-        add.setAttribute("aria-label", "Subir " + t[0]);
-        add.onclick = function () { fxPick(t[0], add); };
-        top.appendChild(add);
-      }
       if (state.canWrite && state.db) {
         var lk = el("button", "fxd-add"); lk.type = "button"; lk.appendChild(icon("shortcut")); lk.appendChild(el("span", null, "Vincular"));
         lk.setAttribute("aria-label", "Vincular de Documentos: " + t[0]); lk.title = "Vincular un archivo que ya está en Documentos";
