@@ -8450,19 +8450,21 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var ym = fxb.ym;
     var dg = dialog({ title: "Vincular de Documentos · " + type, cls: "dlg-move" });
     var bx = dg.box;
-    bx.appendChild(el("p", "dlg-help", "Elige un archivo que ya está en Documentos. Queda vinculado a " + fxMonthName(ym).toLowerCase() + " sin copiarlo: el original se queda donde está."));
+    var xlsOnly = type === "Marcadores internacionales";
+    bx.appendChild(el("p", "dlg-help", (xlsOnly ? "Elige el Excel de Platts que ya está en Documentos (solo se muestran archivos de Excel). Sus marcadores se leen al vincularlo. " : "Elige un archivo que ya está en Documentos. ") +
+      "Queda vinculado a " + fxMonthName(ym).toLowerCase() + " sin copiarlo: el original se queda donde está."));
     var q = el("input", "fxl-q"); q.type = "search"; q.placeholder = "Buscar por nombre o carpeta"; q.setAttribute("aria-label", "Buscar archivo");
     bx.appendChild(q);
     var list = el("div", "mv-list"); list.setAttribute("role", "listbox"); list.setAttribute("aria-label", "Archivos de Documentos");
     bx.appendChild(list);
     var pick = null, cancel = btn("Cancelar"), ok = btn("Vincular", "primary"); ok.disabled = true;
     dlgActs(bx, [cancel, ok]);
-    var files = state.dIdx.alive.filter(isFileDoc).sort(function (a, b) { return String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")); });
+    var files = state.dIdx.alive.filter(function (d) { return isFileDoc(d) && (!xlsOnly || fxIsExcel(d)); }).sort(function (a, b) { return String(b.updatedAt || b.createdAt || "").localeCompare(String(a.updatedAt || a.createdAt || "")); });
     function draw() {
       var t = norm(q.value);
       list.textContent = "";
       var shown = files.filter(function (d) { return !t || norm(d.name + " " + pathText(d._p)).indexOf(t) >= 0; }).slice(0, 80);
-      if (!shown.length) list.appendChild(el("p", "fxd-none fxl-none", t ? "Ningún archivo con ese nombre." : "Todavía no hay archivos en Documentos."));
+      if (!shown.length) list.appendChild(el("p", "fxd-none fxl-none", t ? "Ningún archivo con ese nombre." : xlsOnly ? "Todavía no hay archivos de Excel en Documentos." : "Todavía no hay archivos en Documentos."));
       shown.forEach(function (d) {
         var b = el("button", "mv-row fxl-row"); b.type = "button"; b.setAttribute("role", "option"); b.setAttribute("aria-selected", String(pick === d.id));
         var tx = el("div", "fxl-tx"); tx.appendChild(el("b", null, d.name)); tx.appendChild(el("small", null, pathText(d._p)));
@@ -8483,15 +8485,19 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       fxFolderFor(ym, type).then(function (fid) { return makeShortcuts([id], fid, true); }).then(function (made) {
         if (made && made.length) toast("«" + name + "» vinculado a " + type + ".");
         fxDocsDraw();
+        if (xlsOnly && made && made.length && state.dIdx.byId[id]) fxReadMarkers(state.dIdx.byId[id]);
       }).catch(docErr);
     };
   }
 
-  /* ---------- «Importar Excel»: the month's «Cálculo Factura» workbook fills every box at once ----------
-     It is read in the browser (SheetJS, loaded the first time) and never leaves the computer. Values are found by their labels,
-     not by fixed cells: on the sheet with «Datos» in its name, the rows under «Bls/Mes Acta», «MARS», «Kg», «AGAg» and «FPG»;
-     the US CPI is the month's row of the table with a «Mes» and an «IPC» column (sheet «0.1_ACC»). */
+  /* ---------- the markers from the Platts Excel export ----------
+     «Marcadores internacionales» only links Excel files, and reading one fills Mars, Brent, Dubái and Omán. The Platts export has a
+     «DIARIO» sheet (one row per day) and a «MENSUAL» sheet (the month's average, 3 decimals); in both, each marker is a block of
+     FECHA, CLOSE, HIGH and LOW under its name (MARS, BRENT, DUBAI, OMAN), and each block has its own dates. The value used is the
+     average of the month's daily CLOSE, to 4 decimals, checked against «MENSUAL»; without «DIARIO», the «MENSUAL» CLOSE.
+     The file is read in the browser (SheetJS, loaded the first time it is needed). */
   var FX_XLSX = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+  var FX_MKS = [["mars", /^mars\b/], ["brent", /^(brent|dated brent|brd)\b/], ["dubai", /^(dubai|dub)\b/], ["oman", /^(oman|oma)\b/]];
   function fxXlsx() {
     if (window.XLSX) return Promise.resolve(window.XLSX);
     return new Promise(function (ok, no) {
@@ -8502,94 +8508,81 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     });
   }
   function fxXlsMonth(v) { if (typeof v !== "number") return ""; var d = new Date(Math.round((v - 25569) * 86400000)); return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1); }
-  function fxReadBook(X, wb) {
-    var out = { ym: "", mk: {}, k: {}, aga: {}, fp: {}, f: {}, cpi: null };
-    var num = function (v) { var y = typeof v === "number" ? v : typeof v === "string" ? fxParse(v) : null; return typeof y === "number" && isFinite(y) ? y : null; };
-    var FIELDS = {}, CRUDES = {};
-    FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { FIELDS[norm(f[1])] = f[0]; }); });
-    FX_CRUDES.forEach(function (c) { CRUDES[norm(c)] = c; });
-    var rowsOf = function (n) { return X.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, blankrows: false, defval: null }); };
-    var datos = wb.SheetNames.filter(function (n) { return /datos/i.test(n); })[0] || wb.SheetNames[0];
-    var rows = rowsOf(datos), sec = "", cols = {};
+  function fxIsExcel(d) { return /\.(xlsx|xlsm|xls)$/i.test((d && d.name) || ""); }
+  /* every marker block of a sheet: its name, and its (month, CLOSE) rows */
+  function fxPlattsBlocks(X, ws) {
+    var rows = X.utils.sheet_to_json(ws, { header: 1, raw: true, blankrows: true, defval: null }), out = [];
+    var t = function (v) { return typeof v === "string" ? norm(v) : ""; };
     rows.forEach(function (r, i) {
-      var cells = r.map(function (v) { return typeof v === "string" ? norm(v) : v; });
-      var find = function (re) { for (var j = 0; j < cells.length; j++) if (typeof cells[j] === "string" && re.test(cells[j])) return j; return -1; };
-      var first = typeof cells[0] === "string" ? cells[0] : "";
-      var four = function () { return cols.q.map(function (j) { return j >= 0 ? num(r[j]) : null; }); };
-      if (first === "fecha") { if (!out.ym) out.ym = fxXlsMonth(r[1]); return; }
-      if (find(/^bls\/mes/) >= 0) { sec = "prod"; cols = { bls: find(/^bls\/mes/), api: find(/api/) }; return; }
-      if (find(/^mars$/) >= 0) {
-        var nx = rows[i + 1] || [], at = function (re) { var j = find(re); return j >= 0 ? num(nx[j]) : null; };
-        out.mk = { mars: at(/^mars$/), brd: at(/^(brd|brent)$/), dub: at(/^(dub|dubai)$/), oma: at(/^(oma|oman)$/) };
-        sec = ""; return;
-      }
-      if (find(/^kg$/) >= 0) { sec = "k"; cols = { q: [find(/^kg$/), find(/^kc$/), find(/^ke$/), find(/^ka$/)] }; return; }
-      if (find(/^agag/) >= 0) { sec = "aga"; cols = { q: [find(/^agag/), find(/^agac/), find(/^agae/), find(/^agaa/)] }; return; }
-      if (find(/^fpg$/) >= 0) { sec = "fp"; cols = { q: [find(/^fpg$/), find(/^fpc$/), find(/^fpe$/), find(/^fpa$/)] }; return; }
-      if (sec === "prod" && FIELDS[first]) out.f[FIELDS[first]] = { vol: num(r[cols.bls]), api: cols.api >= 0 ? num(r[cols.api]) : null };
-      else if (sec === "k" && CRUDES[first]) out.k[CRUDES[first]] = four();
-      else if (sec === "aga" && FIELDS[first]) out.aga[FIELDS[first]] = four();
-      else if (sec === "fp" && CRUDES[first]) out.fp[CRUDES[first]] = four();
-    });
-    wb.SheetNames.forEach(function (n) {
-      if (out.cpi !== null || !out.ym) return;
-      var mc = -1, ic = -1;
-      rowsOf(n).forEach(function (r) {
-        if (out.cpi !== null) return;
-        if (mc < 0 || ic < 0) {
-          mc = ic = -1;
-          r.forEach(function (v, j) { if (typeof v === "string") { var t = norm(v); if (t === "mes") mc = j; else if (/^ipc/.test(t)) ic = j; } });
-          return;
+      r.forEach(function (v, j) {
+        if (t(v) !== "fecha") return;
+        var name = "", close = -1;
+        for (var k = j; k <= j + 4; k++) if (t(r[k]) === "close") { close = k; break; }
+        if (close < 0) return;
+        for (var up = i - 1; up >= 0 && !name; up--) for (var c = j; c <= j + 4 && !name; c++) {
+          var lab = t(rows[up][c]);
+          FX_MKS.forEach(function (m) { if (!name && m[1].test(lab)) name = m[0]; });
         }
-        if (fxXlsMonth(r[mc]) === out.ym) out.cpi = num(r[ic]);
+        if (!name) return;
+        var data = [];
+        for (var d = i + 1; d < rows.length; d++) {
+          var dt = rows[d][j], cl = rows[d][close];
+          if (typeof dt === "number" && typeof cl === "number" && isFinite(cl)) data.push({ ym: fxXlsMonth(dt), v: cl });
+        }
+        out.push({ name: name, data: data });
       });
     });
     return out;
   }
-  /* every value of the workbook into the month's draft, each remembered so its box shows in yellow */
-  function fxImportApply(ym, d, name) {
-    if (ym !== fxb.ym) fxb.ym = ym;
-    fxEdit();
-    var M = fxb.drafts[ym], A = fxb.auto[ym] = { mk: {}, k: {}, aga: {}, fp: {}, f: {} }, n = 0;
-    var ok = function (x) { return typeof x === "number" && isFinite(x); };
-    M.mk = M.mk || {};
-    ["mars", "brd", "dub", "oma"].forEach(function (k) { if (ok(d.mk[k])) { M.mk[k] = A.mk[k] = d.mk[k]; n++; } });
-    ["k", "aga", "fp"].forEach(function (key) {
-      M[key] = M[key] || {};
-      Object.keys(d[key]).forEach(function (c) {
-        var src = d[key][c];
-        if (!src.some(ok)) return;
-        M[key][c] = M[key][c] || [null, null, null, null]; A[key][c] = [null, null, null, null];
-        src.forEach(function (x, q) { if (ok(x)) { M[key][c][q] = A[key][c][q] = x; n++; } });
+  function fxPlatts(X, wb, ym) {
+    var daily = {}, monthly = {}, months = {};
+    wb.SheetNames.forEach(function (n) {
+      var isMonthly = /mensual|monthly/i.test(n);
+      fxPlattsBlocks(X, wb.Sheets[n]).forEach(function (b) {
+        b.data.forEach(function (x) {
+          months[x.ym] = 1;
+          if (x.ym !== ym) return;
+          if (isMonthly) monthly[b.name] = x.v;
+          else (daily[b.name] = daily[b.name] || []).push(x.v);
+        });
       });
     });
-    M.f = M.f || {};
-    Object.keys(d.f).forEach(function (id) {
-      var v = d.f[id], into = M.f[id] = M.f[id] || {}, auto = A.f[id] = {};
-      if (ok(v.vol)) { into.vol = auto.vol = v.vol; n++; }
-      if (ok(v.api)) { into.api = auto.api = v.api; n++; }
+    var mk = {}, days = {}, off = [];
+    FX_MKS.forEach(function (m) {
+      var k = m[0], l = daily[k];
+      if (l && l.length) { mk[k] = Math.round(l.reduce(function (s, x) { return s + x; }, 0) / l.length * 10000) / 10000; days[k] = l.length; }
+      else if (typeof monthly[k] === "number") mk[k] = monthly[k];
+      if (typeof mk[k] === "number" && typeof monthly[k] === "number" && days[k] && Math.abs(mk[k] - monthly[k]) > 0.001) off.push(k);
     });
-    if (ok(d.cpi)) { M.cpi = A.cpi = d.cpi; n++; }
-    fxb.notes[ym] = { type: "Excel «" + name + "»", n: n, from: "del Excel", text: "" };
-    renderFact(true);
-    return n;
+    return { mk: mk, days: days, off: off, hasMonthly: Object.keys(monthly).length > 0, months: Object.keys(months).sort() };
   }
-  function fxImportXlsx() {
-    var inp = el("input"); inp.type = "file"; inp.hidden = true; inp.accept = ".xlsx,.xlsm,.xls";
-    inp.onchange = function () {
-      var f = inp.files && inp.files[0]; inp.remove();
-      if (!f) return;
-      toast("Leyendo «" + f.name + "»…");
-      Promise.all([fxXlsx(), f.arrayBuffer()]).then(function (p) {
-        var d = fxReadBook(p[0], p[0].read(new Uint8Array(p[1]), { type: "array" }));
-        var ym = d.ym || fxb.ym, other = ym !== fxb.ym;
-        var n = fxImportApply(ym, d, f.name);
-        if (!n) { toast("No encontré los datos en «" + f.name + "». Debe tener la hoja «0._Datos» del Cálculo Factura."); return; }
-        toast(plural(n, "valor", "valores") + " del Excel en " + fxMonthName(ym).toLowerCase() + (other ? " (el mes del Excel)" : "") + ", en amarillo. Revísalos y da «Guardar».");
-      }).catch(function () { toast("No se pudo leer «" + f.name + "». Revisa que sea un Excel (.xlsx) y tu conexión."); });
-    };
-    document.body.appendChild(inp);
-    inp.click();
+  /* read a linked (or kept) Excel and put its markers into the month on screen, in yellow */
+  function fxReadMarkers(d) {
+    var real = isLink(d) ? resolve(d) : d, f = real && asFile(real), ym = fxb.ym;
+    if (!f || !fxIsExcel(real)) { toast("Para los marcadores, vincula el Excel de Platts."); return; }
+    toast("Leyendo «" + real.name + "»…");
+    signFiles([f]).then(function () {
+      var u = urlFor(f);
+      if (!u) throw new Error("url");
+      return Promise.all([fxXlsx(), fetch(u.view).then(function (r) { if (!r.ok) throw new Error("http"); return r.arrayBuffer(); })]);
+    }).then(function (p) {
+      var X = p[0], r = fxPlatts(X, X.read(new Uint8Array(p[1]), { type: "array" }), ym);
+      var n = Object.keys(r.mk).length;
+      if (!n) {
+        var other = r.months.filter(function (m) { return m !== ym; }).map(function (m) { return fxMonthName(m).toLowerCase(); });
+        toast(other.length ? "«" + real.name + "» es de " + other.join(", ") + " y estás viendo " + fxMonthName(ym).toLowerCase() + ". Cambia de mes con las flechas."
+          : "No encontré los marcadores en «" + real.name + "». Debe ser la exportación de Platts (hojas DIARIO y MENSUAL).");
+        return;
+      }
+      var dd = Object.keys(r.days).map(function (k) { return r.days[k]; }), lab = { mars: "Mars", brent: "Brent", dubai: "Dubái", oman: "Omán" };
+      var how = dd.length ? "Promedio del CLOSE diario de " + fxMonthName(ym).toLowerCase() + " (" + (Math.min.apply(null, dd) === Math.max.apply(null, dd) ? dd[0] : Math.min.apply(null, dd) + " a " + Math.max.apply(null, dd)) + " días por marcador), a 4 decimales"
+        : "CLOSE de la hoja MENSUAL";
+      var chk = !dd.length || !r.hasMonthly ? "." : r.off.length ? "; no coincide con la hoja MENSUAL en " + r.off.map(function (k) { return lab[k]; }).join(", ") + ": revísalo." : "; coincide con la hoja MENSUAL.";
+      var miss = FX_MKS.filter(function (m) { return typeof r.mk[m[0]] !== "number"; }).map(function (m) { return lab[m[0]]; });
+      fxApply(ym, "Marcadores internacionales", { mk: r.mk, notas: how + chk + (miss.length ? " Falta " + miss.join(", ") + "." : "") });
+      fxb.notes[ym].from = "del Excel de Platts";
+      fxDocsDraw();
+    }).catch(function () { toast("No se pudo leer «" + real.name + "». Revisa tu conexión e inténtalo de nuevo."); });
   }
 
   function fxDocsDraw() {
@@ -8600,16 +8593,12 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     hd.appendChild(el("h2", null, "Documentos del mes"));
     hd.appendChild(el("span", "spacer"));
     if (state.canWrite) {
-      var xl = btn("Importar Excel", "small", "grid");
-      xl.title = "Llenar el mes con el Excel «Cálculo Factura» (hoja «0._Datos»)";
-      xl.onclick = fxImportXlsx;
-      hd.appendChild(xl);
       var ps = btn("Pegar valores", "small", "check");
       ps.onclick = fxPaste;
       hd.appendChild(ps);
     }
     w.appendChild(hd);
-    if (state.canWrite) w.appendChild(el("p", "fxp-help", "Los documentos del mes se suben en Documentos y aquí se vinculan con «Vincular». «Importar Excel» llena todo el mes con el Excel «Cálculo Factura». Para un documento suelto, con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
+    if (state.canWrite) w.appendChild(el("p", "fxp-help", "Los documentos del mes se suben en Documentos y aquí se vinculan con «Vincular». Los marcadores se leen solos del Excel de Platts al vincularlo. Para los demás, con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
     if (!state.docsLoaded) { w.appendChild(el("p", "fxd-none", "Cargando…")); return; }
     var rows = el("div", "fxd-rows");
     FX_DOCS.forEach(function (t) {
@@ -8639,7 +8628,13 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
         }
         r.appendChild(row);
       });
-      if (state.canWrite) {
+      if (state.canWrite && t[0] === "Marcadores internacionales") {
+        var xs = files.filter(function (d) { return fxIsExcel(isLink(d) ? resolve(d) : d); });
+        var rx = el("button", "fxd-add fxd-copy"); rx.type = "button"; rx.appendChild(icon("refresh")); rx.appendChild(el("span", null, "Leer del Excel"));
+        rx.setAttribute("aria-label", "Leer los marcadores del Excel de Platts");
+        rx.onclick = function () { if (xs.length) fxReadMarkers(xs[xs.length - 1]); else toast("Vincula primero el Excel de Platts con «Vincular»."); };
+        r.appendChild(rx);
+      } else if (state.canWrite) {
         var cp = el("button", "fxd-add fxd-copy"); cp.type = "button"; cp.appendChild(icon("doc")); cp.appendChild(el("span", null, "Copiar instrucciones"));
         cp.setAttribute("aria-label", "Copiar instrucciones para Claude: " + t[0]);
         cp.onclick = function () { fxCopyPrompt(t[0]); };
