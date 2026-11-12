@@ -8,12 +8,12 @@
     { id: "", name: "Original", desc: "El tablero tal como es hoy.", sw: ["#121a41", "#ffd453"] },
     { id: "aire", name: "Aire", desc: "Vidrio esmerilado sobre un fondo de color suave.", sw: ["#c9d0ff", "#ffe9a8"], font: "Geist:wght@400;500;600;700" },
     { id: "linea", name: "Línea", desc: "Bordes finos, letra más ligera y el amarillo solo para la acción principal.", sw: ["#0e1230", "#ffd453"] },
-    /* the three redesign proposals (designs.css); ?design=a|b|c opens one without saving it */
-    { id: "informe", name: "A · Informe", desc: "Como un informe anual: fondo blanco, líneas finas y cifras grandes.", sw: ["#ffffff", "#121a41"], font: "Source+Sans+3:wght@300;400;600;700" },
-    { id: "consola", name: "B · Consola", desc: "Barra superior, paneles densos y esquinas rectas.", sw: ["#121a41", "#dfe3ec"], font: "IBM+Plex+Sans:wght@400;500;600;700" },
-    { id: "ejecutivo", name: "C · Ejecutivo", desc: "Encabezado azul con foto y las cifras en tarjetas.", sw: ["#121a41", "#ffd453"], font: "Inter:wght@400;500;600;700;800" }
+    /* the three redesign proposals (designs.css): the board laid out like a company website; ?design=a|b|c opens one without saving it */
+    { id: "corporativo", name: "A · Corporativo", desc: "Como el sitio de una consultora: portada con foto, blanco y titulares grandes.", sw: ["#ffffff", "#0d1330"], font: "Manrope:wght@400;500;600;700;800", web: true },
+    { id: "energia", name: "B · Energía", desc: "Como el sitio de una petrolera: bloques de color, formas redondeadas y foto.", sw: ["#ffd453", "#121a41"], font: "Plus+Jakarta+Sans:wght@400;500;600;700;800", web: true },
+    { id: "financiero", name: "C · Financiero", desc: "Como el sitio de un banco de inversión: azul profundo, cifras finas y líneas.", sw: ["#0b1028", "#ffd453"], font: "Inter:wght@200;300;400;500;600;700", web: true }
   ];
-  var DESIGNS = { a: "informe", b: "consola", c: "ejecutivo" };
+  var DESIGNS = { a: "corporativo", b: "energia", c: "financiero" };
   var root = document.documentElement, KEY = "tb-skin", DOCK = "tb-dock";
 
   function find(id) { for (var i = 0; i < SKINS.length; i++) if (SKINS[i].id === id) return SKINS[i]; return SKINS[0]; }
@@ -34,6 +34,7 @@
   function setSkin(id) {
     var s = find(id);
     if (s.id) { loadFont(s); root.setAttribute("data-skin", s.id); } else root.removeAttribute("data-skin");
+    if (s.web) root.setAttribute("data-web", ""); else root.removeAttribute("data-web");
     syncMode();
   }
   function setDock(on) { if (on) root.setAttribute("data-dock", ""); else root.removeAttribute("data-dock"); }
