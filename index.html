@@ -8504,6 +8504,111 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     };
   }
 
+  /* ---------- «Importar Excel»: the month's «Cálculo Factura» workbook fills every box at once ----------
+     It is read in the browser (SheetJS, loaded the first time) and never leaves the computer. Values are found by their labels,
+     not by fixed cells: on the sheet with «Datos» in its name, the rows under «Bls/Mes Acta», «MARS», «Kg», «AGAg» and «FPG»;
+     the US CPI is the month's row of the table with a «Mes» and an «IPC» column (sheet «0.1_ACC»). */
+  var FX_XLSX = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+  function fxXlsx() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    return new Promise(function (ok, no) {
+      var s = document.createElement("script"); s.src = FX_XLSX;
+      s.onload = function () { if (window.XLSX) ok(window.XLSX); else no(new Error("xlsx")); };
+      s.onerror = function () { no(new Error("xlsx")); };
+      document.head.appendChild(s);
+    });
+  }
+  function fxXlsMonth(v) { if (typeof v !== "number") return ""; var d = new Date(Math.round((v - 25569) * 86400000)); return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1); }
+  function fxReadBook(X, wb) {
+    var out = { ym: "", mk: {}, k: {}, aga: {}, fp: {}, f: {}, cpi: null };
+    var num = function (v) { var y = typeof v === "number" ? v : typeof v === "string" ? fxParse(v) : null; return typeof y === "number" && isFinite(y) ? y : null; };
+    var FIELDS = {}, CRUDES = {};
+    FX_SUBS.forEach(function (s) { s.fields.forEach(function (f) { FIELDS[norm(f[1])] = f[0]; }); });
+    FX_CRUDES.forEach(function (c) { CRUDES[norm(c)] = c; });
+    var rowsOf = function (n) { return X.utils.sheet_to_json(wb.Sheets[n], { header: 1, raw: true, blankrows: false, defval: null }); };
+    var datos = wb.SheetNames.filter(function (n) { return /datos/i.test(n); })[0] || wb.SheetNames[0];
+    var rows = rowsOf(datos), sec = "", cols = {};
+    rows.forEach(function (r, i) {
+      var cells = r.map(function (v) { return typeof v === "string" ? norm(v) : v; });
+      var find = function (re) { for (var j = 0; j < cells.length; j++) if (typeof cells[j] === "string" && re.test(cells[j])) return j; return -1; };
+      var first = typeof cells[0] === "string" ? cells[0] : "";
+      var four = function () { return cols.q.map(function (j) { return j >= 0 ? num(r[j]) : null; }); };
+      if (first === "fecha") { if (!out.ym) out.ym = fxXlsMonth(r[1]); return; }
+      if (find(/^bls\/mes/) >= 0) { sec = "prod"; cols = { bls: find(/^bls\/mes/), api: find(/api/) }; return; }
+      if (find(/^mars$/) >= 0) {
+        var nx = rows[i + 1] || [], at = function (re) { var j = find(re); return j >= 0 ? num(nx[j]) : null; };
+        out.mk = { mars: at(/^mars$/), brd: at(/^(brd|brent)$/), dub: at(/^(dub|dubai)$/), oma: at(/^(oma|oman)$/) };
+        sec = ""; return;
+      }
+      if (find(/^kg$/) >= 0) { sec = "k"; cols = { q: [find(/^kg$/), find(/^kc$/), find(/^ke$/), find(/^ka$/)] }; return; }
+      if (find(/^agag/) >= 0) { sec = "aga"; cols = { q: [find(/^agag/), find(/^agac/), find(/^agae/), find(/^agaa/)] }; return; }
+      if (find(/^fpg$/) >= 0) { sec = "fp"; cols = { q: [find(/^fpg$/), find(/^fpc$/), find(/^fpe$/), find(/^fpa$/)] }; return; }
+      if (sec === "prod" && FIELDS[first]) out.f[FIELDS[first]] = { vol: num(r[cols.bls]), api: cols.api >= 0 ? num(r[cols.api]) : null };
+      else if (sec === "k" && CRUDES[first]) out.k[CRUDES[first]] = four();
+      else if (sec === "aga" && FIELDS[first]) out.aga[FIELDS[first]] = four();
+      else if (sec === "fp" && CRUDES[first]) out.fp[CRUDES[first]] = four();
+    });
+    wb.SheetNames.forEach(function (n) {
+      if (out.cpi !== null || !out.ym) return;
+      var mc = -1, ic = -1;
+      rowsOf(n).forEach(function (r) {
+        if (out.cpi !== null) return;
+        if (mc < 0 || ic < 0) {
+          mc = ic = -1;
+          r.forEach(function (v, j) { if (typeof v === "string") { var t = norm(v); if (t === "mes") mc = j; else if (/^ipc/.test(t)) ic = j; } });
+          return;
+        }
+        if (fxXlsMonth(r[mc]) === out.ym) out.cpi = num(r[ic]);
+      });
+    });
+    return out;
+  }
+  /* every value of the workbook into the month's draft, each remembered so its box shows in yellow */
+  function fxImportApply(ym, d, name) {
+    if (ym !== fxb.ym) fxb.ym = ym;
+    fxEdit();
+    var M = fxb.drafts[ym], A = fxb.auto[ym] = { mk: {}, k: {}, aga: {}, fp: {}, f: {} }, n = 0;
+    var ok = function (x) { return typeof x === "number" && isFinite(x); };
+    M.mk = M.mk || {};
+    ["mars", "brd", "dub", "oma"].forEach(function (k) { if (ok(d.mk[k])) { M.mk[k] = A.mk[k] = d.mk[k]; n++; } });
+    ["k", "aga", "fp"].forEach(function (key) {
+      M[key] = M[key] || {};
+      Object.keys(d[key]).forEach(function (c) {
+        var src = d[key][c];
+        if (!src.some(ok)) return;
+        M[key][c] = M[key][c] || [null, null, null, null]; A[key][c] = [null, null, null, null];
+        src.forEach(function (x, q) { if (ok(x)) { M[key][c][q] = A[key][c][q] = x; n++; } });
+      });
+    });
+    M.f = M.f || {};
+    Object.keys(d.f).forEach(function (id) {
+      var v = d.f[id], into = M.f[id] = M.f[id] || {}, auto = A.f[id] = {};
+      if (ok(v.vol)) { into.vol = auto.vol = v.vol; n++; }
+      if (ok(v.api)) { into.api = auto.api = v.api; n++; }
+    });
+    if (ok(d.cpi)) { M.cpi = A.cpi = d.cpi; n++; }
+    fxb.notes[ym] = { type: "Excel «" + name + "»", n: n, from: "del Excel", text: "" };
+    renderFact(true);
+    return n;
+  }
+  function fxImportXlsx() {
+    var inp = el("input"); inp.type = "file"; inp.hidden = true; inp.accept = ".xlsx,.xlsm,.xls";
+    inp.onchange = function () {
+      var f = inp.files && inp.files[0]; inp.remove();
+      if (!f) return;
+      toast("Leyendo «" + f.name + "»…");
+      Promise.all([fxXlsx(), f.arrayBuffer()]).then(function (p) {
+        var d = fxReadBook(p[0], p[0].read(new Uint8Array(p[1]), { type: "array" }));
+        var ym = d.ym || fxb.ym, other = ym !== fxb.ym;
+        var n = fxImportApply(ym, d, f.name);
+        if (!n) { toast("No encontré los datos en «" + f.name + "». Debe tener la hoja «0._Datos» del Cálculo Factura."); return; }
+        toast(plural(n, "valor", "valores") + " del Excel en " + fxMonthName(ym).toLowerCase() + (other ? " (el mes del Excel)" : "") + ", en amarillo. Revísalos y da «Guardar».");
+      }).catch(function () { toast("No se pudo leer «" + f.name + "». Revisa que sea un Excel (.xlsx) y tu conexión."); });
+    };
+    document.body.appendChild(inp);
+    inp.click();
+  }
+
   function fxDocsDraw() {
     var w = fxb.docBox;
     if (!w || !w.isConnected) return;
@@ -8512,6 +8617,10 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     hd.appendChild(el("h2", null, "Documentos del mes"));
     hd.appendChild(el("span", "spacer"));
     if (state.canWrite) {
+      var xl = btn("Importar Excel", "small", "grid");
+      xl.title = "Llenar el mes con el Excel «Cálculo Factura» (hoja «0._Datos»)";
+      xl.onclick = fxImportXlsx;
+      hd.appendChild(xl);
       var ps = btn("Pegar valores", "small", "check");
       ps.onclick = fxPaste;
       hd.appendChild(ps);
@@ -8522,7 +8631,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
       hd.appendChild(up);
     }
     w.appendChild(hd);
-    if (state.canWrite) w.appendChild(el("p", "fxp-help", "Para llenar las cifras con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
+    if (state.canWrite) w.appendChild(el("p", "fxp-help", "«Importar Excel» llena todo el mes con el Excel «Cálculo Factura». Para un documento suelto, con Claude: «Copiar instrucciones» del tipo, pégalas en Claude junto con el documento, y pega su respuesta en «Pegar valores»."));
     if (!state.docsLoaded) { w.appendChild(el("p", "fxd-none", "Cargando…")); return; }
     var rows = el("div", "fxd-rows");
     FX_DOCS.forEach(function (t) {
@@ -8570,7 +8679,7 @@ body.has-selbar .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); 
     var nt = fxb.notes[fxb.ym];
     if (nt) {
       var p = el("p", "fxd-note");
-      p.appendChild(el("b", null, nt.n ? nt.type + ": " + plural(nt.n, "valor", "valores") + " de Claude en amarillo, sin guardar." : nt.type + ": la respuesta no trajo valores."));
+      p.appendChild(el("b", null, nt.n ? nt.type + ": " + plural(nt.n, "valor", "valores") + " " + (nt.from || "de Claude") + " en amarillo, sin guardar." : nt.type + ": la respuesta no trajo valores."));
       if (nt.text) p.appendChild(document.createTextNode(" " + nt.text));
       w.appendChild(p);
     }
